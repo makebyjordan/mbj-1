@@ -32,7 +32,7 @@ export default function Header() {
         scrolled ? "bg-background/80 backdrop-blur-lg border-b border-primary/10" : "bg-transparent"
       )}
     >
-      <div className="container mx-auto flex h-16 items-center justify-between px-4">
+      <div className="flex h-16 items-center justify-between px-4 md:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2 font-headline text-2xl" aria-label="Home">
           <MountainIcon className="h-6 w-6 text-primary" />
           <span className="font-bold">El Lienzo de Jordan</span>
