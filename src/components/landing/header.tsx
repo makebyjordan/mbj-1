@@ -33,7 +33,7 @@ export default function Header() {
       )}
     >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="#" className="flex items-center gap-2 font-headline text-2xl" aria-label="Home">
+        <Link href="/" className="flex items-center gap-2 font-headline text-2xl" aria-label="Home">
           <MountainIcon className="h-6 w-6 text-primary" />
           <span className="font-bold">El Lienzo de Jordan</span>
         </Link>
@@ -48,9 +48,14 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-        <Button asChild className="primary-button-glow">
-          <Link href="#contact">Contáctame</Link>
-        </Button>
+        <div className="flex items-center gap-4">
+          <Button asChild className="primary-button-glow">
+            <Link href="/#contact">Contáctame</Link>
+          </Button>
+          <Button asChild variant="outline" className="border-primary/50 bg-transparent hover:bg-primary/10 hover:text-foreground">
+            <Link href="/core/login">CORE</Link>
+          </Button>
+        </div>
       </div>
     </header>
   );

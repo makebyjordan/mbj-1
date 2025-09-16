@@ -12,7 +12,7 @@ export default function Home() {
   return (
     <div className="relative w-full flex flex-col items-center overflow-x-hidden">
       <Header />
-      <main className="container mx-auto px-4 w-full">
+      <main className="container mx-auto px-4 w-full" id="home">
         <Hero />
         <Services id="services" />
         <Showcase id="portfolio" />
