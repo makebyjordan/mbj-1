@@ -71,7 +71,7 @@ export default function Hero() {
         />
       </div>
 
-      <div className="z-20 container px-4">
+      <div className="z-20 container px-4 mt-[100px]">
         <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground font-light">
           {heroContent.description}
         </p>
