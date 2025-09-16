@@ -1,14 +1,18 @@
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import { SparklesCore } from "@/components/ui/sparkles";
+import Image from "next/image";
 
 export default function Hero() {
   return (
     <section className="relative w-full h-[90vh] flex flex-col items-center justify-center text-center py-20 md:py-32 overflow-hidden">
       <div className="absolute inset-0 w-full h-full bg-black">
-        <div 
-          className="absolute inset-0 w-full h-full bg-cover bg-center"
-          style={{ backgroundImage: "url('/hero-background.png')", backgroundPosition: 'center 70%' }}
+        <Image
+            src="https://firebasestorage.googleapis.com/v0/b/studio-7212735275-82dc4.web.app/o/gallery%2F1758062483128_mbj-hero.jpg?alt=media&token=fdd51db3-7a70-436a-a991-961dfb96a745"
+            alt="Hero background"
+            layout="fill"
+            objectFit="contain"
+            quality={100}
         />
         <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-background via-background/50 to-transparent" />
       </div>
