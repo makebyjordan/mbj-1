@@ -3,8 +3,8 @@
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { Loader2 } from "lucide-react";
-
+import { Loader2, UploadCloud } from "lucide-react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import {
   Form,
@@ -19,13 +19,13 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { createProject, updateProject, Project } from "@/services/projects";
 
 const formSchema = z.object({
   title: z.string().optional(),
   description: z.string().optional(),
-  imageUrl: z.string().url().optional().or(z.literal('')),
+  imageUrl: z.string().optional(),
   imageHint: z.string().optional(),
   url: z.string().url().optional().or(z.literal('')),
   isFeatured: z.boolean().default(false),
@@ -39,6 +39,8 @@ type ProjectFormProps = {
 export default function ProjectForm({ project, onSave }: ProjectFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const fileInputRef = useRef<HTMLInputElement>(null);
+  const [imagePreview, setImagePreview] = useState<string | null>(null);
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -62,17 +64,36 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
             url: project.url || "",
             isFeatured: project.isFeatured || false,
         });
+        if (project.imageUrl) {
+            setImagePreview(project.imageUrl);
+        } else {
+            setImagePreview(null);
+        }
     } else {
         form.reset({
             title: "",
             description: "",
-            imageUrl: `https://picsum.photos/seed/${Date.now()}/600/400`,
+            imageUrl: "",
             imageHint: "",
             url: "",
             isFeatured: false,
         });
+        setImagePreview(null);
     }
   }, [project, form]);
+
+  const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        const result = reader.result as string;
+        form.setValue("imageUrl", result);
+        setImagePreview(result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -138,17 +159,41 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
             )}
             />
              <FormField
-            control={form.control}
-            name="imageUrl"
-            render={({ field }) => (
-                <FormItem>
-                <FormLabel>URL de la Imagen</FormLabel>
-                <FormControl>
-                    <Input placeholder="https://picsum.photos/seed/project/600/400" {...field} className="bg-background/50" />
-                </FormControl>
-                <FormMessage />
-                </FormItem>
-            )}
+                control={form.control}
+                name="imageUrl"
+                render={({ field }) => (
+                    <FormItem>
+                        <FormLabel>Imagen del Proyecto</FormLabel>
+                        <FormControl>
+                            <div>
+                                <Input 
+                                    type="file" 
+                                    className="hidden" 
+                                    ref={fileInputRef} 
+                                    onChange={handleImageChange}
+                                    accept="image/png, image/jpeg, image/gif"
+                                />
+                                <div 
+                                    className="border-2 border-dashed border-muted-foreground/50 rounded-lg p-6 text-center cursor-pointer hover:bg-background/50 transition-colors"
+                                    onClick={() => fileInputRef.current?.click()}
+                                >
+                                    {imagePreview ? (
+                                        <div className="relative w-full h-40">
+                                            <Image src={imagePreview} alt="Vista previa" layout="fill" objectFit="contain" className="rounded-md" />
+                                        </div>
+                                    ) : (
+                                        <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                                            <UploadCloud className="w-8 h-8" />
+                                            <span>Haz clic para subir una imagen</span>
+                                            <span className="text-xs">PNG, JPG, GIF</span>
+                                        </div>
+                                    )}
+                                </div>
+                            </div>
+                        </FormControl>
+                        <FormMessage />
+                    </FormItem>
+                )}
             />
              <FormField
             control={form.control}
