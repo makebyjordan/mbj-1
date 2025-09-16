@@ -43,24 +43,35 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
     defaultValues: {
-      title: project?.title || "",
-      description: project?.description || "",
-      imageUrl: project?.imageUrl || `https://picsum.photos/seed/${Date.now()}/600/400`,
-      imageHint: project?.imageHint || "",
-      url: project?.url || "",
-      isFeatured: project?.isFeatured || false,
+      title: "",
+      description: "",
+      imageUrl: "",
+      imageHint: "",
+      url: "",
+      isFeatured: false,
     },
   });
 
   useEffect(() => {
-    form.reset({
-      title: project?.title || "",
-      description: project?.description || "",
-      imageUrl: project?.imageUrl || `https://picsum.photos/seed/${Date.now()}/600/400`,
-      imageHint: project?.imageHint || "",
-      url: project?.url || "",
-      isFeatured: project?.isFeatured || false,
-    });
+    if (project) {
+        form.reset({
+            title: project.title || "",
+            description: project.description || "",
+            imageUrl: project.imageUrl || "",
+            imageHint: project.imageHint || "",
+            url: project.url || "",
+            isFeatured: project.isFeatured || false,
+        });
+    } else {
+        form.reset({
+            title: "",
+            description: "",
+            imageUrl: `https://picsum.photos/seed/${Date.now()}/600/400`,
+            imageHint: "",
+            url: "",
+            isFeatured: false,
+        });
+    }
   }, [project, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
@@ -77,7 +88,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
         toast({
             variant: "destructive",
             title: "Error al guardar",
-            description: "No se pudo guardar el proyecto. Inténtalo de nuevo.",
+            description: "No se pudo guardar el proyecto. Revisa la consola para más detalles.",
         });
     } finally {
         setIsLoading(false);
