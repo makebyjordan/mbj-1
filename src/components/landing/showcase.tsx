@@ -1,12 +1,30 @@
+"use client";
+
 import Image from "next/image";
 import { Card, CardContent, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
-import { ArrowUpRight } from "lucide-react";
+import { ArrowUpRight, Loader2 } from "lucide-react";
 import Link from "next/link";
-
-const projects = PlaceHolderImages.filter(img => img.id.startsWith("project-"));
+import { useEffect, useState } from "react";
+import { getProjects, Project } from "@/services/projects";
 
 export default function Showcase({ id }: { id: string }) {
+  const [projects, setProjects] = useState<Project[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    const fetchProjects = async () => {
+      try {
+        const projectsFromDb = await getProjects();
+        setProjects(projectsFromDb);
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchProjects();
+  }, []);
+
   return (
     <section id={id} className="py-20 md:py-32 w-full">
       <div className="text-center">
@@ -15,32 +33,40 @@ export default function Showcase({ id }: { id: string }) {
           Una selección de proyectos en los que he puesto mi corazón y mi alma.
         </p>
       </div>
-      <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-        {projects.map((project) => (
-          <Card key={project.id} className="glass-card overflow-hidden group">
-            <CardHeader className="p-0">
-              <Image
-                src={project.imageUrl}
-                alt={project.description}
-                width={600}
-                height={400}
-                data-ai-hint={project.imageHint}
-                className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
-              />
-            </CardHeader>
-            <CardContent className="p-6">
-              <CardTitle className="font-headline text-2xl">
-                {(project as any).title}
-              </CardTitle>
-              <p className="mt-2 text-muted-foreground">{project.description}</p>
-            </CardContent>
-            <CardFooter className="p-6 pt-0">
-                <Link href="#" className="flex items-center text-primary hover:text-secondary transition-colors">
-                    Ver Proyecto <ArrowUpRight className="ml-1 w-4 h-4"/>
-                </Link>
-            </CardFooter>
-          </Card>
-        ))}
+      <div className="mt-12">
+        {isLoading ? (
+          <div className="flex justify-center items-center h-40">
+            <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+            {projects.map((project) => (
+              <Card key={project.id} className="glass-card overflow-hidden group">
+                <CardHeader className="p-0">
+                  <Image
+                    src={project.imageUrl}
+                    alt={project.description}
+                    width={600}
+                    height={400}
+                    data-ai-hint={project.imageHint}
+                    className="w-full h-48 object-cover transition-transform duration-500 group-hover:scale-105"
+                  />
+                </CardHeader>
+                <CardContent className="p-6">
+                  <CardTitle className="font-headline text-2xl">
+                    {project.title}
+                  </CardTitle>
+                  <p className="mt-2 text-muted-foreground">{project.description}</p>
+                </CardContent>
+                <CardFooter className="p-6 pt-0">
+                    <Link href={project.url || '#'} target="_blank" className="flex items-center text-primary hover:text-secondary transition-colors">
+                        Ver Proyecto <ArrowUpRight className="ml-1 w-4 h-4"/>
+                    </Link>
+                </CardFooter>
+              </Card>
+            ))}
+          </div>
+        )}
       </div>
     </section>
   );
