@@ -23,11 +23,11 @@ import { useState, useEffect } from "react";
 import { createProject, updateProject, Project } from "@/services/projects";
 
 const formSchema = z.object({
-  title: z.string().min(3, { message: "El título debe tener al menos 3 caracteres." }),
-  description: z.string().min(10, { message: "La descripción debe tener al menos 10 caracteres." }),
-  imageUrl: z.string().url({ message: "Por favor, introduce una URL de imagen válida." }),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  imageUrl: z.string().url().optional().or(z.literal('')),
   imageHint: z.string().optional(),
-  url: z.string().url({ message: "Por favor, introduce una URL de proyecto válida." }).optional().or(z.literal('')),
+  url: z.string().url().optional().or(z.literal('')),
   isFeatured: z.boolean().default(false),
 });
 
@@ -77,10 +77,19 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
+        const dataToSave = {
+            title: values.title || "",
+            description: values.description || "",
+            imageUrl: values.imageUrl || "",
+            imageHint: values.imageHint || "",
+            url: values.url || "",
+            isFeatured: values.isFeatured || false,
+        };
+
         if (project && project.id) {
-            await updateProject(project.id, values);
+            await updateProject(project.id, dataToSave);
         } else {
-            await createProject(values);
+            await createProject(dataToSave);
         }
         onSave();
     } catch (error) {
@@ -125,7 +134,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                     />
                 </FormControl>
                 <FormMessage />
-                </FormItem>
+                </Item>
             )}
             />
              <FormField
@@ -138,7 +147,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                     <Input placeholder="https://picsum.photos/seed/project/600/400" {...field} className="bg-background/50" />
                 </FormControl>
                 <FormMessage />
-                </FormItem>
+                </Item>
             )}
             />
              <FormField
@@ -151,7 +160,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                     <Input placeholder="ej. website design" {...field} className="bg-background/50" />
                 </FormControl>
                 <FormMessage />
-                </FormItem>
+                </Item>
             )}
             />
             <FormField
@@ -164,7 +173,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                     <Input placeholder="https://mi-proyecto.com" {...field} className="bg-background/50" />
                 </FormControl>
                 <FormMessage />
-                </FormItem>
+                </Item>
             )}
             />
              <FormField

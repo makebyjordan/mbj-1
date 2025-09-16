@@ -4,13 +4,13 @@ import { db } from '@/lib/firebase';
 import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, DocumentData, QueryDocumentSnapshot, serverTimestamp, orderBy, query } from 'firebase/firestore';
 import { z } from 'zod';
 
-// Zod schema for validation of data coming from the form
+// Zod schema for validation of data coming from the form - ALL OPTIONAL
 const ProjectFormSchema = z.object({
-  title: z.string().min(3, "El título es requerido"),
-  description: z.string().min(10, "La descripción es requerida"),
-  imageUrl: z.string().url("La URL de la imagen no es válida"),
+  title: z.string().optional(),
+  description: z.string().optional(),
+  imageUrl: z.string().url().optional().or(z.literal('')),
   imageHint: z.string().optional(),
-  url: z.string().url("La URL del proyecto no es válida").optional().or(z.literal('')),
+  url: z.string().url().optional().or(z.literal('')),
   isFeatured: z.boolean().default(false),
 });
 
@@ -48,7 +48,7 @@ export const getProjects = async (): Promise<Project[]> => {
 
 // CREATE a new project
 export const createProject = async (projectData: Omit<Project, 'id' | 'createdAt'>) => {
-    // Validate the input from the form first
+    // Validate with optional fields
     const validatedData = ProjectFormSchema.parse(projectData);
     
     const dataWithTimestamp = {
@@ -61,6 +61,7 @@ export const createProject = async (projectData: Omit<Project, 'id' | 'createdAt
 
 // UPDATE a project
 export const updateProject = async (id: string, projectData: Partial<Omit<Project, 'id' | 'createdAt'>>) => {
+    // Validate with optional fields
     const validatedData = ProjectFormSchema.partial().parse(projectData);
     const projectDoc = doc(db, 'projects', id);
     await updateDoc(projectDoc, validatedData);
