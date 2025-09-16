@@ -12,7 +12,6 @@ const HeroButtonSchema = z.object({
 });
 
 const HeroContentSchema = z.object({
-  title: z.string().optional(),
   description: z.string(),
   backgroundImageUrl: z.string().url(),
   buttons: z.array(HeroButtonSchema).max(2),
@@ -30,7 +29,6 @@ export const getHeroContent = async (): Promise<HeroContentData> => {
         const data = docSnap.data();
         // Add default empty values if fields are missing
         const validatedData = {
-            title: data.title || 'MAKEBYJORDAN',
             description: data.description || 'Una mente creativa forjando experiencias digitales. Construyo sitios web impresionantes, marcas poderosas y contenido atractivo que cuenta una historia.',
             backgroundImageUrl: data.backgroundImageUrl || 'https://picsum.photos/seed/hero/1920/1080',
             buttons: data.buttons || [
@@ -42,7 +40,6 @@ export const getHeroContent = async (): Promise<HeroContentData> => {
     } else {
         // Return default content if the document doesn't exist
         const defaultContent: HeroContentData = {
-            title: 'MAKEBYJORDAN',
             description: 'Una mente creativa forjando experiencias digitales. Construyo sitios web impresionantes, marcas poderosas y contenido atractivo que cuenta una historia.',
             backgroundImageUrl: 'https://picsum.photos/seed/hero/1920/1080',
             buttons: [

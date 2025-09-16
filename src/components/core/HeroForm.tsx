@@ -26,7 +26,6 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
 
 const heroFormSchema = z.object({
-  title: z.string().optional(),
   description: z.string().min(1, "La descripción es requerida."),
   backgroundImageUrl: z.string().url("Debe ser una URL válida."),
   buttons: z.array(z.object({
@@ -49,7 +48,6 @@ export default function HeroForm({ onSave }: HeroFormProps) {
   const form = useForm<z.infer<typeof heroFormSchema>>({
     resolver: zodResolver(heroFormSchema),
     defaultValues: {
-      title: "",
       description: "",
       backgroundImageUrl: "",
       buttons: [],
@@ -111,19 +109,6 @@ export default function HeroForm({ onSave }: HeroFormProps) {
   return (
     <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-8">
-            <FormField
-              control={form.control}
-              name="title"
-              render={({ field }) => (
-                  <FormItem>
-                  <FormLabel>Título Principal (H1) (Opcional)</FormLabel>
-                  <FormControl>
-                      <Input placeholder="MAKEBYJORDAN" {...field} className="bg-background/50" />
-                  </FormControl>
-                  <FormMessage />
-                  </FormItem>
-              )}
-            />
             <FormField
               control={form.control}
               name="description"
