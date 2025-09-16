@@ -134,7 +134,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                     />
                 </FormControl>
                 <FormMessage />
-                </Item>
+                </FormItem>
             )}
             />
              <FormField
@@ -147,7 +147,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                     <Input placeholder="https://picsum.photos/seed/project/600/400" {...field} className="bg-background/50" />
                 </FormControl>
                 <FormMessage />
-                </Item>
+                </FormItem>
             )}
             />
              <FormField
@@ -160,7 +160,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                     <Input placeholder="ej. website design" {...field} className="bg-background/50" />
                 </FormControl>
                 <FormMessage />
-                </Item>
+                </FormItem>
             )}
             />
             <FormField
@@ -173,7 +173,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                     <Input placeholder="https://mi-proyecto.com" {...field} className="bg-background/50" />
                 </FormControl>
                 <FormMessage />
-                </Item>
+                </FormItem>
             )}
             />
              <FormField
