@@ -1,3 +1,4 @@
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -24,6 +25,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast";
 import { getProjects, deleteProject, Project } from '@/services/projects';
 import ProjectForm from '@/components/core/ProjectForm';
+import ImageGallery from '@/components/core/ImageGallery';
 
 
 export default function CoreDashboardPage() {
@@ -106,7 +108,7 @@ export default function CoreDashboardPage() {
         </Button>
       </header>
 
-      <main className="z-10 flex-1 w-full max-w-7xl py-8">
+      <main className="z-10 flex-1 w-full max-w-7xl py-8 space-y-8">
         <Card className="glass-card">
           <CardHeader>
             <CardTitle className="font-headline text-4xl">Gestionar Contenido</CardTitle>
@@ -193,6 +195,16 @@ export default function CoreDashboardPage() {
               </Card>
           </CardContent>
         </Card>
+        
+        <Card className="glass-card">
+            <CardHeader>
+                <CardTitle className="font-headline text-4xl">Galería de Imágenes</CardTitle>
+            </CardHeader>
+            <CardContent>
+                <ImageGallery />
+            </CardContent>
+        </Card>
+
       </main>
     </div>
   );
