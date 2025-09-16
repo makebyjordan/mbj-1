@@ -29,6 +29,7 @@ import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
 import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
+import AboutForm from '@/components/core/AboutForm';
 import Image from 'next/image';
 
 
@@ -102,12 +103,12 @@ export default function CoreDashboardPage() {
     });
   }
 
-  const handleHeroSaved = () => {
-     toast({
-      title: "Hero Actualizado",
-      description: "La sección principal se ha guardado correctamente.",
-    });
-  }
+  const handleGenericSave = (title: string, description: string) => {
+    toast({
+     title: title,
+     description: description,
+   });
+ }
 
   const handleEditProject = (project: Project) => {
     setEditingProject(project);
@@ -190,7 +191,16 @@ export default function CoreDashboardPage() {
                     <CardTitle>Gestionar Hero</CardTitle>
                 </CardHeader>
                 <CardContent>
-                    <HeroForm onSave={handleHeroSaved} />
+                    <HeroForm onSave={() => handleGenericSave("Hero Actualizado", "La sección principal se ha guardado correctamente.")} />
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader>
+                    <CardTitle>Gestionar "Sobre Mí"</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <AboutForm onSave={() => handleGenericSave("Sección 'Sobre Mí' Actualizada", "La sección se ha guardado correctamente.")} />
                 </CardContent>
               </Card>
 
@@ -367,5 +377,3 @@ export default function CoreDashboardPage() {
     </div>
   );
 }
-
-    
