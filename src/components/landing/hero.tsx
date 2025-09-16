@@ -51,7 +51,7 @@ export default function Hero() {
               src={heroContent.backgroundImageUrl}
               alt="Hero background"
               layout="fill"
-              objectFit="contain"
+              objectFit="cover"
               quality={100}
               priority
           />
