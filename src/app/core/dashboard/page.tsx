@@ -26,6 +26,7 @@ import { useToast } from "@/hooks/use-toast";
 import { getProjects, deleteProject, Project } from '@/services/projects';
 import ProjectForm from '@/components/core/ProjectForm';
 import ImageGallery from '@/components/core/ImageGallery';
+import HeroForm from '@/components/core/HeroForm';
 
 
 export default function CoreDashboardPage() {
@@ -63,6 +64,13 @@ export default function CoreDashboardPage() {
      toast({
       title: "Proyecto guardado",
       description: "Tu proyecto se ha guardado correctamente.",
+    });
+  }
+
+  const handleHeroSaved = () => {
+     toast({
+      title: "Hero Actualizado",
+      description: "La sección principal se ha guardado correctamente.",
     });
   }
 
@@ -113,7 +121,15 @@ export default function CoreDashboardPage() {
           <CardHeader>
             <CardTitle className="font-headline text-4xl">Gestionar Contenido</CardTitle>
           </CardHeader>
-          <CardContent>
+          <CardContent className="space-y-8">
+              <Card>
+                <CardHeader>
+                    <CardTitle>Gestionar Hero</CardTitle>
+                </CardHeader>
+                <CardContent>
+                    <HeroForm onSave={handleHeroSaved} />
+                </CardContent>
+              </Card>
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
