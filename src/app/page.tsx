@@ -10,16 +10,18 @@ import Footer from '@/components/landing/footer';
 
 export default function Home() {
   return (
-    <div className="relative w-full flex flex-col items-center overflow-x-hidden">
+    <div className="relative w-full flex flex-col items-center overflow-x-hidden bg-background">
       <Header />
-      <main className="container mx-auto px-4 w-full" id="home">
+      <main className="w-full" id="home">
         <Hero />
-        <Services id="services" />
-        <Showcase id="portfolio" />
-        <About id="about" />
-        <Blog id="blog" />
-        <NewsSummarizer id="news" />
-        <Contact id="contact" />
+        <div className="container mx-auto px-4">
+          <Services id="services" />
+          <Showcase id="portfolio" />
+          <About id="about" />
+          <Blog id="blog" />
+          <NewsSummarizer id="news" />
+          <Contact id="contact" />
+        </div>
       </main>
       <Footer />
     </div>

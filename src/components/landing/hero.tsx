@@ -1,4 +1,3 @@
-
 "use client";
 
 import Link from "next/link";
@@ -29,7 +28,7 @@ export default function Hero() {
 
   if (isLoading) {
     return (
-        <section className="relative w-full h-[90vh] flex flex-col items-center justify-center text-center py-20 md:py-32 overflow-hidden">
+        <section className="relative w-full h-screen flex flex-col items-center justify-center text-center py-20 md:py-32 overflow-hidden">
             <Loader2 className="h-16 w-16 animate-spin text-primary" />
         </section>
     );
@@ -37,21 +36,21 @@ export default function Hero() {
 
   if (!heroContent) {
     return (
-        <section className="relative w-full h-[90vh] flex flex-col items-center justify-center text-center py-20 md:py-32 overflow-hidden">
+        <section className="relative w-full h-screen flex flex-col items-center justify-center text-center py-20 md:py-32 overflow-hidden">
             <p>No se pudo cargar el contenido. Por favor, configúralo en el dashboard.</p>
         </section>
     );
   }
 
   return (
-    <section className="relative w-full h-[90vh] flex flex-col items-center justify-center text-center py-20 md:py-32 overflow-hidden">
+    <section className="relative w-full h-screen flex flex-col items-center justify-center text-center overflow-hidden">
       {heroContent.backgroundImageUrl && (
-        <div className="absolute inset-0 w-full h-full bg-black">
+        <div className="absolute inset-0 w-full h-full z-0">
           <Image
               src={heroContent.backgroundImageUrl}
               alt="Hero background"
-              layout="fill"
-              objectFit="cover"
+              fill
+              className="object-cover"
               quality={100}
               priority
           />
@@ -59,7 +58,7 @@ export default function Hero() {
         </div>
       )}
       
-      <div className="absolute top-0 left-0 w-full h-full">
+      <div className="absolute top-0 left-0 w-full h-full z-10">
         <SparklesCore
           id="tsparticlesfullpage"
           background="transparent"
@@ -71,7 +70,7 @@ export default function Hero() {
         />
       </div>
 
-      <div className="z-10 container px-4">
+      <div className="z-20 container px-4">
         <h1 className="font-headline text-6xl md:text-8xl lg:text-9xl tracking-wider text-foreground" style={{textShadow: '0 0 20px hsl(var(--primary) / 0.5)'}}>
           {heroContent.title}
         </h1>
