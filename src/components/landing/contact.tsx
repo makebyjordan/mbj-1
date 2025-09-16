@@ -21,9 +21,9 @@ import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
 
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Name must be at least 2 characters." }),
-  email: z.string().email({ message: "Please enter a valid email address." }),
-  message: z.string().min(10, { message: "Message must be at least 10 characters." }),
+  name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
+  email: z.string().email({ message: "Por favor, introduce una dirección de correo electrónico válida." }),
+  message: z.string().min(10, { message: "El mensaje debe tener al menos 10 caracteres." }),
 });
 
 export default function Contact({ id }: { id: string }) {
@@ -41,14 +41,14 @@ export default function Contact({ id }: { id: string }) {
 
   function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    console.log("Form submitted:", values);
+    console.log("Formulario enviado:", values);
 
-    // Simulate API call
+    // Simular llamada a la API
     setTimeout(() => {
       setIsLoading(false);
       toast({
-        title: "Message Sent!",
-        description: "Thanks for reaching out. I'll get back to you shortly.",
+        title: "¡Mensaje Enviado!",
+        description: "Gracias por contactarme. Te responderé en breve.",
       });
       form.reset();
     }, 1500);
@@ -57,16 +57,16 @@ export default function Contact({ id }: { id: string }) {
   return (
     <section id={id} className="py-20 md:py-32 w-full">
       <div className="text-center">
-        <h2 className="section-title">Get in Touch</h2>
+        <h2 className="section-title">Ponte en Contacto</h2>
         <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-          Have a project in mind or just want to say hello? Drop me a line.
+          ¿Tienes un proyecto en mente o simplemente quieres saludar? Escríbeme.
         </p>
       </div>
 
       <Card className="glass-card mt-12 max-w-2xl mx-auto">
         <CardHeader>
-          <CardTitle>Send a Message</CardTitle>
-          <CardDescription>I'm excited to hear from you!</CardDescription>
+          <CardTitle>Enviar un Mensaje</CardTitle>
+          <CardDescription>¡Estoy emocionado de saber de ti!</CardDescription>
         </CardHeader>
         <CardContent>
           <Form {...form}>
@@ -76,9 +76,9 @@ export default function Contact({ id }: { id: string }) {
                 name="name"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Your Name</FormLabel>
+                    <FormLabel>Tu Nombre</FormLabel>
                     <FormControl>
-                      <Input placeholder="Jordan Doe" {...field} className="bg-background/50" />
+                      <Input placeholder="Jordan García" {...field} className="bg-background/50" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -89,9 +89,9 @@ export default function Contact({ id }: { id: string }) {
                 name="email"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Your Email</FormLabel>
+                    <FormLabel>Tu Correo Electrónico</FormLabel>
                     <FormControl>
-                      <Input placeholder="jordan@example.com" {...field} className="bg-background/50" />
+                      <Input placeholder="jordan@ejemplo.com" {...field} className="bg-background/50" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -102,10 +102,10 @@ export default function Contact({ id }: { id: string }) {
                 name="message"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Your Message</FormLabel>
+                    <FormLabel>Tu Mensaje</FormLabel>
                     <FormControl>
                       <Textarea
-                        placeholder="Tell me about your project or idea..."
+                        placeholder="Cuéntame sobre tu proyecto o idea..."
                         className="h-32 bg-background/50"
                         {...field}
                       />
@@ -116,7 +116,7 @@ export default function Contact({ id }: { id: string }) {
               />
               <Button type="submit" disabled={isLoading} className="w-full primary-button-glow">
                 {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-                Send Message
+                Enviar Mensaje
               </Button>
             </form>
           </Form>

@@ -10,9 +10,9 @@ export default function Blog({ id }: { id: string }) {
   return (
     <section id={id} className="py-20 md:py-32 w-full">
       <div className="text-center">
-        <h2 className="section-title">From the Blog</h2>
+        <h2 className="section-title">Desde el Blog</h2>
         <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-          My latest thoughts on design, technology, and building great things.
+          Mis últimas reflexiones sobre diseño, tecnología y cómo construir grandes cosas.
         </p>
       </div>
       <div className="mt-12 grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
@@ -36,7 +36,7 @@ export default function Blog({ id }: { id: string }) {
             </CardContent>
             <CardFooter className="p-6 pt-0">
                 <Link href="#" className="flex items-center text-primary hover:text-secondary transition-colors">
-                    Read More <ArrowUpRight className="ml-1 w-4 h-4"/>
+                    Leer Más <ArrowUpRight className="ml-1 w-4 h-4"/>
                 </Link>
             </CardFooter>
           </Card>

@@ -21,14 +21,14 @@ export default function Hero() {
           MAKEBYJORDAN
         </h1>
         <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground font-light">
-          A creative mind forging digital experiences. I build stunning websites, powerful brands, and engaging content that tells a story.
+          Una mente creativa forjando experiencias digitales. Construyo sitios web impresionantes, marcas poderosas y contenido atractivo que cuenta una historia.
         </p>
         <div className="mt-8 flex justify-center gap-4">
           <Button asChild size="lg" className="primary-button-glow text-lg px-8 py-6 rounded-full">
-            <Link href="#portfolio">View My Work</Link>
+            <Link href="#portfolio">Ver Mi Trabajo</Link>
           </Button>
           <Button asChild variant="outline" size="lg" className="bg-transparent border-primary/50 text-lg px-8 py-6 rounded-full hover:bg-primary/10 hover:text-foreground transition-all duration-300">
-            <Link href="#contact">Get In Touch</Link>
+            <Link href="#contact">Ponte en Contacto</Link>
           </Button>
         </div>
       </div>

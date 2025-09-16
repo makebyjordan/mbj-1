@@ -2,43 +2,43 @@
   "placeholderImages": [
     {
       "id": "project-1",
-      "title": "Kreativ Agency",
-      "description": "A modern website for a creative agency.",
+      "title": "Agencia Kreativ",
+      "description": "Un sitio web moderno para una agencia creativa.",
       "imageUrl": "https://picsum.photos/seed/project1/600/400",
       "imageHint": "website design"
     },
     {
       "id": "project-2",
       "title": "Innovate Inc.",
-      "description": "Branding identity for a new tech startup.",
+      "description": "Identidad de marca para una nueva startup tecnológica.",
       "imageUrl": "https://picsum.photos/seed/project2/600/400",
       "imageHint": "brand logo"
     },
     {
       "id": "project-3",
-      "title": "Artisan Market",
-      "description": "An e-commerce platform for handcrafted goods.",
+      "title": "Mercado Artesanal",
+      "description": "Una plataforma de comercio electrónico para productos artesanales.",
       "imageUrl": "https://picsum.photos/seed/project3/600/400",
       "imageHint": "e-commerce online"
     },
     {
       "id": "blog-1",
-      "title": "The Future of Web Dev",
-      "description": "Exploring the next generation of web development trends and technologies.",
+      "title": "El Futuro del Desarrollo Web",
+      "description": "Explorando la próxima generación de tendencias y tecnologías de desarrollo web.",
       "imageUrl": "https://picsum.photos/seed/blog1/600/400",
       "imageHint": "code technology"
     },
     {
       "id": "blog-2",
-      "title": "Building Your Brand",
-      "description": "A step-by-step guide to building a strong personal brand from scratch.",
+      "title": "Construyendo Tu Marca",
+      "description": "Una guía paso a paso para construir una marca personal sólida desde cero.",
       "imageUrl": "https://picsum.photos/seed/blog2/600/400",
       "imageHint": "personal branding"
     },
     {
       "id": "blog-3",
-      "title": "AI in Content Creation",
-      "description": "Discover top AI tools that can boost your content creation workflow.",
+      "title": "IA en la Creación de Contenido",
+      "description": "Descubre las mejores herramientas de IA que pueden potenciar tu flujo de trabajo de creación de contenido.",
       "imageUrl": "https://picsum.photos/seed/blog3/600/400",
       "imageHint": "ai robot"
     }

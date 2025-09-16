@@ -7,18 +7,18 @@ export default function About({ id }: { id: string }) {
       <Card className="glass-card">
         <CardContent className="p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
           <div className="order-2 md:order-1">
-            <h2 className="section-title">About Me</h2>
+            <h2 className="section-title">Sobre Mí</h2>
             <p className="mt-4 text-lg text-muted-foreground">
-              Hello! I'm Jordan, a passionate creator and digital architect. My mission is to build things that are not only beautiful and functional but also tell a compelling story.
+              ¡Hola! Soy Jordan, un apasionado creador y arquitecto digital. Mi misión es construir cosas que no solo sean hermosas y funcionales, sino que también cuenten una historia convincente.
             </p>
             <p className="mt-4 text-muted-foreground">
-              With a background in web development, branding, and content strategy, I approach every project with a holistic perspective. Whether it's a new website, a brand identity, or a business idea, I love the process of turning a spark of inspiration into a tangible reality. Let's create something amazing together.
+              Con experiencia en desarrollo web, branding y estrategia de contenido, abordo cada proyecto con una perspectiva holística. Ya sea un nuevo sitio web, una identidad de marca o una idea de negocio, me encanta el proceso de convertir una chispa de inspiración en una realidad tangible. Creemos algo increíble juntos.
             </p>
           </div>
           <div className="order-1 md:order-2 h-full w-full">
             <Image
               src="https://picsum.photos/seed/about-me/600/600"
-              alt="A portrait of Jordan"
+              alt="Un retrato de Jordan"
               width={600}
               height={600}
               data-ai-hint="creator portrait"

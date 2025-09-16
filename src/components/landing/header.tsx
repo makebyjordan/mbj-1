@@ -7,11 +7,11 @@ import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 
 const navLinks = [
-  { href: "#services", label: "Services" },
-  { href: "#portfolio", label: "Portfolio" },
-  { href: "#about", label: "About" },
+  { href: "#services", label: "Servicios" },
+  { href: "#portfolio", label: "Portafolio" },
+  { href: "#about", label: "Sobre Mí" },
   { href: "#blog", label: "Blog" },
-  { href: "#news", label: "News" },
+  { href: "#news", label: "Noticias" },
 ];
 
 export default function Header() {
@@ -35,7 +35,7 @@ export default function Header() {
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="#" className="flex items-center gap-2 font-headline text-2xl" aria-label="Home">
           <MountainIcon className="h-6 w-6 text-primary" />
-          <span className="font-bold">Jordan's Canvas</span>
+          <span className="font-bold">El Lienzo de Jordan</span>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           {navLinks.map((link) => (
@@ -49,7 +49,7 @@ export default function Header() {
           ))}
         </nav>
         <Button asChild className="primary-button-glow">
-          <Link href="#contact">Contact Me</Link>
+          <Link href="#contact">Contáctame</Link>
         </Button>
       </div>
     </header>

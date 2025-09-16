@@ -23,10 +23,10 @@ import { summarizeNewsFeed } from "@/ai/flows/news-feed-summarizer";
 
 const formSchema = z.object({
   articleTitle: z.string().min(10, {
-    message: "Article title must be at least 10 characters.",
+    message: "El título del artículo debe tener al menos 10 caracteres.",
   }),
   articleContent: z.string().min(100, {
-    message: "Article content must be at least 100 characters.",
+    message: "El contenido del artículo debe tener al menos 100 caracteres.",
   }),
 });
 
@@ -50,15 +50,15 @@ export default function NewsSummarizer({ id }: { id: string }) {
       const result = await summarizeNewsFeed(values);
       setSummary(result.summary);
       toast({
-        title: "Success!",
-        description: "Article summarized successfully.",
+        title: "¡Éxito!",
+        description: "Artículo resumido correctamente.",
       });
     } catch (error) {
-      console.error("Summarization error:", error);
+      console.error("Error de resumen:", error);
       toast({
         variant: "destructive",
-        title: "Uh oh! Something went wrong.",
-        description: "There was a problem summarizing the article. Please try again.",
+        title: "¡Oh, no! Algo salió mal.",
+        description: "Hubo un problema al resumir el artículo. Por favor, inténtalo de nuevo.",
       });
     } finally {
       setIsLoading(false);
@@ -68,17 +68,17 @@ export default function NewsSummarizer({ id }: { id: string }) {
   return (
     <section id={id} className="py-20 md:py-32 w-full">
       <div className="text-center">
-        <h2 className="section-title">AI News Summarizer</h2>
+        <h2 className="section-title">Resumidor de Noticias con IA</h2>
         <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
-          Got an interesting article on web dev, branding, or content? Paste it below and let my AI assistant give you a quick summary.
+          ¿Tienes un artículo interesante sobre desarrollo web, branding o contenido? Pégalo a continuación y deja que mi asistente de IA te dé un resumen rápido.
         </p>
       </div>
 
       <div className="mt-12 max-w-4xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-8 items-start">
         <Card className="glass-card">
           <CardHeader>
-            <CardTitle>Summarize an Article</CardTitle>
-            <CardDescription>Enter the title and content below.</CardDescription>
+            <CardTitle>Resume un Artículo</CardTitle>
+            <CardDescription>Introduce el título y el contenido a continuación.</CardDescription>
           </CardHeader>
           <CardContent>
             <Form {...form}>
@@ -88,9 +88,9 @@ export default function NewsSummarizer({ id }: { id: string }) {
                   name="articleTitle"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Article Title</FormLabel>
+                      <FormLabel>Título del Artículo</FormLabel>
                       <FormControl>
-                        <Input placeholder="e.g., The Rise of AI in Modern Web Design" {...field} className="bg-background/50" />
+                        <Input placeholder="ej., El auge de la IA en el diseño web moderno" {...field} className="bg-background/50" />
                       </FormControl>
                       <FormMessage />
                     </FormItem>
@@ -101,10 +101,10 @@ export default function NewsSummarizer({ id }: { id: string }) {
                   name="articleContent"
                   render={({ field }) => (
                     <FormItem>
-                      <FormLabel>Article Content</FormLabel>
+                      <FormLabel>Contenido del Artículo</FormLabel>
                       <FormControl>
                         <Textarea
-                          placeholder="Paste the full content of the article here..."
+                          placeholder="Pega el contenido completo del artículo aquí..."
                           className="h-48 bg-background/50"
                           {...field}
                         />
@@ -115,7 +115,7 @@ export default function NewsSummarizer({ id }: { id: string }) {
                 />
                 <Button type="submit" disabled={isLoading} className="w-full primary-button-glow">
                   {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Newspaper className="mr-2 h-4 w-4" />}
-                  Summarize
+                  Resumir
                 </Button>
               </form>
             </Form>
@@ -124,8 +124,8 @@ export default function NewsSummarizer({ id }: { id: string }) {
 
         <Card className="glass-card sticky top-24">
           <CardHeader>
-            <CardTitle>Summary</CardTitle>
-            <CardDescription>The AI-generated summary will appear here.</CardDescription>
+            <CardTitle>Resumen</CardTitle>
+            <CardDescription>El resumen generado por IA aparecerá aquí.</CardDescription>
           </CardHeader>
           <CardContent className="prose prose-invert prose-p:text-muted-foreground min-h-[200px]">
             {isLoading ? (
@@ -133,7 +133,7 @@ export default function NewsSummarizer({ id }: { id: string }) {
                     <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
             ) : (
-                summary || <p className="text-center italic">Your summary is waiting...</p>
+                summary || <p className="text-center italic">Tu resumen está esperando...</p>
             )}
           </CardContent>
         </Card>

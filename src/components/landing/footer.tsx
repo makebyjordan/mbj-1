@@ -7,10 +7,10 @@ export default function Footer() {
       <div className="container mx-auto px-4 flex flex-col md:flex-row items-center justify-between">
         <div className="flex items-center gap-2">
             <MountainIcon className="h-5 w-5 text-primary" />
-            <span className="font-bold font-headline text-lg">Jordan's Canvas</span>
+            <span className="font-bold font-headline text-lg">El Lienzo de Jordan</span>
         </div>
         <p className="text-muted-foreground text-sm mt-4 md:mt-0">
-          &copy; {new Date().getFullYear()} MakeByJordan. All rights reserved.
+          &copy; {new Date().getFullYear()} MakeByJordan. Todos los derechos reservados.
         </p>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
           <Link href="#" aria-label="Twitter">
