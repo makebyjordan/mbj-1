@@ -12,6 +12,8 @@ const firebaseConfig = {
 
 // Initialize Firebase
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-const db = getFirestore(app);
+
+// Correctly initialize Firestore with the specific database ID
+const db = getFirestore(app, 'mbj-ddbb');
 
 export { app, db };
