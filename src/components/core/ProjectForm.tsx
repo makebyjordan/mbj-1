@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -16,8 +17,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { createProject, updateProject, Project } from "@/services/projects";
 
 const formSchema = z.object({
@@ -26,6 +28,7 @@ const formSchema = z.object({
   imageUrl: z.string().url({ message: "Por favor, introduce una URL de imagen válida." }),
   imageHint: z.string().optional(),
   url: z.string().url({ message: "Por favor, introduce una URL de proyecto válida." }).optional().or(z.literal('')),
+  isFeatured: z.boolean().default(false),
 });
 
 type ProjectFormProps = {
@@ -42,11 +45,23 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
     defaultValues: {
       title: project?.title || "",
       description: project?.description || "",
-      imageUrl: project?.imageUrl || "https://picsum.photos/seed/new-project/600/400",
+      imageUrl: project?.imageUrl || `https://picsum.photos/seed/${Date.now()}/600/400`,
       imageHint: project?.imageHint || "",
       url: project?.url || "",
+      isFeatured: project?.isFeatured || false,
     },
   });
+
+  useEffect(() => {
+    form.reset({
+      title: project?.title || "",
+      description: project?.description || "",
+      imageUrl: project?.imageUrl || `https://picsum.photos/seed/${Date.now()}/600/400`,
+      imageHint: project?.imageHint || "",
+      url: project?.url || "",
+      isFeatured: project?.isFeatured || false,
+    });
+  }, [project, form]);
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
@@ -79,7 +94,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                 <FormItem>
                 <FormLabel>Título</FormLabel>
                 <FormControl>
-                    <Input placeholder="Nombre del proyecto" {...field} className="bg-background/50" />
+                    <Input placeholder="Nombre del proyecto o entrada de blog" {...field} className="bg-background/50" />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -93,7 +108,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                 <FormLabel>Descripción</FormLabel>
                 <FormControl>
                     <Textarea
-                    placeholder="Describe tu proyecto..."
+                    placeholder="Describe tu proyecto o escribe el contenido del blog..."
                     className="h-24 bg-background/50"
                     {...field}
                     />
@@ -133,13 +148,35 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
             name="url"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>URL del Proyecto</FormLabel>
+                <FormLabel>URL del Proyecto (Opcional)</FormLabel>
                 <FormControl>
                     <Input placeholder="https://mi-proyecto.com" {...field} className="bg-background/50" />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
             )}
+            />
+             <FormField
+              control={form.control}
+              name="isFeatured"
+              render={({ field }) => (
+                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                  <FormControl>
+                    <Checkbox
+                      checked={field.value}
+                      onCheckedChange={field.onChange}
+                    />
+                  </FormControl>
+                  <div className="space-y-1 leading-none">
+                    <FormLabel>
+                      ¿Destacar en el Blog?
+                    </FormLabel>
+                    <FormDescription>
+                      Si se marca, esta entrada aparecerá en la sección del blog de la página de inicio.
+                    </FormDescription>
+                  </div>
+                </FormItem>
+              )}
             />
             <div className="flex justify-end">
                 <Button type="submit" disabled={isLoading} className="primary-button-glow">

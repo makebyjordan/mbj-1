@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LogOut, PlusCircle, Edit, Trash2, Loader2 } from "lucide-react";
+import { LogOut, PlusCircle, Edit, Trash2, Loader2, Star } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -115,13 +115,18 @@ export default function CoreDashboardPage() {
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
-                    <CardTitle>Proyectos del Portafolio</CardTitle>
+                    <CardTitle>Proyectos y Blog</CardTitle>
                   </div>
-                   <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+                   <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
+                     setIsDialogOpen(isOpen);
+                     if (!isOpen) {
+                       setEditingProject(null);
+                     }
+                   }}>
                     <DialogTrigger asChild>
                        <Button onClick={handleAddNew}>
                         <PlusCircle className="mr-2 h-4 w-4" />
-                        Añadir Proyecto
+                        Añadir Nuevo
                       </Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[625px] glass-card">
@@ -141,6 +146,7 @@ export default function CoreDashboardPage() {
                     <Table>
                       <TableHeader>
                         <TableRow>
+                          <TableHead className="w-[50px]">Blog</TableHead>
                           <TableHead>Título</TableHead>
                           <TableHead>Descripción</TableHead>
                           <TableHead className="text-right">Acciones</TableHead>
@@ -149,8 +155,11 @@ export default function CoreDashboardPage() {
                       <TableBody>
                         {projects.map((project) => (
                           <TableRow key={project.id}>
+                             <TableCell>
+                              {project.isFeatured && <Star className="h-4 w-4 text-primary" />}
+                            </TableCell>
                             <TableCell className="font-medium">{project.title}</TableCell>
-                            <TableCell>{project.description}</TableCell>
+                            <TableCell className="max-w-[300px] truncate">{project.description}</TableCell>
                             <TableCell className="text-right">
                               <Button variant="ghost" size="icon" onClick={() => handleEdit(project)}>
                                 <Edit className="h-4 w-4" />
