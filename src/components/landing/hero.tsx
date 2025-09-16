@@ -4,7 +4,15 @@ import { SparklesCore } from "@/components/ui/sparkles";
 
 export default function Hero() {
   return (
-    <section className="relative w-full h-[90vh] flex flex-col items-center justify-center text-center py-20 md:py-32">
+    <section className="relative w-full h-[90vh] flex flex-col items-center justify-center text-center py-20 md:py-32 overflow-hidden">
+      <div className="absolute inset-0 w-full h-full bg-black">
+        <div 
+          className="absolute inset-0 w-full h-full bg-cover bg-center"
+          style={{ backgroundImage: "url('/hero-background.png')", backgroundPosition: 'center 70%' }}
+        />
+        <div className="absolute inset-0 w-full h-full bg-gradient-to-t from-background via-background/50 to-transparent" />
+      </div>
+      
       <div className="absolute top-0 left-0 w-full h-full">
         <SparklesCore
           id="tsparticlesfullpage"
@@ -16,6 +24,7 @@ export default function Hero() {
           particleColor="#A19CD8"
         />
       </div>
+
       <div className="z-10 container px-4">
         <h1 className="font-headline text-6xl md:text-8xl lg:text-9xl tracking-wider text-foreground" style={{textShadow: '0 0 20px hsl(var(--primary) / 0.5)'}}>
           MAKEBYJORDAN
