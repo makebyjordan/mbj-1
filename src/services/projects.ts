@@ -44,11 +44,11 @@ export const getProjects = async (): Promise<Project[]> => {
 
 // CREATE a new project
 export const createProject = async (projectData: Omit<Project, 'id' | 'createdAt'>) => {
+    ProjectSchema.omit({ id: true, createdAt: true }).parse(projectData);
     const dataWithTimestamp = {
         ...projectData,
         createdAt: serverTimestamp()
     };
-    ProjectSchema.omit({ id: true, createdAt: true }).parse(projectData);
     const docRef = await addDoc(projectsCollection, dataWithTimestamp);
     return docRef.id;
 };
