@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LogOut, PlusCircle, Edit, Trash2, Loader2, Star } from "lucide-react";
+import { LogOut, PlusCircle, Edit, Trash2, Loader2, Star, Briefcase } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -24,20 +24,27 @@ import {
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
 import { getProjects, deleteProject, Project } from '@/services/projects';
+import { getServices, deleteService, Service } from '@/services/services';
 import ProjectForm from '@/components/core/ProjectForm';
+import ServiceForm from '@/components/core/ServiceForm';
 import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
+import Image from 'next/image';
 
 
 export default function CoreDashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
-  const [isLoading, setIsLoading] = useState(true);
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [services, setServices] = useState<Service[]>([]);
+  const [isLoadingProjects, setIsLoadingProjects] = useState(true);
+  const [isLoadingServices, setIsLoadingServices] = useState(true);
+  const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
+  const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
+  const [editingService, setEditingService] = useState<Service | null>(null);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
-    setIsLoading(true);
+    setIsLoadingProjects(true);
     try {
       const projectsFromDb = await getProjects();
       setProjects(projectsFromDb);
@@ -46,24 +53,52 @@ export default function CoreDashboardPage() {
       toast({
         variant: "destructive",
         title: "Error al cargar proyectos",
-        description: "No se pudieron cargar los proyectos desde la base de datos.",
+        description: "No se pudieron cargar los proyectos.",
       });
     } finally {
-      setIsLoading(false);
+      setIsLoadingProjects(false);
     }
   };
 
+  const fetchServices = async () => {
+    setIsLoadingServices(true);
+    try {
+      const servicesFromDb = await getServices();
+      setServices(servicesFromDb);
+    } catch (error) {
+      console.error("Error fetching services:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al cargar servicios",
+        description: "No se pudieron cargar los servicios.",
+      });
+    } finally {
+      setIsLoadingServices(false);
+    }
+  }
+
   useEffect(() => {
     fetchProjects();
+    fetchServices();
   }, []);
 
   const handleProjectSaved = () => {
-    setIsDialogOpen(false);
+    setIsProjectDialogOpen(false);
     setEditingProject(null);
     fetchProjects();
      toast({
       title: "Proyecto guardado",
       description: "Tu proyecto se ha guardado correctamente.",
+    });
+  }
+
+  const handleServiceSaved = () => {
+    setIsServiceDialogOpen(false);
+    setEditingService(null);
+    fetchServices();
+     toast({
+      title: "Servicio guardado",
+      description: "Tu servicio se ha guardado correctamente.",
     });
   }
 
@@ -74,17 +109,27 @@ export default function CoreDashboardPage() {
     });
   }
 
-  const handleEdit = (project: Project) => {
+  const handleEditProject = (project: Project) => {
     setEditingProject(project);
-    setIsDialogOpen(true);
+    setIsProjectDialogOpen(true);
   }
   
-  const handleAddNew = () => {
+  const handleAddNewProject = () => {
     setEditingProject(null);
-    setIsDialogOpen(true);
+    setIsProjectDialogOpen(true);
+  }
+  
+  const handleEditService = (service: Service) => {
+    setEditingService(service);
+    setIsServiceDialogOpen(true);
+  }
+  
+  const handleAddNewService = () => {
+    setEditingService(null);
+    setIsServiceDialogOpen(true);
   }
 
-  const handleDelete = async (projectId: string) => {
+  const handleDeleteProject = async (projectId: string) => {
     try {
       await deleteProject(projectId);
       fetchProjects();
@@ -98,6 +143,24 @@ export default function CoreDashboardPage() {
         variant: "destructive",
         title: "Error al eliminar",
         description: "No se pudo eliminar el proyecto.",
+      });
+    }
+  };
+
+  const handleDeleteService = async (serviceId: string) => {
+    try {
+      await deleteService(serviceId);
+      fetchServices();
+      toast({
+        title: "Servicio eliminado",
+        description: "El servicio se ha eliminado correctamente.",
+      });
+    } catch (error) {
+      console.error("Error deleting service:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al eliminar",
+        description: "No se pudo eliminar el servicio.",
       });
     }
   };
@@ -130,19 +193,98 @@ export default function CoreDashboardPage() {
                     <HeroForm onSave={handleHeroSaved} />
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle>Servicios ("Lo que hago")</CardTitle>
+                   <Dialog open={isServiceDialogOpen} onOpenChange={(isOpen) => {
+                     setIsServiceDialogOpen(isOpen);
+                     if (!isOpen) {
+                       setEditingService(null);
+                     }
+                   }}>
+                    <DialogTrigger asChild>
+                       <Button onClick={handleAddNewService}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Añadir Servicio
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[625px] glass-card">
+                      <DialogHeader>
+                        <DialogTitle>{editingService ? 'Editar Servicio' : 'Crear Nuevo Servicio'}</DialogTitle>
+                      </DialogHeader>
+                      <ServiceForm service={editingService} onSave={handleServiceSaved} />
+                    </DialogContent>
+                  </Dialog>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingServices ? (
+                    <div className="flex justify-center items-center h-40">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[50px]">Icono</TableHead>
+                          <TableHead>Título</TableHead>
+                          <TableHead>Descripción</TableHead>
+                          <TableHead className="text-right">Acciones</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {services.map((service) => (
+                          <TableRow key={service.id}>
+                             <TableCell>
+                               {service.iconUrl && <img src={service.iconUrl} alt={service.title} className="w-8 h-8" />}
+                            </TableCell>
+                            <TableCell className="font-medium">{service.title}</TableCell>
+                            <TableCell className="max-w-[300px] truncate">{service.description}</TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditService(service)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                               <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta acción no se puede deshacer. Esto eliminará permanentemente el servicio.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteService(service.id!)}>Eliminar</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
+
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle>Proyectos y Blog</CardTitle>
                   </div>
-                   <Dialog open={isDialogOpen} onOpenChange={(isOpen) => {
-                     setIsDialogOpen(isOpen);
+                   <Dialog open={isProjectDialogOpen} onOpenChange={(isOpen) => {
+                     setIsProjectDialogOpen(isOpen);
                      if (!isOpen) {
                        setEditingProject(null);
                      }
                    }}>
                     <DialogTrigger asChild>
-                       <Button onClick={handleAddNew}>
+                       <Button onClick={handleAddNewProject}>
                         <PlusCircle className="mr-2 h-4 w-4" />
                         Añadir Nuevo
                       </Button>
@@ -156,7 +298,7 @@ export default function CoreDashboardPage() {
                   </Dialog>
                 </CardHeader>
                 <CardContent>
-                  {isLoading ? (
+                  {isLoadingProjects ? (
                     <div className="flex justify-center items-center h-40">
                       <Loader2 className="h-8 w-8 animate-spin text-primary" />
                     </div>
@@ -179,7 +321,7 @@ export default function CoreDashboardPage() {
                             <TableCell className="font-medium">{project.title}</TableCell>
                             <TableCell className="max-w-[300px] truncate">{project.description}</TableCell>
                             <TableCell className="text-right">
-                              <Button variant="ghost" size="icon" onClick={() => handleEdit(project)}>
+                              <Button variant="ghost" size="icon" onClick={() => handleEditProject(project)}>
                                 <Edit className="h-4 w-4" />
                               </Button>
                                <AlertDialog>
@@ -197,7 +339,7 @@ export default function CoreDashboardPage() {
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDelete(project.id!)}>Eliminar</AlertDialogAction>
+                                    <AlertDialogAction onClick={() => handleDeleteProject(project.id!)}>Eliminar</AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
@@ -225,3 +367,5 @@ export default function CoreDashboardPage() {
     </div>
   );
 }
+
+    
