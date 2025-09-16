@@ -1,3 +1,4 @@
+
 "use client";
 
 import Link from "next/link";
@@ -71,9 +72,11 @@ export default function Hero() {
       </div>
 
       <div className="z-20 container px-4">
-        <h1 className="font-headline text-6xl md:text-8xl lg:text-9xl tracking-wider text-foreground" style={{textShadow: '0 0 20px hsl(var(--primary) / 0.5)'}}>
-          {heroContent.title}
-        </h1>
+        {heroContent.title && (
+          <h1 className="font-headline text-6xl md:text-8xl lg:text-9xl tracking-wider text-foreground" style={{textShadow: '0 0 20px hsl(var(--primary) / 0.5)'}}>
+            {heroContent.title}
+          </h1>
+        )}
         <p className="mt-4 max-w-2xl mx-auto text-lg md:text-xl text-muted-foreground font-light">
           {heroContent.description}
         </p>

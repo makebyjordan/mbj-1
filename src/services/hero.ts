@@ -12,7 +12,7 @@ const HeroButtonSchema = z.object({
 });
 
 const HeroContentSchema = z.object({
-  title: z.string(),
+  title: z.string().optional(),
   description: z.string(),
   backgroundImageUrl: z.string().url(),
   buttons: z.array(HeroButtonSchema).max(2),
