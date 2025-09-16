@@ -39,27 +39,41 @@ export default function About({ id }: { id: string }) {
     return null; // Or a fallback component
   }
 
+  const paragraphs = content.description.split('\n\n');
+  const middleIndex = Math.ceil(paragraphs.length / 2);
+  const firstHalf = paragraphs.slice(0, middleIndex);
+  const secondHalf = paragraphs.slice(middleIndex);
+
   return (
     <section id={id} className="py-20 md:py-32 w-full">
       <Card className="glass-card">
-        <CardContent className="p-8 md:p-12 grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-          <div className="order-2 md:order-1">
+        <CardContent className="p-8 md:p-12 flex flex-col items-center text-center">
+          <div className="w-full max-w-4xl">
             <h2 className="section-title">{content.title}</h2>
-            {content.description.split('\n\n').map((paragraph, index) => (
-              <p key={index} className="mt-4 text-muted-foreground text-lg first:mt-4">
+            {firstHalf.map((paragraph, index) => (
+              <p key={index} className="mt-4 text-muted-foreground text-lg text-left">
                 {paragraph}
               </p>
             ))}
           </div>
-          <div className="order-1 md:order-2 h-full w-full">
+          
+          <div className="my-8 md:my-12 w-full max-w-2xl">
             <Image
               src={content.imageUrl}
               alt="Un retrato de Jordan"
               width={600}
               height={600}
               data-ai-hint="creator portrait"
-              className="rounded-lg object-cover aspect-square"
+              className="rounded-lg object-cover aspect-square w-full"
             />
+          </div>
+
+          <div className="w-full max-w-4xl">
+             {secondHalf.map((paragraph, index) => (
+              <p key={index} className="mt-4 text-muted-foreground text-lg text-left">
+                {paragraph}
+              </p>
+            ))}
           </div>
         </CardContent>
       </Card>
