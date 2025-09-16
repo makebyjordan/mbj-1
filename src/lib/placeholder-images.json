@@ -1,3 +1,46 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "project-1",
+      "title": "Kreativ Agency",
+      "description": "A modern website for a creative agency.",
+      "imageUrl": "https://picsum.photos/seed/project1/600/400",
+      "imageHint": "website design"
+    },
+    {
+      "id": "project-2",
+      "title": "Innovate Inc.",
+      "description": "Branding identity for a new tech startup.",
+      "imageUrl": "https://picsum.photos/seed/project2/600/400",
+      "imageHint": "brand logo"
+    },
+    {
+      "id": "project-3",
+      "title": "Artisan Market",
+      "description": "An e-commerce platform for handcrafted goods.",
+      "imageUrl": "https://picsum.photos/seed/project3/600/400",
+      "imageHint": "e-commerce online"
+    },
+    {
+      "id": "blog-1",
+      "title": "The Future of Web Dev",
+      "description": "Exploring the next generation of web development trends and technologies.",
+      "imageUrl": "https://picsum.photos/seed/blog1/600/400",
+      "imageHint": "code technology"
+    },
+    {
+      "id": "blog-2",
+      "title": "Building Your Brand",
+      "description": "A step-by-step guide to building a strong personal brand from scratch.",
+      "imageUrl": "https://picsum.photos/seed/blog2/600/400",
+      "imageHint": "personal branding"
+    },
+    {
+      "id": "blog-3",
+      "title": "AI in Content Creation",
+      "description": "Discover top AI tools that can boost your content creation workflow.",
+      "imageUrl": "https://picsum.photos/seed/blog3/600/400",
+      "imageHint": "ai robot"
+    }
+  ]
 }
