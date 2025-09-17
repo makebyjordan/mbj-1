@@ -49,31 +49,32 @@ export default function Header() {
       )}
     >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <Link href="/" className="flex items-center gap-2 font-headline text-2xl" aria-label="Home">
-          <Image
-            src={logoUrl}
-            alt="Logo Make By Jordan"
-            width={30}
-            height={30}
-            className="h-20 w-auto"
-            quality={100}
-            priority
-          />
-          <span className="font-bold">Make By Jordan</span>
-        </Link>
-
-        {/* Desktop Navigation */}
-        <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
-          {navLinks.map((link) => (
-            <Link
-              key={link.href}
-              href={link.href}
-              className="text-muted-foreground transition-colors hover:text-foreground"
-            >
-              {link.label}
+        <div className="flex items-center gap-8">
+            <Link href="/" className="flex items-center gap-2 font-headline text-2xl" aria-label="Home">
+            <Image
+                src={logoUrl}
+                alt="Logo Make By Jordan"
+                width={30}
+                height={30}
+                className="h-20 w-auto"
+                quality={100}
+                priority
+            />
             </Link>
-          ))}
-        </nav>
+
+            {/* Desktop Navigation */}
+            <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
+            {navLinks.map((link) => (
+                <Link
+                key={link.href}
+                href={link.href}
+                className="text-muted-foreground transition-colors hover:text-foreground"
+                >
+                {link.label}
+                </Link>
+            ))}
+            </nav>
+        </div>
 
         <div className="hidden md:flex items-center gap-4">
           <Button asChild className="primary-button-glow">
