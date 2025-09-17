@@ -1,23 +1,31 @@
+
 "use client";
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image"; // <--- Importa el componente Image
-import { MountainIcon } from "lucide-react";
+import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+} from "@/components/ui/sheet"
 
 const navLinks = [
-  { href: "#services", label: "Servicios" },
-  { href: "#portfolio", label: "Portafolio" },
-  { href: "#about", label: "Sobre Mí" },
-  { href: "#blog", label: "Blog" },
-  { href: "#formation", label: "Formación" },
-  { href: "#news", label: "Noticias" },
+  { href: "/#services", label: "Servicios" },
+  { href: "/#portfolio", label: "Portafolio" },
+  { href: "/#about", label: "Sobre Mí" },
+  { href: "/#blog", label: "Blog" },
+  { href: "/#formation", label: "Formación" },
+  { href: "/#news", label: "Noticias" },
+  { href: "/shorts", label: "Shorts" },
 ];
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -27,7 +35,6 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
-  // <--- Define la URL de tu logo aquí
   const logoUrl = "https://firebasestorage.googleapis.com/v0/b/studio-7212735275-82dc4.firebasestorage.app/o/gallery%2F1758072438075_logo-mbj.png?alt=media&token=3b0f7574-c410-4a78-995e-f9ff88032f64";
 
   return (
@@ -37,9 +44,8 @@ export default function Header() {
         scrolled ? "bg-background/80 backdrop-blur-lg border-b border-primary/10" : "bg-transparent"
       )}
     >
-      <div className="flex h-16 items-center justify-between px-4 md:px-6 lg:px-8">
+      <div className="container mx-auto flex h-16 items-center justify-between px-4">
         <Link href="/" className="flex items-center gap-2 font-headline text-2xl" aria-label="Home">
-          {/* <--- Reemplaza el icono de la montaña con tu componente Image */}
           <Image
             src={logoUrl}
             alt="Logo Make By Jordan"
@@ -51,6 +57,8 @@ export default function Header() {
           />
           <span className="font-bold"></span>
         </Link>
+
+        {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           {navLinks.map((link) => (
             <Link
@@ -62,13 +70,51 @@ export default function Header() {
             </Link>
           ))}
         </nav>
-        <div className="flex items-center gap-4">
+
+        <div className="hidden md:flex items-center gap-4">
           <Button asChild className="primary-button-glow">
             <Link href="/#contact">Contáctame</Link>
           </Button>
           <Button asChild variant="outline" className="border-primary/50 bg-transparent hover:bg-primary/10 hover:text-foreground">
             <Link href="/core/login">CORE</Link>
           </Button>
+        </div>
+
+        {/* Mobile Navigation */}
+        <div className="md:hidden">
+           <Sheet open={isMobileMenuOpen} onOpenChange={setIsMobileMenuOpen}>
+            <SheetTrigger asChild>
+               <Button variant="ghost" size="icon">
+                <Menu className="h-6 w-6" />
+                <span className="sr-only">Abrir menú</span>
+              </Button>
+            </SheetTrigger>
+            <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-background/90 backdrop-blur-lg">
+                <nav className="flex flex-col gap-6 text-lg font-medium h-full pt-10">
+                    <Link href="/" className="flex items-center gap-2 font-headline text-2xl mb-4" onClick={() => setIsMobileMenuOpen(false)}>
+                        <Image src={logoUrl} alt="Logo Make By Jordan" width={30} height={30} className="h-20 w-auto"/>
+                    </Link>
+                    {navLinks.map((link) => (
+                        <Link
+                        key={link.href}
+                        href={link.href}
+                        onClick={() => setIsMobileMenuOpen(false)}
+                        className="text-muted-foreground transition-colors hover:text-foreground"
+                        >
+                        {link.label}
+                        </Link>
+                    ))}
+                    <div className="mt-auto flex flex-col gap-4">
+                         <Button asChild className="primary-button-glow" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href="/#contact">Contáctame</Link>
+                        </Button>
+                        <Button asChild variant="outline" className="border-primary/50 bg-transparent hover:bg-primary/10 hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
+                            <Link href="/core/login">CORE</Link>
+                        </Button>
+                    </div>
+                </nav>
+            </SheetContent>
+          </Sheet>
         </div>
       </div>
     </header>

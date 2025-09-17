@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LogOut, PlusCircle, Edit, Trash2, Loader2, Star, Briefcase, Award } from "lucide-react";
+import { LogOut, PlusCircle, Edit, Trash2, Loader2, Star, Youtube } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -26,28 +26,32 @@ import { useToast } from "@/hooks/use-toast";
 import { getProjects, deleteProject, Project } from '@/services/projects';
 import { getServices, deleteService, Service } from '@/services/services';
 import { getFormations, deleteFormation, Formation } from '@/services/formation';
+import { getShorts, deleteShort, Short } from '@/services/shorts';
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
 import FormationForm from '@/components/core/FormationForm';
+import ShortForm from '@/components/core/ShortForm';
 import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
-import Image from 'next/image';
-
 
 export default function CoreDashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [services, setServices] = useState<Service[]>([]);
   const [formations, setFormations] = useState<Formation[]>([]);
+  const [shorts, setShorts] = useState<Short[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [isLoadingFormations, setIsLoadingFormations] = useState(true);
+  const [isLoadingShorts, setIsLoadingShorts] = useState(true);
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
   const [isFormationDialogOpen, setIsFormationDialogOpen] = useState(false);
+  const [isShortDialogOpen, setIsShortDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [editingFormation, setEditingFormation] = useState<Formation | null>(null);
+  const [editingShort, setEditingShort] = useState<Short | null>(null);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -101,10 +105,28 @@ export default function CoreDashboardPage() {
     }
   }
 
+  const fetchShorts = async () => {
+    setIsLoadingShorts(true);
+    try {
+      const shortsFromDb = await getShorts();
+      setShorts(shortsFromDb);
+    } catch (error) {
+      console.error("Error fetching shorts:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al cargar shorts",
+        description: "No se pudieron cargar los shorts.",
+      });
+    } finally {
+      setIsLoadingShorts(false);
+    }
+  }
+
   useEffect(() => {
     fetchProjects();
     fetchServices();
     fetchFormations();
+    fetchShorts();
   }, []);
 
   const handleProjectSaved = () => {
@@ -134,6 +156,16 @@ export default function CoreDashboardPage() {
      toast({
       title: "Formación guardada",
       description: "Tu formación se ha guardado correctamente.",
+    });
+  }
+  
+  const handleShortSaved = () => {
+    setIsShortDialogOpen(false);
+    setEditingShort(null);
+    fetchShorts();
+     toast({
+      title: "Short guardado",
+      description: "Tu short se ha guardado correctamente.",
     });
   }
 
@@ -172,6 +204,16 @@ export default function CoreDashboardPage() {
   const handleAddNewFormation = () => {
     setEditingFormation(null);
     setIsFormationDialogOpen(true);
+  }
+  
+  const handleEditShort = (short: Short) => {
+    setEditingShort(short);
+    setIsShortDialogOpen(true);
+  }
+
+  const handleAddNewShort = () => {
+    setEditingShort(null);
+    setIsShortDialogOpen(true);
   }
 
   const handleDeleteProject = async (projectId: string) => {
@@ -224,6 +266,24 @@ export default function CoreDashboardPage() {
         variant: "destructive",
         title: "Error al eliminar",
         description: "No se pudo eliminar la formación.",
+      });
+    }
+  };
+  
+  const handleDeleteShort = async (shortId: string) => {
+    try {
+      await deleteShort(shortId);
+      fetchShorts();
+      toast({
+        title: "Short eliminado",
+        description: "El short se ha eliminado correctamente.",
+      });
+    } catch (error) {
+      console.error("Error deleting short:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al eliminar",
+        description: "No se pudo eliminar el short.",
       });
     }
   };
@@ -486,6 +546,84 @@ export default function CoreDashboardPage() {
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                     <AlertDialogAction onClick={() => handleDeleteFormation(formation.id!)}>Eliminar</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle>YouTube Shorts</CardTitle>
+                   <Dialog open={isShortDialogOpen} onOpenChange={(isOpen) => {
+                     setIsShortDialogOpen(isOpen);
+                     if (!isOpen) {
+                       setEditingShort(null);
+                     }
+                   }}>
+                    <DialogTrigger asChild>
+                       <Button onClick={handleAddNewShort}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Añadir Short
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[625px] glass-card">
+                      <DialogHeader>
+                        <DialogTitle>{editingShort ? 'Editar Short' : 'Crear Nuevo Short'}</DialogTitle>
+                      </DialogHeader>
+                      <ShortForm short={editingShort} onSave={handleShortSaved} />
+                    </DialogContent>
+                  </Dialog>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingShorts ? (
+                    <div className="flex justify-center items-center h-40">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[50px]">Icono</TableHead>
+                          <TableHead>Título</TableHead>
+                          <TableHead>URL</TableHead>
+                          <TableHead className="text-right">Acciones</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {shorts.map((short) => (
+                          <TableRow key={short.id}>
+                             <TableCell>
+                              <Youtube className="h-6 w-6 text-red-600" />
+                            </TableCell>
+                            <TableCell className="font-medium">{short.title}</TableCell>
+                            <TableCell className="max-w-[300px] truncate text-blue-400"><Link href={short.youtubeUrl} target="_blank">{short.youtubeUrl}</Link></TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditShort(short)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                               <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta acción no se puede deshacer. Esto eliminará permanentemente el short.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteShort(short.id!)}>Eliminar</AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
