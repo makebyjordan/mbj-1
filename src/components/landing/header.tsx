@@ -11,6 +11,7 @@ import {
   Sheet,
   SheetContent,
   SheetTrigger,
+  SheetTitle,
 } from "@/components/ui/sheet"
 
 const navLinks = [
@@ -91,6 +92,7 @@ export default function Header() {
               </Button>
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-background/90 backdrop-blur-lg">
+                <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
                 <nav className="flex flex-col gap-6 text-lg font-medium h-full pt-10">
                     <Link href="/" className="flex items-center gap-2 font-headline text-2xl mb-4" onClick={() => setIsMobileMenuOpen(false)}>
                         <Image src={logoUrl} alt="Logo Make By Jordan" width={30} height={30} className="h-20 w-auto"/>

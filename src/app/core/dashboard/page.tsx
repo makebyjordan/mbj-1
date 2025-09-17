@@ -20,6 +20,7 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogDescription,
 } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -345,6 +346,9 @@ export default function CoreDashboardPage() {
                     <DialogContent className="sm:max-w-[625px] glass-card">
                       <DialogHeader>
                         <DialogTitle>{editingService ? 'Editar Servicio' : 'Crear Nuevo Servicio'}</DialogTitle>
+                        <DialogDescription className="sr-only">
+                            {editingService ? 'Edita los detalles de tu servicio aquí.' : 'Crea un nuevo servicio para mostrar en tu página.'}
+                        </DialogDescription>
                       </DialogHeader>
                       <ServiceForm service={editingService} onSave={handleServiceSaved} />
                     </DialogContent>
@@ -425,6 +429,9 @@ export default function CoreDashboardPage() {
                     <DialogContent className="sm:max-w-[625px] glass-card">
                       <DialogHeader>
                         <DialogTitle>{editingProject ? 'Editar Proyecto' : 'Crear Nuevo Proyecto'}</DialogTitle>
+                         <DialogDescription className="sr-only">
+                            {editingProject ? 'Edita los detalles de tu proyecto o entrada de blog aquí.' : 'Crea un nuevo proyecto o entrada de blog.'}
+                        </DialogDescription>
                       </DialogHeader>
                       <ProjectForm project={editingProject} onSave={handleProjectSaved} />
                     </DialogContent>
@@ -503,6 +510,9 @@ export default function CoreDashboardPage() {
                     <DialogContent className="sm:max-w-[625px] glass-card">
                       <DialogHeader>
                         <DialogTitle>{editingFormation ? 'Editar Formación' : 'Crear Nueva Formación'}</DialogTitle>
+                         <DialogDescription className="sr-only">
+                            {editingFormation ? 'Edita los detalles de tu formación aquí.' : 'Crea una nueva entrada de formación.'}
+                        </DialogDescription>
                       </DialogHeader>
                       <FormationForm formation={editingFormation} onSave={handleFormationSaved} />
                     </DialogContent>
@@ -577,6 +587,9 @@ export default function CoreDashboardPage() {
                     <DialogContent className="sm:max-w-[625px] glass-card">
                       <DialogHeader>
                         <DialogTitle>{editingShort ? 'Editar Short' : 'Crear Nuevo Short'}</DialogTitle>
+                        <DialogDescription className="sr-only">
+                            {editingShort ? 'Edita los detalles de tu short aquí.' : 'Añade un nuevo short a tu colección.'}
+                        </DialogDescription>
                       </DialogHeader>
                       <ShortForm short={editingShort} onSave={handleShortSaved} />
                     </DialogContent>
@@ -657,5 +670,3 @@ export default function CoreDashboardPage() {
     </div>
   );
 }
-
-    
