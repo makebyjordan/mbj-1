@@ -14,8 +14,10 @@ export default function Showcase({ id }: { id: string }) {
   useEffect(() => {
     const fetchProjects = async () => {
       try {
-        const projectsFromDb = await getProjects();
-        setProjects(projectsFromDb);
+        const allProjects = await getProjects();
+        // Filtra los proyectos que NO están marcados como destacados para el blog.
+        const portfolioProjects = allProjects.filter(p => !p.isFeatured);
+        setProjects(portfolioProjects);
       } catch (error) {
         console.error("Error fetching projects:", error);
       } finally {
@@ -38,6 +40,8 @@ export default function Showcase({ id }: { id: string }) {
           <div className="flex justify-center items-center h-40">
             <Loader2 className="h-8 w-8 animate-spin text-primary" />
           </div>
+        ) : projects.length === 0 ? (
+          <p className="text-center text-muted-foreground">Aún no hay proyectos en el portafolio. ¡Crea uno desde el CORE!</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {projects.map((project) => (
