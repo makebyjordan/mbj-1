@@ -1,4 +1,4 @@
-import { Github, Linkedin, Twitter, MountainIcon } from 'lucide-react';
+import { Instagram, Linkedin, Twitter, MountainIcon } from 'lucide-react';
 import Link from 'next/link';
 
 export default function Footer() {
@@ -16,8 +16,8 @@ export default function Footer() {
           <Link href="#" aria-label="Twitter">
             <Twitter className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
           </Link>
-          <Link href="#" aria-label="GitHub">
-            <Github className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
+          <Link href="#" aria-label="Instagram">
+            <Instagram className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
           </Link>
           <Link href="#" aria-label="LinkedIn">
             <Linkedin className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
