@@ -7,6 +7,7 @@ import About from '@/components/landing/about';
 import Blog from '@/components/landing/blog';
 import LatestShorts from '@/components/landing/latest-shorts';
 import Formation from '@/components/landing/formation';
+import Links from '@/components/landing/links';
 import NewsSummarizer from '@/components/landing/news-summarizer';
 import Contact from '@/components/landing/contact';
 import Footer from '@/components/landing/footer';
@@ -24,6 +25,7 @@ export default function Home() {
           <Blog id="blog" />
           <LatestShorts id="latest-shorts" />
           <Formation id="formation" />
+          <Links id="links" />
           <NewsSummarizer id="news" />
           <Contact id="contact" />
         </div>

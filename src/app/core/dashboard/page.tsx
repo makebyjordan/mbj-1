@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LogOut, PlusCircle, Edit, Trash2, Loader2, Star, Youtube } from "lucide-react";
+import { LogOut, PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -28,10 +28,12 @@ import { getProjects, deleteProject, Project } from '@/services/projects';
 import { getServices, deleteService, Service } from '@/services/services';
 import { getFormations, deleteFormation, Formation } from '@/services/formation';
 import { getShorts, deleteShort, Short } from '@/services/shorts';
+import { getLinks, deleteLink, LinkItem } from '@/services/links';
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
 import FormationForm from '@/components/core/FormationForm';
 import ShortForm from '@/components/core/ShortForm';
+import LinkForm from '@/components/core/LinkForm';
 import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
@@ -42,18 +44,22 @@ export default function CoreDashboardPage() {
   const [services, setServices] = useState<Service[]>([]);
   const [formations, setFormations] = useState<Formation[]>([]);
   const [shorts, setShorts] = useState<Short[]>([]);
+  const [links, setLinks] = useState<LinkItem[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [isLoadingFormations, setIsLoadingFormations] = useState(true);
   const [isLoadingShorts, setIsLoadingShorts] = useState(true);
+  const [isLoadingLinks, setIsLoadingLinks] = useState(true);
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
   const [isFormationDialogOpen, setIsFormationDialogOpen] = useState(false);
   const [isShortDialogOpen, setIsShortDialogOpen] = useState(false);
+  const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [editingFormation, setEditingFormation] = useState<Formation | null>(null);
   const [editingShort, setEditingShort] = useState<Short | null>(null);
+  const [editingLink, setEditingLink] = useState<LinkItem | null>(null);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -123,12 +129,30 @@ export default function CoreDashboardPage() {
       setIsLoadingShorts(false);
     }
   }
+  
+  const fetchLinks = async () => {
+    setIsLoadingLinks(true);
+    try {
+      const linksFromDb = await getLinks();
+      setLinks(linksFromDb);
+    } catch (error) {
+      console.error("Error fetching links:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al cargar enlaces",
+        description: "No se pudieron cargar los enlaces.",
+      });
+    } finally {
+      setIsLoadingLinks(false);
+    }
+  }
 
   useEffect(() => {
     fetchProjects();
     fetchServices();
     fetchFormations();
     fetchShorts();
+    fetchLinks();
   }, []);
 
   const handleProjectSaved = () => {
@@ -168,6 +192,16 @@ export default function CoreDashboardPage() {
      toast({
       title: "Short guardado",
       description: "Tu short se ha guardado correctamente.",
+    });
+  }
+
+  const handleLinkSaved = () => {
+    setIsLinkDialogOpen(false);
+    setEditingLink(null);
+    fetchLinks();
+     toast({
+      title: "Enlace guardado",
+      description: "Tu enlace se ha guardado correctamente.",
     });
   }
 
@@ -216,6 +250,16 @@ export default function CoreDashboardPage() {
   const handleAddNewShort = () => {
     setEditingShort(null);
     setIsShortDialogOpen(true);
+  }
+
+  const handleEditLink = (link: LinkItem) => {
+    setEditingLink(link);
+    setIsLinkDialogOpen(true);
+  }
+
+  const handleAddNewLink = () => {
+    setEditingLink(null);
+    setIsLinkDialogOpen(true);
   }
 
   const handleDeleteProject = async (projectId: string) => {
@@ -286,6 +330,24 @@ export default function CoreDashboardPage() {
         variant: "destructive",
         title: "Error al eliminar",
         description: "No se pudo eliminar el short.",
+      });
+    }
+  };
+
+  const handleDeleteLink = async (linkId: string) => {
+    try {
+      await deleteLink(linkId);
+      fetchLinks();
+      toast({
+        title: "Enlace eliminado",
+        description: "El enlace se ha eliminado correctamente.",
+      });
+    } catch (error) {
+      console.error("Error deleting link:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al eliminar",
+        description: "No se pudo eliminar el enlace.",
       });
     }
   };
@@ -557,6 +619,87 @@ export default function CoreDashboardPage() {
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                     <AlertDialogAction onClick={() => handleDeleteFormation(formation.id!)}>Eliminar</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
+
+               <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle>Enlaces de Interés</CardTitle>
+                   <Dialog open={isLinkDialogOpen} onOpenChange={(isOpen) => {
+                     setIsLinkDialogOpen(isOpen);
+                     if (!isOpen) {
+                       setEditingLink(null);
+                     }
+                   }}>
+                    <DialogTrigger asChild>
+                       <Button onClick={handleAddNewLink}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Añadir Enlace
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[625px] glass-card">
+                      <DialogHeader>
+                        <DialogTitle>{editingLink ? 'Editar Enlace' : 'Crear Nuevo Enlace'}</DialogTitle>
+                         <DialogDescription className="sr-only">
+                            {editingLink ? 'Edita los detalles de tu enlace aquí.' : 'Crea un nuevo enlace.'}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <LinkForm link={editingLink} onSave={handleLinkSaved} />
+                    </DialogContent>
+                  </Dialog>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingLinks ? (
+                    <div className="flex justify-center items-center h-40">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[50px]">Icon</TableHead>
+                          <TableHead>Título</TableHead>
+                          <TableHead>Etiqueta</TableHead>
+                          <TableHead className="text-right">Acciones</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {links.map((link) => (
+                          <TableRow key={link.id}>
+                             <TableCell>
+                              <Link2 className="h-4 w-4 text-primary" />
+                            </TableCell>
+                            <TableCell className="font-medium">{link.title}</TableCell>
+                            <TableCell><Badge variant="secondary">{link.tag}</Badge></TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditLink(link)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                               <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta acción no se puede deshacer. Esto eliminará permanentemente el enlace.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteLink(link.id!)}>Eliminar</AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>

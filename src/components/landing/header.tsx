@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, X } from "lucide-react";
+import { Menu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -23,6 +23,7 @@ const navLinks = [
   { href: "/#blog", label: "Blog" },
   { href: "/#latest-shorts", label: "Shorts" },
   { href: "/#formation", label: "Formación" },
+  { href: "/#links", label: "Enlaces" },
   { href: "/#news", label: "Noticias" },
   { href: "/shorts", label: "Más Shorts" },
 ];
@@ -49,7 +50,7 @@ export default function Header() {
       )}
     >
       <div className="container mx-auto flex h-16 items-center justify-between px-4">
-        <div className="flex items-center gap-8">
+        <div className="flex items-center gap-2">
             <Link href="/" className="flex items-center gap-2 font-headline text-2xl" aria-label="Home">
             <Image
                 src={logoUrl}
