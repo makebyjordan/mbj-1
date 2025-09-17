@@ -16,7 +16,7 @@ export default function Footer() {
           <Link href="https://x.com/makebyjordan" aria-label="Twitter">
             <Twitter className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
           </Link>
-          <Link href="#" aria-label="Instagram">
+          <Link href="https://www.instagram.com/makebyjordan/" aria-label="Instagram">
             <Instagram className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
           </Link>
           <Link href="#" aria-label="LinkedIn">
