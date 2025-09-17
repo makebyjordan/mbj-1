@@ -14,6 +14,7 @@ import {
   SheetTitle,
 } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator";
+import { ScrollArea } from "@/components/ui/scroll-area";
 
 const navLinks = [
   { href: "/#services", label: "Servicios" },
@@ -92,34 +93,38 @@ export default function Header() {
                 <span className="sr-only">Abrir menú</span>
               </Button>
             </SheetTrigger>
-            <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-background/90 backdrop-blur-lg">
-                <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
-                <nav className="flex flex-col gap-6 text-lg font-medium pt-10">
-                    <Link href="/" className="flex items-center gap-2 font-headline text-2xl mb-4" onClick={() => setIsMobileMenuOpen(false)}>
-                        <Image src={logoUrl} alt="Logo Make By Jordan" width={30} height={30} className="h-20 w-auto"/>
-                    </Link>
-                    {navLinks.map((link) => (
-                        <Link
-                        key={link.href}
-                        href={link.href}
-                        onClick={() => setIsMobileMenuOpen(false)}
-                        className="text-muted-foreground transition-colors hover:text-foreground"
-                        >
-                        {link.label}
-                        </Link>
-                    ))}
-                    
-                    <Separator className="my-4 bg-primary/20" />
+            <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-background/90 backdrop-blur-lg p-0">
+                <ScrollArea className="h-full w-full">
+                    <div className="p-6">
+                        <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
+                        <nav className="flex flex-col gap-6 text-lg font-medium pt-4">
+                            <Link href="/" className="flex items-center gap-2 font-headline text-2xl mb-4" onClick={() => setIsMobileMenuOpen(false)}>
+                                <Image src={logoUrl} alt="Logo Make By Jordan" width={30} height={30} className="h-20 w-auto"/>
+                            </Link>
+                            {navLinks.map((link) => (
+                                <Link
+                                key={link.href}
+                                href={link.href}
+                                onClick={() => setIsMobileMenuOpen(false)}
+                                className="text-muted-foreground transition-colors hover:text-foreground"
+                                >
+                                {link.label}
+                                </Link>
+                            ))}
+                            
+                            <Separator className="my-4 bg-primary/20" />
 
-                    <div className="flex flex-col gap-4">
-                         <Button asChild className="primary-button-glow" onClick={() => setIsMobileMenuOpen(false)}>
-                            <Link href="/#contact">Contáctame</Link>
-                        </Button>
-                        <Button asChild variant="outline" className="border-primary/50 bg-transparent hover:bg-primary/10 hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
-                            <Link href="/core/login">CORE</Link>
-                        </Button>
+                            <div className="flex flex-col gap-4">
+                                <Button asChild className="primary-button-glow" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <Link href="/#contact">Contáctame</Link>
+                                </Button>
+                                <Button asChild variant="outline" className="border-primary/50 bg-transparent hover:bg-primary/10 hover:text-foreground" onClick={() => setIsMobileMenuOpen(false)}>
+                                    <Link href="/core/login">CORE</Link>
+                                </Button>
+                            </div>
+                        </nav>
                     </div>
-                </nav>
+                </ScrollArea>
             </SheetContent>
           </Sheet>
         </div>
