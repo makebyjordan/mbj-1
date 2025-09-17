@@ -261,7 +261,7 @@ export default function CoreDashboardPage() {
         title: "Formación eliminada",
         description: "La formación se ha eliminado correctamente.",
       });
-    } catch (error) => {
+    } catch (error) {
       console.error("Error deleting formation:", error);
       toast({
         variant: "destructive",
@@ -657,3 +657,5 @@ export default function CoreDashboardPage() {
     </div>
   );
 }
+
+    
