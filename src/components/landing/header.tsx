@@ -11,6 +11,7 @@ const navLinks = [
   { href: "#portfolio", label: "Portafolio" },
   { href: "#about", label: "Sobre Mí" },
   { href: "#blog", label: "Blog" },
+  { href: "#formation", label: "Formación" },
   { href: "#news", label: "Noticias" },
 ];
 

@@ -4,6 +4,7 @@ import Services from '@/components/landing/services';
 import Showcase from '@/components/landing/showcase';
 import About from '@/components/landing/about';
 import Blog from '@/components/landing/blog';
+import Formation from '@/components/landing/formation';
 import NewsSummarizer from '@/components/landing/news-summarizer';
 import Contact from '@/components/landing/contact';
 import Footer from '@/components/landing/footer';
@@ -19,6 +20,7 @@ export default function Home() {
           <Showcase id="portfolio" />
           <About id="about" />
           <Blog id="blog" />
+          <Formation id="formation" />
           <NewsSummarizer id="news" />
           <Contact id="contact" />
         </div>

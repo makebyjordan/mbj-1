@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
-import { LogOut, PlusCircle, Edit, Trash2, Loader2, Star, Briefcase } from "lucide-react";
+import { LogOut, PlusCircle, Edit, Trash2, Loader2, Star, Briefcase, Award } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -25,8 +25,10 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { useToast } from "@/hooks/use-toast";
 import { getProjects, deleteProject, Project } from '@/services/projects';
 import { getServices, deleteService, Service } from '@/services/services';
+import { getFormations, deleteFormation, Formation } from '@/services/formation';
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
+import FormationForm from '@/components/core/FormationForm';
 import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
@@ -36,12 +38,16 @@ import Image from 'next/image';
 export default function CoreDashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
   const [services, setServices] = useState<Service[]>([]);
+  const [formations, setFormations] = useState<Formation[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
+  const [isLoadingFormations, setIsLoadingFormations] = useState(true);
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
+  const [isFormationDialogOpen, setIsFormationDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
+  const [editingFormation, setEditingFormation] = useState<Formation | null>(null);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -78,9 +84,27 @@ export default function CoreDashboardPage() {
     }
   }
 
+  const fetchFormations = async () => {
+    setIsLoadingFormations(true);
+    try {
+      const formationsFromDb = await getFormations();
+      setFormations(formationsFromDb);
+    } catch (error) {
+      console.error("Error fetching formations:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al cargar formaciones",
+        description: "No se pudieron cargar las formaciones.",
+      });
+    } finally {
+      setIsLoadingFormations(false);
+    }
+  }
+
   useEffect(() => {
     fetchProjects();
     fetchServices();
+    fetchFormations();
   }, []);
 
   const handleProjectSaved = () => {
@@ -100,6 +124,16 @@ export default function CoreDashboardPage() {
      toast({
       title: "Servicio guardado",
       description: "Tu servicio se ha guardado correctamente.",
+    });
+  }
+
+  const handleFormationSaved = () => {
+    setIsFormationDialogOpen(false);
+    setEditingFormation(null);
+    fetchFormations();
+     toast({
+      title: "Formación guardada",
+      description: "Tu formación se ha guardado correctamente.",
     });
   }
 
@@ -128,6 +162,16 @@ export default function CoreDashboardPage() {
   const handleAddNewService = () => {
     setEditingService(null);
     setIsServiceDialogOpen(true);
+  }
+
+  const handleEditFormation = (formation: Formation) => {
+    setEditingFormation(formation);
+    setIsFormationDialogOpen(true);
+  }
+
+  const handleAddNewFormation = () => {
+    setEditingFormation(null);
+    setIsFormationDialogOpen(true);
   }
 
   const handleDeleteProject = async (projectId: string) => {
@@ -162,6 +206,24 @@ export default function CoreDashboardPage() {
         variant: "destructive",
         title: "Error al eliminar",
         description: "No se pudo eliminar el servicio.",
+      });
+    }
+  };
+
+  const handleDeleteFormation = async (formationId: string) => {
+    try {
+      await deleteFormation(formationId);
+      fetchFormations();
+      toast({
+        title: "Formación eliminada",
+        description: "La formación se ha eliminado correctamente.",
+      });
+    } catch (error) {
+      console.error("Error deleting formation:", error);
+      toast({
+        variant: "destructive",
+        title: "Error al eliminar",
+        description: "No se pudo eliminar la formación.",
       });
     }
   };
@@ -281,7 +343,7 @@ export default function CoreDashboardPage() {
                   )}
                 </CardContent>
               </Card>
-
+              
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
@@ -361,6 +423,81 @@ export default function CoreDashboardPage() {
                   )}
                 </CardContent>
               </Card>
+
+              <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle>Formación</CardTitle>
+                   <Dialog open={isFormationDialogOpen} onOpenChange={(isOpen) => {
+                     setIsFormationDialogOpen(isOpen);
+                     if (!isOpen) {
+                       setEditingFormation(null);
+                     }
+                   }}>
+                    <DialogTrigger asChild>
+                       <Button onClick={handleAddNewFormation}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Añadir Formación
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[625px] glass-card">
+                      <DialogHeader>
+                        <DialogTitle>{editingFormation ? 'Editar Formación' : 'Crear Nueva Formación'}</DialogTitle>
+                      </DialogHeader>
+                      <FormationForm formation={editingFormation} onSave={handleFormationSaved} />
+                    </DialogContent>
+                  </Dialog>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingFormations ? (
+                    <div className="flex justify-center items-center h-40">
+                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                    </div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Título</TableHead>
+                          <TableHead>Descripción</TableHead>
+                          <TableHead className="text-right">Acciones</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {formations.map((formation) => (
+                          <TableRow key={formation.id}>
+                            <TableCell className="font-medium">{formation.title}</TableCell>
+                            <TableCell className="max-w-[300px] truncate">{formation.description}</TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditFormation(formation)}>
+                                <Edit className="h-4 w-4" />
+                              </Button>
+                               <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="ghost" size="icon">
+                                    <Trash2 className="h-4 w-4 text-destructive" />
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Esta acción no se puede deshacer. Esto eliminará permanentemente la formación.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeleteFormation(formation.id!)}>Eliminar</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
+
           </CardContent>
         </Card>
         
