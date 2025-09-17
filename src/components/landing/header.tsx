@@ -3,7 +3,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
-import Image from "next/image"; // <--- Importa el componente Image
+import Image from "next/image";
 import { Menu, X } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -18,9 +18,10 @@ const navLinks = [
   { href: "/#portfolio", label: "Portafolio" },
   { href: "/#about", label: "Sobre Mí" },
   { href: "/#blog", label: "Blog" },
+  { href: "/#latest-shorts", label: "Shorts" },
   { href: "/#formation", label: "Formación" },
   { href: "/#news", label: "Noticias" },
-  { href: "/shorts", label: "Shorts" },
+  { href: "/shorts", label: "Más Shorts" },
 ];
 
 export default function Header() {

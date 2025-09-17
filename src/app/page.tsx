@@ -1,9 +1,11 @@
+
 import Header from '@/components/landing/header';
 import Hero from '@/components/landing/hero';
 import Services from '@/components/landing/services';
 import Showcase from '@/components/landing/showcase';
 import About from '@/components/landing/about';
 import Blog from '@/components/landing/blog';
+import LatestShorts from '@/components/landing/latest-shorts';
 import Formation from '@/components/landing/formation';
 import NewsSummarizer from '@/components/landing/news-summarizer';
 import Contact from '@/components/landing/contact';
@@ -20,6 +22,7 @@ export default function Home() {
           <Showcase id="portfolio" />
           <About id="about" />
           <Blog id="blog" />
+          <LatestShorts id="latest-shorts" />
           <Formation id="formation" />
           <NewsSummarizer id="news" />
           <Contact id="contact" />
