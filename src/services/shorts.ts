@@ -9,6 +9,7 @@ const ShortSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1, "El título es requerido."),
   youtubeUrl: z.string().url("Debe ser una URL de YouTube válida."),
+  tags: z.array(z.string()).optional(),
   createdAt: z.any().optional(),
 });
 
@@ -23,6 +24,7 @@ const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): Short => 
         id: snapshot.id,
         title: data.title,
         youtubeUrl: data.youtubeUrl,
+        tags: data.tags || [],
         createdAt: data.createdAt?.toDate(),
     });
 }

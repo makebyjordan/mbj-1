@@ -34,6 +34,7 @@ import ShortForm from '@/components/core/ShortForm';
 import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
+import { Badge } from '@/components/ui/badge';
 
 export default function CoreDashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -260,7 +261,7 @@ export default function CoreDashboardPage() {
         title: "Formación eliminada",
         description: "La formación se ha eliminado correctamente.",
       });
-    } catch (error) {
+    } catch (error) => {
       console.error("Error deleting formation:", error);
       toast({
         variant: "destructive",
@@ -592,7 +593,7 @@ export default function CoreDashboardPage() {
                         <TableRow>
                           <TableHead className="w-[50px]">Icono</TableHead>
                           <TableHead>Título</TableHead>
-                          <TableHead>URL</TableHead>
+                          <TableHead>Etiquetas</TableHead>
                           <TableHead className="text-right">Acciones</TableHead>
                         </TableRow>
                       </TableHeader>
@@ -603,7 +604,11 @@ export default function CoreDashboardPage() {
                               <Youtube className="h-6 w-6 text-red-600" />
                             </TableCell>
                             <TableCell className="font-medium">{short.title}</TableCell>
-                            <TableCell className="max-w-[300px] truncate text-blue-400"><Link href={short.youtubeUrl} target="_blank">{short.youtubeUrl}</Link></TableCell>
+                            <TableCell>
+                              <div className="flex flex-wrap gap-1 max-w-[250px]">
+                                {short.tags?.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
+                              </div>
+                            </TableCell>
                             <TableCell className="text-right">
                               <Button variant="ghost" size="icon" onClick={() => handleEditShort(short)}>
                                 <Edit className="h-4 w-4" />

@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import {
   Form,
   FormControl,
+  FormDescription,
   FormField,
   FormItem,
   FormLabel,
@@ -22,7 +23,10 @@ import { createShort, updateShort, Short } from "@/services/shorts";
 const formSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
   youtubeUrl: z.string().url("Debe ser una URL de YouTube válida."),
+  tags: z.string().optional(), // Tags will be a comma-separated string in the form
 });
+
+type ShortFormValues = z.infer<typeof formSchema>;
 
 type ShortFormProps = {
     short: Short | null;
@@ -33,32 +37,45 @@ export default function ShortForm({ short, onSave }: ShortFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
-  const form = useForm<z.infer<typeof formSchema>>({
+  const form = useForm<ShortFormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
       title: "",
       youtubeUrl: "",
+      tags: "",
     },
   });
 
   useEffect(() => {
     if (short) {
-        form.reset(short);
+        form.reset({
+          title: short.title,
+          youtubeUrl: short.youtubeUrl,
+          tags: short.tags?.join(', ') || '',
+        });
     } else {
         form.reset({
             title: "",
             youtubeUrl: "",
+            tags: "",
         });
     }
   }, [short, form]);
 
-  async function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: ShortFormValues) {
     setIsLoading(true);
     try {
+        const tagsArray = values.tags ? values.tags.split(',').map(tag => tag.trim()).filter(tag => tag) : [];
+        const dataToSave = {
+            title: values.title,
+            youtubeUrl: values.youtubeUrl,
+            tags: tagsArray,
+        };
+
         if (short && short.id) {
-            await updateShort(short.id, values);
+            await updateShort(short.id, dataToSave);
         } else {
-            await createShort(values);
+            await createShort(dataToSave);
         }
         onSave();
     } catch (error) {
@@ -101,6 +118,22 @@ export default function ShortForm({ short, onSave }: ShortFormProps) {
                 <FormMessage />
                 </FormItem>
             )}
+            />
+            <FormField
+              control={form.control}
+              name="tags"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Etiquetas</FormLabel>
+                  <FormControl>
+                    <Input placeholder="diseño, desarrollo, tips..." {...field} className="bg-background/50" />
+                  </FormControl>
+                  <FormDescription>
+                    Separa las etiquetas con comas.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
             />
             <div className="flex justify-end">
                 <Button type="submit" disabled={isLoading} className="primary-button-glow">
