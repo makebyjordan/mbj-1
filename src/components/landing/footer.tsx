@@ -13,7 +13,7 @@ export default function Footer() {
           &copy; {new Date().getFullYear()} MakeByJordan. Todos los derechos reservados.
         </p>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
-          <Link href="#" aria-label="Twitter">
+          <Link href="https://x.com/makebyjordan" aria-label="Twitter">
             <Twitter className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
           </Link>
           <Link href="#" aria-label="Instagram">
