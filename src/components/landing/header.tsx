@@ -13,6 +13,7 @@ import {
   SheetTrigger,
   SheetTitle,
 } from "@/components/ui/sheet"
+import { Separator } from "@/components/ui/separator";
 
 const navLinks = [
   { href: "/#services", label: "Servicios" },
@@ -57,7 +58,7 @@ export default function Header() {
             quality={100}
             priority
           />
-          <span className="font-bold"></span>
+          <span className="font-bold">Make By Jordan</span>
         </Link>
 
         {/* Desktop Navigation */}
@@ -93,7 +94,7 @@ export default function Header() {
             </SheetTrigger>
             <SheetContent side="left" className="w-[300px] sm:w-[400px] bg-background/90 backdrop-blur-lg">
                 <SheetTitle className="sr-only">Menú de navegación</SheetTitle>
-                <nav className="flex flex-col gap-6 text-lg font-medium h-full pt-10">
+                <nav className="flex flex-col gap-6 text-lg font-medium pt-10">
                     <Link href="/" className="flex items-center gap-2 font-headline text-2xl mb-4" onClick={() => setIsMobileMenuOpen(false)}>
                         <Image src={logoUrl} alt="Logo Make By Jordan" width={30} height={30} className="h-20 w-auto"/>
                     </Link>
@@ -107,7 +108,10 @@ export default function Header() {
                         {link.label}
                         </Link>
                     ))}
-                    <div className="mt-auto flex flex-col gap-4">
+                    
+                    <Separator className="my-4 bg-primary/20" />
+
+                    <div className="flex flex-col gap-4">
                          <Button asChild className="primary-button-glow" onClick={() => setIsMobileMenuOpen(false)}>
                             <Link href="/#contact">Contáctame</Link>
                         </Button>
