@@ -4,8 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import Link from "next/link";
-import { LogOut, PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2 } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2 } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -38,6 +37,7 @@ import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
 import { Badge } from '@/components/ui/badge';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 
 export default function CoreDashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -353,44 +353,47 @@ export default function CoreDashboardPage() {
   };
 
   return (
-    <div className="flex min-h-screen flex-col items-center bg-background p-4">
-      <div className="absolute top-0 left-0 w-full h-full bg-gradient-to-br from-[#1a1631] via-[#2a234f] to-[#1a1631]"></div>
-      
-      <header className="z-10 w-full max-w-7xl flex justify-between items-center py-4 px-4">
-        <h1 className="font-headline text-3xl text-primary">CORE Dashboard</h1>
-        <Button asChild variant="ghost">
-          <Link href="/" className="flex items-center gap-2 text-muted-foreground hover:text-primary">
-            <LogOut className="h-4 w-4" />
-            <span>Salir</span>
-          </Link>
-        </Button>
-      </header>
+    <main className="flex-1 w-full p-4 md:p-8 space-y-8">
+        <Tabs defaultValue="pagina" className="w-full">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 h-auto">
+            <TabsTrigger value="pagina">Página Principal</TabsTrigger>
+            <TabsTrigger value="servicios">Servicios</TabsTrigger>
+            <TabsTrigger value="proyectos">Proyectos/Blog</TabsTrigger>
+            <TabsTrigger value="formacion">Formación</TabsTrigger>
+            <TabsTrigger value="links">Enlaces</TabsTrigger>
+            <TabsTrigger value="shorts">Shorts</TabsTrigger>
+            <TabsTrigger value="galeria">Galería</TabsTrigger>
+          </TabsList>
+          
+          <TabsContent value="pagina" className="mt-6">
+            <Card>
+              <CardHeader>
+                <CardTitle className="font-headline text-3xl">Página Principal</CardTitle>
+              </CardHeader>
+              <CardContent className="space-y-8">
+                  <Card>
+                    <CardHeader>
+                        <CardTitle>Gestionar Hero</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <HeroForm onSave={() => handleGenericSave("Hero Actualizado", "La sección principal se ha guardado correctamente.")} />
+                    </CardContent>
+                  </Card>
 
-      <main className="z-10 flex-1 w-full max-w-7xl py-8 space-y-8">
-        <Card className="glass-card">
-          <CardHeader>
-            <CardTitle className="font-headline text-4xl">Gestionar Contenido</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-8">
-              <Card>
-                <CardHeader>
-                    <CardTitle>Gestionar Hero</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <HeroForm onSave={() => handleGenericSave("Hero Actualizado", "La sección principal se ha guardado correctamente.")} />
-                </CardContent>
-              </Card>
+                  <Card>
+                    <CardHeader>
+                        <CardTitle>Gestionar "Sobre Mí"</CardTitle>
+                    </CardHeader>
+                    <CardContent>
+                        <AboutForm onSave={() => handleGenericSave("Sección 'Sobre Mí' Actualizada", "La sección se ha guardado correctamente.")} />
+                    </CardContent>
+                  </Card>
+              </CardContent>
+            </Card>
+          </TabsContent>
 
-              <Card>
-                <CardHeader>
-                    <CardTitle>Gestionar "Sobre Mí"</CardTitle>
-                </CardHeader>
-                <CardContent>
-                    <AboutForm onSave={() => handleGenericSave("Sección 'Sobre Mí' Actualizada", "La sección se ha guardado correctamente.")} />
-                </CardContent>
-              </Card>
-
-              <Card>
+          <TabsContent value="servicios" className="mt-6">
+             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Servicios ("Lo que hago")</CardTitle>
                    <Dialog open={isServiceDialogOpen} onOpenChange={(isOpen) => {
@@ -470,8 +473,10 @@ export default function CoreDashboardPage() {
                   )}
                 </CardContent>
               </Card>
-              
-              <Card>
+          </TabsContent>
+          
+          <TabsContent value="proyectos" className="mt-6">
+             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                   <div>
                     <CardTitle>Proyectos y Blog</CardTitle>
@@ -553,8 +558,10 @@ export default function CoreDashboardPage() {
                   )}
                 </CardContent>
               </Card>
+          </TabsContent>
 
-              <Card>
+          <TabsContent value="formacion" className="mt-6">
+             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Formación</CardTitle>
                    <Dialog open={isFormationDialogOpen} onOpenChange={(isOpen) => {
@@ -630,8 +637,10 @@ export default function CoreDashboardPage() {
                   )}
                 </CardContent>
               </Card>
+          </TabsContent>
 
-               <Card>
+          <TabsContent value="links" className="mt-6">
+             <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Enlaces de Interés</CardTitle>
                    <Dialog open={isLinkDialogOpen} onOpenChange={(isOpen) => {
@@ -711,7 +720,9 @@ export default function CoreDashboardPage() {
                   )}
                 </CardContent>
               </Card>
-
+          </TabsContent>
+          
+          <TabsContent value="shorts" className="mt-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>YouTube Shorts</CardTitle>
@@ -796,20 +807,22 @@ export default function CoreDashboardPage() {
                   )}
                 </CardContent>
               </Card>
-
-          </CardContent>
-        </Card>
-        
-        <Card className="glass-card">
-            <CardHeader>
-                <CardTitle className="font-headline text-4xl">Galería de Imágenes</CardTitle>
-            </CardHeader>
-            <CardContent>
-                <ImageGallery />
-            </CardContent>
-        </Card>
-
-      </main>
-    </div>
+          </TabsContent>
+          
+          <TabsContent value="galeria" className="mt-6">
+            <Card>
+              <CardHeader>
+                  <CardTitle className="font-headline text-3xl">Galería de Imágenes</CardTitle>
+              </CardHeader>
+              <CardContent>
+                  <ImageGallery />
+              </CardContent>
+            </Card>
+          </TabsContent>
+          
+        </Tabs>
+    </main>
   );
 }
+
+    
