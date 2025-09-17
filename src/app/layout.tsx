@@ -5,6 +5,9 @@ import { Toaster } from "@/components/ui/toaster"
 export const metadata: Metadata = {
   title: "El Lienzo de Jordan",
   description: "Creaciones por MakeByJordan: Sitios web, marcas, proyectos y más.",
+  icons: {
+    icon: '/favicon.png',
+  },
 };
 
 export default function RootLayout({

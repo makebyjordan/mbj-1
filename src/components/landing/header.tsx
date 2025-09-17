@@ -2,6 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
+import Image from "next/image"; // <--- Importa el componente Image
 import { MountainIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
@@ -26,6 +27,9 @@ export default function Header() {
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
+  // <--- Define la URL de tu logo aquí
+  const logoUrl = "https://firebasestorage.googleapis.com/v0/b/studio-7212735275-82dc4.firebasestorage.app/o/gallery%2F1758072438075_logo-mbj.png?alt=media&token=3b0f7574-c410-4a78-995e-f9ff88032f64";
+
   return (
     <header
       className={cn(
@@ -35,8 +39,17 @@ export default function Header() {
     >
       <div className="flex h-16 items-center justify-between px-4 md:px-6 lg:px-8">
         <Link href="/" className="flex items-center gap-2 font-headline text-2xl" aria-label="Home">
-          <MountainIcon className="h-6 w-6 text-primary" />
-          <span className="font-bold">El Lienzo de Jordan</span>
+          {/* <--- Reemplaza el icono de la montaña con tu componente Image */}
+          <Image
+            src={logoUrl}
+            alt="Logo Make By Jordan"
+            width={30}
+            height={30}
+            className="h-20 w-auto"
+            quality={100}
+            priority
+          />
+          <span className="font-bold"></span>
         </Link>
         <nav className="hidden md:flex items-center gap-6 text-sm font-medium">
           {navLinks.map((link) => (
