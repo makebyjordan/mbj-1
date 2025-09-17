@@ -10,8 +10,16 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 // Helper function to extract YouTube video ID from various URL formats
 const getYouTubeID = (url: string) => {
-    const arr = url.split(/(vi\/|v%3D|v=|\/v\/|youtu\.be\/|\/embed\/)/);
-    return undefined !== arr[2] ? arr[2].split(/[^\w-]/i)[0] : arr[0];
+    let id = '';
+    url = url.replace(/(>|<)/gi,'').split(/(vi\/|v=|\/v\/|youtu\.be\/|\/embed\/|\/shorts\/)/);
+    if (url[2] !== undefined) {
+        id = url[2].split(/[^0-9a-z_\-]/i);
+        id = id[0];
+    }
+    else {
+        id = url;
+    }
+    return id;
 }
 
 export default function ShortsPage() {
