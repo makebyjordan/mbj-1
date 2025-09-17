@@ -19,6 +19,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
 import { useState } from "react";
+import { sendContactEmail } from "@/ai/flows/contact-flow";
 
 const formSchema = z.object({
   name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
@@ -39,19 +40,30 @@ export default function Contact({ id }: { id: string }) {
     },
   });
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
+  async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
-    console.log("Formulario enviado:", values);
+    try {
+      const result = await sendContactEmail(values);
 
-    // Simular llamada a la API
-    setTimeout(() => {
-      setIsLoading(false);
+      if (result.status === 'success') {
+        toast({
+          title: "¡Mensaje Enviado!",
+          description: "Gracias por contactarme. Te responderé en breve.",
+        });
+        form.reset();
+      } else {
+        throw new Error(result.message);
+      }
+    } catch (error) {
+      console.error("Error al enviar el formulario:", error);
       toast({
-        title: "¡Mensaje Enviado!",
-        description: "Gracias por contactarme. Te responderé en breve.",
+        variant: "destructive",
+        title: "Error al enviar",
+        description: "No se pudo enviar tu mensaje. Por favor, inténtalo de nuevo más tarde.",
       });
-      form.reset();
-    }, 1500);
+    } finally {
+      setIsLoading(false);
+    }
   }
 
   return (
