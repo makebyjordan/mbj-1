@@ -198,17 +198,12 @@ export default function CoreDashboardPage() {
      toast({ title: "Categoría guardada", description: "La categoría de enlaces se ha guardado correctamente." });
   }
 
-  const handleGenericSave = (title: string, description: string) => {
-    toast({ title: title, description: description });
-    // This is a generic handler, specific data fetching should be handled elsewhere if needed
- }
-
   const handleHeroSaved = () => {
-    handleGenericSave("Hero Actualizado", "La sección principal se ha guardado correctamente.");
+    toast({ title: "Hero Actualizado", description: "La sección principal se ha guardado correctamente." });
   }
 
   const handleAboutSaved = () => {
-    handleGenericSave("Sección 'Sobre Mí' Actualizada", "La sección se ha guardado correctamente.");
+    toast({ title: "Sección 'Sobre Mí' Actualizada", description: "La sección se ha guardado correctamente." });
   }
 
   const handleEditProject = (project: Project) => { setEditingProject(project); setIsProjectDialogOpen(true); }

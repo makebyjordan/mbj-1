@@ -26,7 +26,7 @@ const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): LinkItem 
         title: data.title,
         url: data.url,
         tag: data.tag,
-        cardId: data.cardId,
+        cardId: data.cardId || '', // Provide a default empty string for old documents
         createdAt: data.createdAt?.toDate(),
     });
 }
