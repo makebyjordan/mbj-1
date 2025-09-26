@@ -1,4 +1,4 @@
-import { Instagram, Linkedin, Twitter, MountainIcon } from 'lucide-react';
+import { Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
 
@@ -31,6 +31,9 @@ export default function Footer() {
           </Link>
           <Link href="https://www.linkedin.com/in/makebyjordan/" aria-label="LinkedIn">
             <Linkedin className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
+          </Link>
+          <Link href="https://www.youtube.com/@makebyjordan" aria-label="YouTube">
+            <Youtube className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
           </Link>
         </div>
       </div>
