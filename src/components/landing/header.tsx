@@ -21,11 +21,19 @@ const navLinks = [
   { href: "/#portfolio", label: "Portafolio" },
   { href: "/#about", label: "Sobre Mí" },
   { href: "/#blog", label: "Blog" },
+  { href: "/#contact", label: "Contacto" },
+];
+
+const mobileNavLinks = [
+  { href: "/#services", label: "Servicios" },
+  { href: "/#portfolio", label: "Portafolio" },
+  { href: "/#about", label: "Sobre Mí" },
+  { href: "/#blog", label: "Blog" },
   { href: "/#latest-shorts", label: "Shorts" },
   { href: "/#formation", label: "Formación" },
   { href: "/#links", label: "Enlaces" },
   { href: "/#news", label: "Noticias" },
-];
+]
 
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
@@ -102,7 +110,7 @@ export default function Header() {
                             <Link href="/" className="flex items-center gap-2 font-headline text-2xl mb-4" onClick={() => setIsMobileMenuOpen(false)}>
                                 <Image src={logoUrl} alt="Logo Make By Jordan" width={30} height={30} className="h-20 w-auto"/>
                             </Link>
-                            {navLinks.map((link) => (
+                            {mobileNavLinks.map((link) => (
                                 <Link
                                 key={link.href}
                                 href={link.href}
