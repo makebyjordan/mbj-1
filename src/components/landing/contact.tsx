@@ -6,9 +6,8 @@ import { MessageCircle } from "lucide-react";
 import Link from "next/link";
 
 export default function Contact({ id }: { id: string }) {
-  // Reemplaza este número con tu número de WhatsApp, incluyendo el código de país sin el '+'
-  const whatsappNumber = "34123456789"; 
-  const whatsappUrl = `https://wa.me/${whatsappNumber}`;
+  // Enlace al chat de WhatsApp
+  const whatsappUrl = "https://chat.whatsapp.com/FcZ5yzcoNw33lY02qDZ0EA";
 
   return (
     <section id={id} className="py-20 md:py-32 w-full">
