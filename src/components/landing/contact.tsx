@@ -1,70 +1,14 @@
+
 "use client";
 
-import { zodResolver } from "@hookform/resolvers/zod";
-import { useForm } from "react-hook-form";
-import { z } from "zod";
-import { Loader2, Send } from "lucide-react";
-
 import { Button } from "@/components/ui/button";
-import {
-  Form,
-  FormControl,
-  FormField,
-  FormItem,
-  FormLabel,
-  FormMessage,
-} from "@/components/ui/form";
-import { Input } from "@/components/ui/input";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { useToast } from "@/hooks/use-toast";
-import { useState } from "react";
-import { sendContactEmail } from "@/ai/flows/contact-flow";
-
-const formSchema = z.object({
-  name: z.string().min(2, { message: "El nombre debe tener al menos 2 caracteres." }),
-  email: z.string().email({ message: "Por favor, introduce una dirección de correo electrónico válida." }),
-  message: z.string().min(10, { message: "El mensaje debe tener al menos 10 caracteres." }),
-});
+import { MessageCircle } from "lucide-react";
+import Link from "next/link";
 
 export default function Contact({ id }: { id: string }) {
-  const [isLoading, setIsLoading] = useState(false);
-  const { toast } = useToast();
-
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
-    defaultValues: {
-      name: "",
-      email: "",
-      message: "",
-    },
-  });
-
-  async function onSubmit(values: z.infer<typeof formSchema>) {
-    setIsLoading(true);
-    try {
-      const result = await sendContactEmail(values);
-
-      if (result.status === 'success') {
-        toast({
-          title: "¡Mensaje Enviado!",
-          description: "Gracias por contactarme. Te responderé en breve.",
-        });
-        form.reset();
-      } else {
-        throw new Error(result.message);
-      }
-    } catch (error) {
-      console.error("Error al enviar el formulario:", error);
-      toast({
-        variant: "destructive",
-        title: "Error al enviar",
-        description: "No se pudo enviar tu mensaje. Por favor, inténtalo de nuevo más tarde.",
-      });
-    } finally {
-      setIsLoading(false);
-    }
-  }
+  // Reemplaza este número con tu número de WhatsApp, incluyendo el código de país sin el '+'
+  const whatsappNumber = "34123456789"; 
+  const whatsappUrl = `https://wa.me/${whatsappNumber}`;
 
   return (
     <section id={id} className="py-20 md:py-32 w-full">
@@ -73,67 +17,16 @@ export default function Contact({ id }: { id: string }) {
         <p className="mt-4 max-w-2xl mx-auto text-lg text-muted-foreground">
           ¿Tienes un proyecto en mente o simplemente quieres saludar? Escríbeme.
         </p>
-      </div>
 
-      <Card className="glass-card mt-12 max-w-2xl mx-auto">
-        <CardHeader>
-          <CardTitle>Enviar un Mensaje</CardTitle>
-          <CardDescription>¡Estoy emocionado de saber de ti!</CardDescription>
-        </CardHeader>
-        <CardContent>
-          <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-              <FormField
-                control={form.control}
-                name="name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tu Nombre</FormLabel>
-                    <FormControl>
-                      <Input placeholder="Jordan García" {...field} className="bg-background/50" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="email"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tu Correo Electrónico</FormLabel>
-                    <FormControl>
-                      <Input placeholder="jordan@ejemplo.com" {...field} className="bg-background/50" />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={form.control}
-                name="message"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Tu Mensaje</FormLabel>
-                    <FormControl>
-                      <Textarea
-                        placeholder="Cuéntame sobre tu proyecto o idea..."
-                        className="h-32 bg-background/50"
-                        {...field}
-                      />
-                    </FormControl>
-                    <FormMessage />
-                  </FormItem>
-                )}
-              />
-              <Button type="submit" disabled={isLoading} className="w-full primary-button-glow">
-                {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
-                Enviar Mensaje
-              </Button>
-            </form>
-          </Form>
-        </CardContent>
-      </Card>
+        <div className="mt-12">
+            <Button asChild size="lg" className="primary-button-glow text-lg px-8 py-6 rounded-full transition-all duration-300">
+                <Link href={whatsappUrl} target="_blank" rel="noopener noreferrer">
+                    <MessageCircle className="mr-2 h-5 w-5" />
+                    Contacta por WhatsApp
+                </Link>
+            </Button>
+        </div>
+      </div>
     </section>
   );
 }
