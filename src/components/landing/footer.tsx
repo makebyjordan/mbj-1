@@ -36,7 +36,6 @@ export default function Footer() {
             </div>
 
             <div className="flex flex-col items-center md:items-end">
-                <h4 className="font-headline text-lg text-foreground mb-2">Social</h4>
                 <div className="flex items-center gap-4">
                     <Link href="https://x.com/makebyjordan" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
                         <Twitter className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
