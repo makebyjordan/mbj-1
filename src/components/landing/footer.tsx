@@ -27,7 +27,6 @@ export default function Footer() {
         
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:text-right">
             <div>
-                <h4 className="font-headline text-lg text-foreground mb-2">Navegación</h4>
                 <div className="grid grid-cols-2 gap-x-4 gap-y-2">
                     <Link href="/#latest-shorts" className="text-muted-foreground hover:text-primary transition-colors block">Shorts</Link>
                     <Link href="/#formation" className="text-muted-foreground hover:text-primary transition-colors block">Formación</Link>
