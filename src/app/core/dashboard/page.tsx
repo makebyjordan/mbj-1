@@ -1,5 +1,4 @@
 
-
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -195,6 +194,7 @@ export default function CoreDashboardPage() {
     setIsLinkCardDialogOpen(false);
     setEditingLinkCard(null);
     fetchLinkCards();
+    fetchLinks(); // Re-fetch links in case a card title changed
      toast({ title: "Categoría guardada", description: "La categoría de enlaces se ha guardado correctamente." });
   }
 
@@ -276,8 +276,6 @@ export default function CoreDashboardPage() {
 
   const handleDeleteLinkCard = async (linkCardId: string) => {
     try {
-      // Note: You might want to handle what happens to links within a deleted card.
-      // For now, we're just deleting the card.
       await deleteLinkCard(linkCardId);
       fetchLinkCards();
       toast({ title: "Categoría eliminada", description: "La categoría de enlaces se ha eliminado correctamente." });
@@ -712,5 +710,3 @@ export default function CoreDashboardPage() {
     </main>
   );
 }
-
-    

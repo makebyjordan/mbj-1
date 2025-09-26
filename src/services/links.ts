@@ -10,7 +10,7 @@ const LinkSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
   url: z.string().url("Debe ser una URL válida."),
   tag: z.string().min(1, "La etiqueta es requerida."),
-  cardId: z.string().min(1, "El ID de la categoría es requerido."),
+  cardId: z.string(), // Eliminado min(1) para permitir strings vacíos para datos antiguos
   createdAt: z.any().optional(),
 });
 
@@ -21,14 +21,16 @@ const linksCollection = collection(db, 'links');
 // Helper to convert Firestore doc to LinkItem
 const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): LinkItem => {
     const data = snapshot.data();
-    return LinkSchema.parse({
+    // Se asegura de que cardId sea un string vacío si no existe, antes de validar.
+    const rawData = {
         id: snapshot.id,
         title: data.title,
         url: data.url,
         tag: data.tag,
-        cardId: data.cardId || '', // Provide a default empty string for old documents
+        cardId: data.cardId || '', 
         createdAt: data.createdAt?.toDate(),
-    });
+    };
+    return LinkSchema.parse(rawData);
 }
 
 // GET all links, ordered by creation date
@@ -59,5 +61,3 @@ export const deleteLink = async (id: string): Promise<void> => {
     const linkDoc = doc(db, 'links', id);
     await deleteDoc(linkDoc);
 };
-
-    

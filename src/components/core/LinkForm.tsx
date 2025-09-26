@@ -97,7 +97,7 @@ export default function LinkForm({ link, onSave, availableCards }: LinkFormProps
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Categoría</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger className="bg-background/50">
                         <SelectValue placeholder="Selecciona una categoría para el enlace" />
@@ -164,5 +164,3 @@ export default function LinkForm({ link, onSave, availableCards }: LinkFormProps
     </Form>
   );
 }
-
-    
