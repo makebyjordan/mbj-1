@@ -25,7 +25,6 @@ const navLinks = [
   { href: "/#formation", label: "Formación" },
   { href: "/#links", label: "Enlaces" },
   { href: "/#news", label: "Noticias" },
-  { href: "/shorts", label: "Shorts" },
 ];
 
 export default function Header() {
