@@ -1,3 +1,4 @@
+
 import { Instagram, Linkedin, Twitter, Youtube } from 'lucide-react';
 import Link from 'next/link';
 import Image from 'next/image';
@@ -23,16 +24,16 @@ export default function Footer() {
           &copy; {new Date().getFullYear()} MakeByJordan. Todos los derechos reservados.
         </p>
         <div className="flex items-center gap-4 mt-4 md:mt-0">
-          <Link href="https://x.com/makebyjordan" aria-label="Twitter">
+          <Link href="https://x.com/makebyjordan" target="_blank" rel="noopener noreferrer" aria-label="Twitter">
             <Twitter className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
           </Link>
-          <Link href="https://www.instagram.com/makebyjordan" aria-label="Instagram">
+          <Link href="https://www.instagram.com/makebyjordan" target="_blank" rel="noopener noreferrer" aria-label="Instagram">
             <Instagram className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
           </Link>
-          <Link href="https://www.linkedin.com/in/makebyjordan/" aria-label="LinkedIn">
+          <Link href="https://www.linkedin.com/in/makebyjordan/" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn">
             <Linkedin className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
           </Link>
-          <Link href="https://www.youtube.com/@makebyjordan" aria-label="YouTube">
+          <Link href="https://www.youtube.com/@makebyjordan" target="_blank" rel="noopener noreferrer" aria-label="YouTube">
             <Youtube className="w-5 h-5 text-muted-foreground hover:text-primary transition-colors" />
           </Link>
         </div>
