@@ -1,4 +1,5 @@
 
+
 "use client";
 
 import { useState, useEffect } from 'react';
@@ -199,7 +200,16 @@ export default function CoreDashboardPage() {
 
   const handleGenericSave = (title: string, description: string) => {
     toast({ title: title, description: description });
+    // This is a generic handler, specific data fetching should be handled elsewhere if needed
  }
+
+  const handleHeroSaved = () => {
+    handleGenericSave("Hero Actualizado", "La sección principal se ha guardado correctamente.");
+  }
+
+  const handleAboutSaved = () => {
+    handleGenericSave("Sección 'Sobre Mí' Actualizada", "La sección se ha guardado correctamente.");
+  }
 
   const handleEditProject = (project: Project) => { setEditingProject(project); setIsProjectDialogOpen(true); }
   const handleAddNewProject = () => { setEditingProject(null); setIsProjectDialogOpen(true); }
@@ -306,7 +316,7 @@ export default function CoreDashboardPage() {
                         <CardTitle>Gestionar Hero</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <HeroForm onSave={() => handleGenericSave("Hero Actualizado", "La sección principal se ha guardado correctamente.")} />
+                        <HeroForm onSave={handleHeroSaved} />
                     </CardContent>
                   </Card>
 
@@ -315,7 +325,7 @@ export default function CoreDashboardPage() {
                         <CardTitle>Gestionar "Sobre Mí"</CardTitle>
                     </CardHeader>
                     <CardContent>
-                        <AboutForm onSave={() => handleGenericSave("Sección 'Sobre Mí' Actualizada", "La sección se ha guardado correctamente.")} />
+                        <AboutForm onSave={handleAboutSaved} />
                     </CardContent>
                   </Card>
               </CardContent>
