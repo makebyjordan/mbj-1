@@ -4,9 +4,15 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu } from "lucide-react";
+import { Menu, ChevronDown } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu"
 import {
   Sheet,
   SheetContent,
@@ -21,7 +27,6 @@ const navLinks = [
   { href: "/#portfolio", label: "Portafolio" },
   { href: "/#about", label: "Sobre Mí" },
   { href: "/#blog", label: "Blog" },
-  { href: "/#contact", label: "Contacto" },
 ];
 
 const mobileNavLinks = [
@@ -31,7 +36,7 @@ const mobileNavLinks = [
   { href: "/#blog", label: "Blog" },
   { href: "/#latest-shorts", label: "Shorts" },
   { href: "/#formation", label: "Formación" },
-  { href: "/#links", label: "Enlaces" },
+  { href: "/links", label: "Enlaces" },
   { href: "/#news", label: "Noticias" },
 ]
 
@@ -81,6 +86,18 @@ export default function Header() {
                 {link.label}
                 </Link>
             ))}
+             <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="ghost" className="text-muted-foreground transition-colors hover:text-foreground px-0 hover:bg-transparent">
+                  Interés <ChevronDown className="w-4 h-4 ml-1" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem asChild><Link href="/#formation">Formación</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/shorts">Shorts</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/links">Enlaces</Link></DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
             </nav>
         </div>
 
