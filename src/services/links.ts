@@ -10,6 +10,7 @@ const LinkSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
   url: z.string().url("Debe ser una URL válida."),
   tag: z.string().min(1, "La etiqueta es requerida."),
+  cardId: z.string().min(1, "El ID de la categoría es requerido."),
   createdAt: z.any().optional(),
 });
 
@@ -25,6 +26,7 @@ const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): LinkItem 
         title: data.title,
         url: data.url,
         tag: data.tag,
+        cardId: data.cardId,
         createdAt: data.createdAt?.toDate(),
     });
 }
@@ -57,3 +59,5 @@ export const deleteLink = async (id: string): Promise<void> => {
     const linkDoc = doc(db, 'links', id);
     await deleteDoc(linkDoc);
 };
+
+    

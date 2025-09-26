@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2 } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -28,11 +28,13 @@ import { getServices, deleteService, Service } from '@/services/services';
 import { getFormations, deleteFormation, Formation } from '@/services/formation';
 import { getShorts, deleteShort, Short } from '@/services/shorts';
 import { getLinks, deleteLink, LinkItem } from '@/services/links';
+import { getLinkCards, deleteLinkCard, LinkCard } from '@/services/link-cards';
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
 import FormationForm from '@/components/core/FormationForm';
 import ShortForm from '@/components/core/ShortForm';
 import LinkForm from '@/components/core/LinkForm';
+import LinkCardForm from '@/components/core/LinkCardForm';
 import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
@@ -45,21 +47,25 @@ export default function CoreDashboardPage() {
   const [formations, setFormations] = useState<Formation[]>([]);
   const [shorts, setShorts] = useState<Short[]>([]);
   const [links, setLinks] = useState<LinkItem[]>([]);
+  const [linkCards, setLinkCards] = useState<LinkCard[]>([]);
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [isLoadingFormations, setIsLoadingFormations] = useState(true);
   const [isLoadingShorts, setIsLoadingShorts] = useState(true);
   const [isLoadingLinks, setIsLoadingLinks] = useState(true);
+  const [isLoadingLinkCards, setIsLoadingLinkCards] = useState(true);
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
   const [isFormationDialogOpen, setIsFormationDialogOpen] = useState(false);
   const [isShortDialogOpen, setIsShortDialogOpen] = useState(false);
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
+  const [isLinkCardDialogOpen, setIsLinkCardDialogOpen] = useState(false);
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [editingFormation, setEditingFormation] = useState<Formation | null>(null);
   const [editingShort, setEditingShort] = useState<Short | null>(null);
   const [editingLink, setEditingLink] = useState<LinkItem | null>(null);
+  const [editingLinkCard, setEditingLinkCard] = useState<LinkCard | null>(null);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -69,11 +75,7 @@ export default function CoreDashboardPage() {
       setProjects(projectsFromDb);
     } catch (error) {
       console.error("Error fetching projects:", error);
-      toast({
-        variant: "destructive",
-        title: "Error al cargar proyectos",
-        description: "No se pudieron cargar los proyectos.",
-      });
+      toast({ variant: "destructive", title: "Error al cargar proyectos", description: "No se pudieron cargar los proyectos." });
     } finally {
       setIsLoadingProjects(false);
     }
@@ -86,11 +88,7 @@ export default function CoreDashboardPage() {
       setServices(servicesFromDb);
     } catch (error) {
       console.error("Error fetching services:", error);
-      toast({
-        variant: "destructive",
-        title: "Error al cargar servicios",
-        description: "No se pudieron cargar los servicios.",
-      });
+      toast({ variant: "destructive", title: "Error al cargar servicios", description: "No se pudieron cargar los servicios." });
     } finally {
       setIsLoadingServices(false);
     }
@@ -103,11 +101,7 @@ export default function CoreDashboardPage() {
       setFormations(formationsFromDb);
     } catch (error) {
       console.error("Error fetching formations:", error);
-      toast({
-        variant: "destructive",
-        title: "Error al cargar formaciones",
-        description: "No se pudieron cargar las formaciones.",
-      });
+      toast({ variant: "destructive", title: "Error al cargar formaciones", description: "No se pudieron cargar las formaciones." });
     } finally {
       setIsLoadingFormations(false);
     }
@@ -120,11 +114,7 @@ export default function CoreDashboardPage() {
       setShorts(shortsFromDb);
     } catch (error) {
       console.error("Error fetching shorts:", error);
-      toast({
-        variant: "destructive",
-        title: "Error al cargar shorts",
-        description: "No se pudieron cargar los shorts.",
-      });
+      toast({ variant: "destructive", title: "Error al cargar shorts", description: "No se pudieron cargar los shorts." });
     } finally {
       setIsLoadingShorts(false);
     }
@@ -137,13 +127,22 @@ export default function CoreDashboardPage() {
       setLinks(linksFromDb);
     } catch (error) {
       console.error("Error fetching links:", error);
-      toast({
-        variant: "destructive",
-        title: "Error al cargar enlaces",
-        description: "No se pudieron cargar los enlaces.",
-      });
+      toast({ variant: "destructive", title: "Error al cargar enlaces", description: "No se pudieron cargar los enlaces." });
     } finally {
       setIsLoadingLinks(false);
+    }
+  }
+
+  const fetchLinkCards = async () => {
+    setIsLoadingLinkCards(true);
+    try {
+      const linkCardsFromDb = await getLinkCards();
+      setLinkCards(linkCardsFromDb);
+    } catch (error) {
+      console.error("Error fetching link cards:", error);
+      toast({ variant: "destructive", title: "Error al cargar categorías", description: "No se pudieron cargar las categorías de enlaces." });
+    } finally {
+      setIsLoadingLinkCards(false);
     }
   }
 
@@ -153,130 +152,76 @@ export default function CoreDashboardPage() {
     fetchFormations();
     fetchShorts();
     fetchLinks();
+    fetchLinkCards();
   }, []);
 
   const handleProjectSaved = () => {
     setIsProjectDialogOpen(false);
     setEditingProject(null);
     fetchProjects();
-     toast({
-      title: "Proyecto guardado",
-      description: "Tu proyecto se ha guardado correctamente.",
-    });
+     toast({ title: "Proyecto guardado", description: "Tu proyecto se ha guardado correctamente." });
   }
 
   const handleServiceSaved = () => {
     setIsServiceDialogOpen(false);
     setEditingService(null);
     fetchServices();
-     toast({
-      title: "Servicio guardado",
-      description: "Tu servicio se ha guardado correctamente.",
-    });
+     toast({ title: "Servicio guardado", description: "Tu servicio se ha guardado correctamente." });
   }
 
   const handleFormationSaved = () => {
     setIsFormationDialogOpen(false);
     setEditingFormation(null);
     fetchFormations();
-     toast({
-      title: "Formación guardada",
-      description: "Tu formación se ha guardado correctamente.",
-    });
+     toast({ title: "Formación guardada", description: "Tu formación se ha guardado correctamente." });
   }
   
   const handleShortSaved = () => {
     setIsShortDialogOpen(false);
     setEditingShort(null);
     fetchShorts();
-     toast({
-      title: "Short guardado",
-      description: "Tu short se ha guardado correctamente.",
-    });
+     toast({ title: "Short guardado", description: "Tu short se ha guardado correctamente." });
   }
 
   const handleLinkSaved = () => {
     setIsLinkDialogOpen(false);
     setEditingLink(null);
     fetchLinks();
-     toast({
-      title: "Enlace guardado",
-      description: "Tu enlace se ha guardado correctamente.",
-    });
+     toast({ title: "Enlace guardado", description: "Tu enlace se ha guardado correctamente." });
+  }
+
+  const handleLinkCardSaved = () => {
+    setIsLinkCardDialogOpen(false);
+    setEditingLinkCard(null);
+    fetchLinkCards();
+     toast({ title: "Categoría guardada", description: "La categoría de enlaces se ha guardado correctamente." });
   }
 
   const handleGenericSave = (title: string, description: string) => {
-    toast({
-     title: title,
-     description: description,
-   });
+    toast({ title: title, description: description });
  }
 
-  const handleEditProject = (project: Project) => {
-    setEditingProject(project);
-    setIsProjectDialogOpen(true);
-  }
-  
-  const handleAddNewProject = () => {
-    setEditingProject(null);
-    setIsProjectDialogOpen(true);
-  }
-  
-  const handleEditService = (service: Service) => {
-    setEditingService(service);
-    setIsServiceDialogOpen(true);
-  }
-  
-  const handleAddNewService = () => {
-    setEditingService(null);
-    setIsServiceDialogOpen(true);
-  }
-
-  const handleEditFormation = (formation: Formation) => {
-    setEditingFormation(formation);
-    setIsFormationDialogOpen(true);
-  }
-
-  const handleAddNewFormation = () => {
-    setEditingFormation(null);
-    setIsFormationDialogOpen(true);
-  }
-  
-  const handleEditShort = (short: Short) => {
-    setEditingShort(short);
-    setIsShortDialogOpen(true);
-  }
-
-  const handleAddNewShort = () => {
-    setEditingShort(null);
-    setIsShortDialogOpen(true);
-  }
-
-  const handleEditLink = (link: LinkItem) => {
-    setEditingLink(link);
-    setIsLinkDialogOpen(true);
-  }
-
-  const handleAddNewLink = () => {
-    setEditingLink(null);
-    setIsLinkDialogOpen(true);
-  }
+  const handleEditProject = (project: Project) => { setEditingProject(project); setIsProjectDialogOpen(true); }
+  const handleAddNewProject = () => { setEditingProject(null); setIsProjectDialogOpen(true); }
+  const handleEditService = (service: Service) => { setEditingService(service); setIsServiceDialogOpen(true); }
+  const handleAddNewService = () => { setEditingService(null); setIsServiceDialogOpen(true); }
+  const handleEditFormation = (formation: Formation) => { setEditingFormation(formation); setIsFormationDialogOpen(true); }
+  const handleAddNewFormation = () => { setEditingFormation(null); setIsFormationDialogOpen(true); }
+  const handleEditShort = (short: Short) => { setEditingShort(short); setIsShortDialogOpen(true); }
+  const handleAddNewShort = () => { setEditingShort(null); setIsShortDialogOpen(true); }
+  const handleEditLink = (link: LinkItem) => { setEditingLink(link); setIsLinkDialogOpen(true); }
+  const handleAddNewLink = () => { setEditingLink(null); setIsLinkDialogOpen(true); }
+  const handleEditLinkCard = (linkCard: LinkCard) => { setEditingLinkCard(linkCard); setIsLinkCardDialogOpen(true); }
+  const handleAddNewLinkCard = () => { setEditingLinkCard(null); setIsLinkCardDialogOpen(true); }
 
   const handleDeleteProject = async (projectId: string) => {
     try {
       await deleteProject(projectId);
       fetchProjects();
-      toast({
-        title: "Proyecto eliminado",
-        description: "El proyecto se ha eliminado correctamente.",
-      });
+      toast({ title: "Proyecto eliminado", description: "El proyecto se ha eliminado correctamente." });
     } catch (error) {
       console.error("Error deleting project:", error);
-      toast({
-        variant: "destructive",
-        title: "Error al eliminar",
-        description: "No se pudo eliminar el proyecto.",
-      });
+      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el proyecto." });
     }
   };
 
@@ -284,17 +229,10 @@ export default function CoreDashboardPage() {
     try {
       await deleteService(serviceId);
       fetchServices();
-      toast({
-        title: "Servicio eliminado",
-        description: "El servicio se ha eliminado correctamente.",
-      });
+      toast({ title: "Servicio eliminado", description: "El servicio se ha eliminado correctamente." });
     } catch (error) {
       console.error("Error deleting service:", error);
-      toast({
-        variant: "destructive",
-        title: "Error al eliminar",
-        description: "No se pudo eliminar el servicio.",
-      });
+      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el servicio." });
     }
   };
 
@@ -302,17 +240,10 @@ export default function CoreDashboardPage() {
     try {
       await deleteFormation(formationId);
       fetchFormations();
-      toast({
-        title: "Formación eliminada",
-        description: "La formación se ha eliminado correctamente.",
-      });
+      toast({ title: "Formación eliminada", description: "La formación se ha eliminado correctamente." });
     } catch (error) {
       console.error("Error deleting formation:", error);
-      toast({
-        variant: "destructive",
-        title: "Error al eliminar",
-        description: "No se pudo eliminar la formación.",
-      });
+      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la formación." });
     }
   };
   
@@ -320,17 +251,10 @@ export default function CoreDashboardPage() {
     try {
       await deleteShort(shortId);
       fetchShorts();
-      toast({
-        title: "Short eliminado",
-        description: "El short se ha eliminado correctamente.",
-      });
+      toast({ title: "Short eliminado", description: "El short se ha eliminado correctamente." });
     } catch (error) {
       console.error("Error deleting short:", error);
-      toast({
-        variant: "destructive",
-        title: "Error al eliminar",
-        description: "No se pudo eliminar el short.",
-      });
+      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el short." });
     }
   };
 
@@ -338,17 +262,23 @@ export default function CoreDashboardPage() {
     try {
       await deleteLink(linkId);
       fetchLinks();
-      toast({
-        title: "Enlace eliminado",
-        description: "El enlace se ha eliminado correctamente.",
-      });
+      toast({ title: "Enlace eliminado", description: "El enlace se ha eliminado correctamente." });
     } catch (error) {
       console.error("Error deleting link:", error);
-      toast({
-        variant: "destructive",
-        title: "Error al eliminar",
-        description: "No se pudo eliminar el enlace.",
-      });
+      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el enlace." });
+    }
+  };
+
+  const handleDeleteLinkCard = async (linkCardId: string) => {
+    try {
+      // Note: You might want to handle what happens to links within a deleted card.
+      // For now, we're just deleting the card.
+      await deleteLinkCard(linkCardId);
+      fetchLinkCards();
+      toast({ title: "Categoría eliminada", description: "La categoría de enlaces se ha eliminado correctamente." });
+    } catch (error) {
+      console.error("Error deleting link card:", error);
+      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la categoría." });
     }
   };
 
@@ -396,12 +326,7 @@ export default function CoreDashboardPage() {
              <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Servicios ("Lo que hago")</CardTitle>
-                   <Dialog open={isServiceDialogOpen} onOpenChange={(isOpen) => {
-                     setIsServiceDialogOpen(isOpen);
-                     if (!isOpen) {
-                       setEditingService(null);
-                     }
-                   }}>
+                   <Dialog open={isServiceDialogOpen} onOpenChange={(isOpen) => { setIsServiceDialogOpen(isOpen); if (!isOpen) setEditingService(null); }}>
                     <DialogTrigger asChild>
                        <Button onClick={handleAddNewService}>
                         <PlusCircle className="mr-2 h-4 w-4" />
@@ -421,9 +346,7 @@ export default function CoreDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   {isLoadingServices ? (
-                    <div className="flex justify-center items-center h-40">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
+                    <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
                   ) : (
                     <Table>
                       <TableHeader>
@@ -437,27 +360,17 @@ export default function CoreDashboardPage() {
                       <TableBody>
                         {services.map((service) => (
                           <TableRow key={service.id}>
-                             <TableCell>
-                               {service.iconUrl && <img src={service.iconUrl} alt={service.title} className="w-8 h-8" />}
-                            </TableCell>
+                             <TableCell>{service.iconUrl && <img src={service.iconUrl} alt={service.title} className="w-8 h-8" />}</TableCell>
                             <TableCell className="font-medium">{service.title}</TableCell>
                             <TableCell className="max-w-[300px] truncate">{service.description}</TableCell>
                             <TableCell className="text-right">
-                              <Button variant="ghost" size="icon" onClick={() => handleEditService(service)}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleEditService(service)}><Edit className="h-4 w-4" /></Button>
                                <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </AlertDialogTrigger>
+                                <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Esta acción no se puede deshacer. Esto eliminará permanentemente el servicio.
-                                    </AlertDialogDescription>
+                                    <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente el servicio.</AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
@@ -478,27 +391,15 @@ export default function CoreDashboardPage() {
           <TabsContent value="proyectos" className="mt-6">
              <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
-                  <div>
-                    <CardTitle>Proyectos y Blog</CardTitle>
-                  </div>
-                   <Dialog open={isProjectDialogOpen} onOpenChange={(isOpen) => {
-                     setIsProjectDialogOpen(isOpen);
-                     if (!isOpen) {
-                       setEditingProject(null);
-                     }
-                   }}>
+                  <div><CardTitle>Proyectos y Blog</CardTitle></div>
+                   <Dialog open={isProjectDialogOpen} onOpenChange={(isOpen) => { setIsProjectDialogOpen(isOpen); if (!isOpen) setEditingProject(null); }}>
                     <DialogTrigger asChild>
-                       <Button onClick={handleAddNewProject}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Añadir Nuevo
-                      </Button>
+                       <Button onClick={handleAddNewProject}><PlusCircle className="mr-2 h-4 w-4" />Añadir Nuevo</Button>
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[625px] glass-card">
                       <DialogHeader>
                         <DialogTitle>{editingProject ? 'Editar Proyecto' : 'Crear Nuevo Proyecto'}</DialogTitle>
-                         <DialogDescription className="sr-only">
-                            {editingProject ? 'Edita los detalles de tu proyecto o entrada de blog aquí.' : 'Crea un nuevo proyecto o entrada de blog.'}
-                        </DialogDescription>
+                         <DialogDescription className="sr-only">{editingProject ? 'Edita los detalles de tu proyecto o entrada de blog aquí.' : 'Crea un nuevo proyecto o entrada de blog.'}</DialogDescription>
                       </DialogHeader>
                       <ProjectForm project={editingProject} onSave={handleProjectSaved} />
                     </DialogContent>
@@ -506,9 +407,7 @@ export default function CoreDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   {isLoadingProjects ? (
-                    <div className="flex justify-center items-center h-40">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
+                    <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
                   ) : (
                     <Table>
                       <TableHeader>
@@ -522,27 +421,17 @@ export default function CoreDashboardPage() {
                       <TableBody>
                         {projects.map((project) => (
                           <TableRow key={project.id}>
-                             <TableCell>
-                              {project.isFeatured && <Star className="h-4 w-4 text-primary" />}
-                            </TableCell>
+                             <TableCell>{project.isFeatured && <Star className="h-4 w-4 text-primary" />}</TableCell>
                             <TableCell className="font-medium">{project.title}</TableCell>
                             <TableCell className="max-w-[300px] truncate">{project.description}</TableCell>
                             <TableCell className="text-right">
-                              <Button variant="ghost" size="icon" onClick={() => handleEditProject(project)}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleEditProject(project)}><Edit className="h-4 w-4" /></Button>
                                <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </AlertDialogTrigger>
+                                <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Esta acción no se puede deshacer. Esto eliminará permanentemente el proyecto.
-                                    </AlertDialogDescription>
+                                    <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente el proyecto.</AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
@@ -564,24 +453,12 @@ export default function CoreDashboardPage() {
              <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>Formación</CardTitle>
-                   <Dialog open={isFormationDialogOpen} onOpenChange={(isOpen) => {
-                     setIsFormationDialogOpen(isOpen);
-                     if (!isOpen) {
-                       setEditingFormation(null);
-                     }
-                   }}>
-                    <DialogTrigger asChild>
-                       <Button onClick={handleAddNewFormation}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Añadir Formación
-                      </Button>
-                    </DialogTrigger>
+                   <Dialog open={isFormationDialogOpen} onOpenChange={(isOpen) => { setIsFormationDialogOpen(isOpen); if (!isOpen) setEditingFormation(null); }}>
+                    <DialogTrigger asChild><Button onClick={handleAddNewFormation}><PlusCircle className="mr-2 h-4 w-4" />Añadir Formación</Button></DialogTrigger>
                     <DialogContent className="sm:max-w-[625px] glass-card">
                       <DialogHeader>
                         <DialogTitle>{editingFormation ? 'Editar Formación' : 'Crear Nueva Formación'}</DialogTitle>
-                         <DialogDescription className="sr-only">
-                            {editingFormation ? 'Edita los detalles de tu formación aquí.' : 'Crea una nueva entrada de formación.'}
-                        </DialogDescription>
+                         <DialogDescription className="sr-only">{editingFormation ? 'Edita los detalles de tu formación aquí.' : 'Crea una nueva entrada de formación.'}</DialogDescription>
                       </DialogHeader>
                       <FormationForm formation={editingFormation} onSave={handleFormationSaved} />
                     </DialogContent>
@@ -589,9 +466,7 @@ export default function CoreDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   {isLoadingFormations ? (
-                    <div className="flex justify-center items-center h-40">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
+                    <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
                   ) : (
                     <Table>
                       <TableHeader>
@@ -607,21 +482,13 @@ export default function CoreDashboardPage() {
                             <TableCell className="font-medium">{formation.title}</TableCell>
                             <TableCell className="max-w-[300px] truncate">{formation.description}</TableCell>
                             <TableCell className="text-right">
-                              <Button variant="ghost" size="icon" onClick={() => handleEditFormation(formation)}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleEditFormation(formation)}><Edit className="h-4 w-4" /></Button>
                                <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </AlertDialogTrigger>
+                                <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Esta acción no se puede deshacer. Esto eliminará permanentemente la formación.
-                                    </AlertDialogDescription>
+                                    <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente la formación.</AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
@@ -640,110 +507,142 @@ export default function CoreDashboardPage() {
           </TabsContent>
 
           <TabsContent value="links" className="mt-6">
-             <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>Enlaces de Interés</CardTitle>
-                   <Dialog open={isLinkDialogOpen} onOpenChange={(isOpen) => {
-                     setIsLinkDialogOpen(isOpen);
-                     if (!isOpen) {
-                       setEditingLink(null);
-                     }
-                   }}>
-                    <DialogTrigger asChild>
-                       <Button onClick={handleAddNewLink}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Añadir Enlace
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[625px] glass-card">
-                      <DialogHeader>
-                        <DialogTitle>{editingLink ? 'Editar Enlace' : 'Crear Nuevo Enlace'}</DialogTitle>
-                         <DialogDescription className="sr-only">
-                            {editingLink ? 'Edita los detalles de tu enlace aquí.' : 'Crea un nuevo enlace.'}
-                        </DialogDescription>
-                      </DialogHeader>
-                      <LinkForm link={editingLink} onSave={handleLinkSaved} />
-                    </DialogContent>
-                  </Dialog>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingLinks ? (
-                    <div className="flex justify-center items-center h-40">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[50px]">Icon</TableHead>
-                          <TableHead>Título</TableHead>
-                          <TableHead>Etiqueta</TableHead>
-                          <TableHead className="text-right">Acciones</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {links.map((link) => (
-                          <TableRow key={link.id}>
-                             <TableCell>
-                              <Link2 className="h-4 w-4 text-primary" />
-                            </TableCell>
-                            <TableCell className="font-medium">{link.title}</TableCell>
-                            <TableCell><Badge variant="secondary">{link.tag}</Badge></TableCell>
-                            <TableCell className="text-right">
-                              <Button variant="ghost" size="icon" onClick={() => handleEditLink(link)}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
-                               <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Esta acción no se puede deshacer. Esto eliminará permanentemente el enlace.
-                                    </AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeleteLink(link.id!)}>Eliminar</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
+            <Tabs defaultValue="manage-links">
+                <TabsList className="mb-4">
+                    <TabsTrigger value="manage-links">Gestionar Enlaces</TabsTrigger>
+                    <TabsTrigger value="manage-cards">Gestionar Categorías</TabsTrigger>
+                </TabsList>
+
+                <TabsContent value="manage-links">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle>Enlaces de Interés</CardTitle>
+                            <Dialog open={isLinkDialogOpen} onOpenChange={(isOpen) => { setIsLinkDialogOpen(isOpen); if (!isOpen) setEditingLink(null); }}>
+                                <DialogTrigger asChild><Button onClick={handleAddNewLink}><PlusCircle className="mr-2 h-4 w-4" />Añadir Enlace</Button></DialogTrigger>
+                                <DialogContent className="sm:max-w-[625px] glass-card">
+                                <DialogHeader>
+                                    <DialogTitle>{editingLink ? 'Editar Enlace' : 'Crear Nuevo Enlace'}</DialogTitle>
+                                    <DialogDescription className="sr-only">{editingLink ? 'Edita los detalles de tu enlace aquí.' : 'Crea un nuevo enlace.'}</DialogDescription>
+                                </DialogHeader>
+                                <LinkForm link={editingLink} onSave={handleLinkSaved} availableCards={linkCards} />
+                                </DialogContent>
+                            </Dialog>
+                        </CardHeader>
+                        <CardContent>
+                          {isLoadingLinks ? (
+                            <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                          ) : (
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Título</TableHead>
+                                  <TableHead>Etiqueta</TableHead>
+                                  <TableHead>Categoría</TableHead>
+                                  <TableHead className="text-right">Acciones</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {links.map((link) => {
+                                  const card = linkCards.find(c => c.id === link.cardId);
+                                  return (
+                                  <TableRow key={link.id}>
+                                    <TableCell className="font-medium">{link.title}</TableCell>
+                                    <TableCell><Badge variant="secondary">{link.tag}</Badge></TableCell>
+                                    <TableCell className="text-muted-foreground">{card?.title || 'Sin categoría'}</TableCell>
+                                    <TableCell className="text-right">
+                                      <Button variant="ghost" size="icon" onClick={() => handleEditLink(link)}><Edit className="h-4 w-4" /></Button>
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                            <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente el enlace.</AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteLink(link.id!)}>Eliminar</AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                    </TableCell>
+                                  </TableRow>
+                                )})}
+                              </TableBody>
+                            </Table>
+                          )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+
+                <TabsContent value="manage-cards">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle>Categorías de Enlaces</CardTitle>
+                            <Dialog open={isLinkCardDialogOpen} onOpenChange={(isOpen) => { setIsLinkCardDialogOpen(isOpen); if (!isOpen) setEditingLinkCard(null); }}>
+                                <DialogTrigger asChild><Button onClick={handleAddNewLinkCard}><PlusCircle className="mr-2 h-4 w-4" />Añadir Categoría</Button></DialogTrigger>
+                                <DialogContent className="sm:max-w-[625px] glass-card">
+                                <DialogHeader>
+                                    <DialogTitle>{editingLinkCard ? 'Editar Categoría' : 'Crear Nueva Categoría'}</DialogTitle>
+                                    <DialogDescription className="sr-only">{editingLinkCard ? 'Edita los detalles de la categoría aquí.' : 'Crea una nueva categoría para tus enlaces.'}</DialogDescription>
+                                </DialogHeader>
+                                <LinkCardForm card={editingLinkCard} onSave={handleLinkCardSaved} />
+                                </DialogContent>
+                            </Dialog>
+                        </CardHeader>
+                        <CardContent>
+                          {isLoadingLinkCards ? (
+                            <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                          ) : (
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="w-[100px]">Imagen</TableHead>
+                                  <TableHead>Título</TableHead>
+                                  <TableHead className="text-right">Acciones</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {linkCards.map((card) => (
+                                  <TableRow key={card.id}>
+                                     <TableCell><ImageIcon className="h-8 w-8 text-muted-foreground" /></TableCell>
+                                    <TableCell className="font-medium">{card.title}</TableCell>
+                                    <TableCell className="text-right">
+                                      <Button variant="ghost" size="icon" onClick={() => handleEditLinkCard(card)}><Edit className="h-4 w-4" /></Button>
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                            <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente la categoría.</AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteLinkCard(card.id!)}>Eliminar</AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
           </TabsContent>
           
           <TabsContent value="shorts" className="mt-6">
               <Card>
                 <CardHeader className="flex flex-row items-center justify-between">
                     <CardTitle>YouTube Shorts</CardTitle>
-                   <Dialog open={isShortDialogOpen} onOpenChange={(isOpen) => {
-                     setIsShortDialogOpen(isOpen);
-                     if (!isOpen) {
-                       setEditingShort(null);
-                     }
-                   }}>
-                    <DialogTrigger asChild>
-                       <Button onClick={handleAddNewShort}>
-                        <PlusCircle className="mr-2 h-4 w-4" />
-                        Añadir Short
-                      </Button>
-                    </DialogTrigger>
+                   <Dialog open={isShortDialogOpen} onOpenChange={(isOpen) => { setIsShortDialogOpen(isOpen); if (!isOpen) setEditingShort(null); }}>
+                    <DialogTrigger asChild><Button onClick={handleAddNewShort}><PlusCircle className="mr-2 h-4 w-4" />Añadir Short</Button></DialogTrigger>
                     <DialogContent className="sm:max-w-[625px] glass-card">
                       <DialogHeader>
                         <DialogTitle>{editingShort ? 'Editar Short' : 'Crear Nuevo Short'}</DialogTitle>
-                        <DialogDescription className="sr-only">
-                            {editingShort ? 'Edita los detalles de tu short aquí.' : 'Añade un nuevo short a tu colección.'}
-                        </DialogDescription>
+                        <DialogDescription className="sr-only">{editingShort ? 'Edita los detalles de tu short aquí.' : 'Añade un nuevo short a tu colección.'}</DialogDescription>
                       </DialogHeader>
                       <ShortForm short={editingShort} onSave={handleShortSaved} />
                     </DialogContent>
@@ -751,9 +650,7 @@ export default function CoreDashboardPage() {
                 </CardHeader>
                 <CardContent>
                   {isLoadingShorts ? (
-                    <div className="flex justify-center items-center h-40">
-                      <Loader2 className="h-8 w-8 animate-spin text-primary" />
-                    </div>
+                    <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
                   ) : (
                     <Table>
                       <TableHeader>
@@ -767,31 +664,17 @@ export default function CoreDashboardPage() {
                       <TableBody>
                         {shorts.map((short) => (
                           <TableRow key={short.id}>
-                             <TableCell>
-                              <Youtube className="h-6 w-6 text-red-600" />
-                            </TableCell>
+                             <TableCell><Youtube className="h-6 w-6 text-red-600" /></TableCell>
                             <TableCell className="font-medium">{short.title}</TableCell>
-                            <TableCell>
-                              <div className="flex flex-wrap gap-1 max-w-[250px]">
-                                {short.tags?.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}
-                              </div>
-                            </TableCell>
+                            <TableCell><div className="flex flex-wrap gap-1 max-w-[250px]">{short.tags?.map(tag => <Badge key={tag} variant="secondary">{tag}</Badge>)}</div></TableCell>
                             <TableCell className="text-right">
-                              <Button variant="ghost" size="icon" onClick={() => handleEditShort(short)}>
-                                <Edit className="h-4 w-4" />
-                              </Button>
+                              <Button variant="ghost" size="icon" onClick={() => handleEditShort(short)}><Edit className="h-4 w-4" /></Button>
                                <AlertDialog>
-                                <AlertDialogTrigger asChild>
-                                  <Button variant="ghost" size="icon">
-                                    <Trash2 className="h-4 w-4 text-destructive" />
-                                  </Button>
-                                </AlertDialogTrigger>
+                                <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
                                     <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                    <AlertDialogDescription>
-                                      Esta acción no se puede deshacer. Esto eliminará permanentemente el short.
-                                    </AlertDialogDescription>
+                                    <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente el short.</AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
@@ -824,7 +707,5 @@ export default function CoreDashboardPage() {
     </main>
   );
 }
-
-    
 
     

@@ -15,22 +15,32 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect } from "react";
 import { createLink, updateLink, LinkItem } from "@/services/links";
+import { LinkCard } from "@/services/link-cards";
 
 const formSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
   url: z.string().url("Debe ser una URL válida."),
   tag: z.string().min(1, "La etiqueta es requerida."),
+  cardId: z.string().min(1, "Debes seleccionar una categoría."),
 });
 
 type LinkFormProps = {
     link: LinkItem | null;
     onSave: () => void;
+    availableCards: LinkCard[];
 }
 
-export default function LinkForm({ link, onSave }: LinkFormProps) {
+export default function LinkForm({ link, onSave, availableCards }: LinkFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
 
@@ -40,6 +50,7 @@ export default function LinkForm({ link, onSave }: LinkFormProps) {
       title: "",
       url: "",
       tag: "",
+      cardId: "",
     },
   });
 
@@ -51,6 +62,7 @@ export default function LinkForm({ link, onSave }: LinkFormProps) {
             title: "",
             url: "",
             tag: "",
+            cardId: "",
         });
     }
   }, [link, form]);
@@ -79,12 +91,36 @@ export default function LinkForm({ link, onSave }: LinkFormProps) {
   return (
     <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+             <FormField
+              control={form.control}
+              name="cardId"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Categoría</FormLabel>
+                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                    <FormControl>
+                      <SelectTrigger className="bg-background/50">
+                        <SelectValue placeholder="Selecciona una categoría para el enlace" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      {availableCards.map(card => (
+                        <SelectItem key={card.id} value={card.id!}>
+                            {card.title}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <FormField
             control={form.control}
             name="title"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Título</FormLabel>
+                <FormLabel>Título del Enlace</FormLabel>
                 <FormControl>
                     <Input placeholder="Nombre del enlace" {...field} className="bg-background/50" />
                 </FormControl>
@@ -128,3 +164,5 @@ export default function LinkForm({ link, onSave }: LinkFormProps) {
     </Form>
   );
 }
+
+    
