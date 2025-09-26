@@ -5,13 +5,19 @@ import { useEffect, useState, useMemo } from "react";
 import Link from 'next/link';
 import { getLinks, LinkItem } from "@/services/links";
 import { getLinkCards, LinkCard } from "@/services/link-cards";
-import { Loader2, Link2 } from "lucide-react";
+import { Loader2, Link2, ChevronDown } from "lucide-react";
 import Header from "@/components/landing/header";
 import Footer from "@/components/landing/footer";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import Image from "next/image";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion"
 
 export default function LinksPage() {
   const [allLinks, setAllLinks] = useState<LinkItem[]>([]);
@@ -104,51 +110,56 @@ export default function LinksPage() {
             Aún no hay categorías de enlaces para mostrar. ¡Añade una desde el CORE!
           </p>
         ) : (
-          <div className="space-y-12">
+          <Accordion type="single" collapsible className="w-full space-y-8">
             {allCards.map(card => {
               const linksForCard = linksByCard[card.id!];
               if (!linksForCard || linksForCard.length === 0) return null;
 
               return (
-                 <Card key={card.id} className="glass-card overflow-hidden">
-                    <CardHeader className="p-0 relative h-48">
-                        <Image
-                            src={card.imageUrl}
-                            alt={card.title}
-                            fill
-                            className="object-cover"
-                        />
-                         <div className="absolute inset-0 bg-black/50 flex items-center justify-center p-4">
-                            <CardTitle className="section-title text-3xl text-center">{card.title}</CardTitle>
-                        </div>
-                    </CardHeader>
-                    <CardContent className="p-4 md:p-6 space-y-4">
-                        {linksForCard.map(item => (
-                            <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-background/50 hover:bg-background/80 transition-colors">
-                                <div className="flex items-start gap-4">
-                                    <div className="p-3 bg-primary/10 rounded-full mt-1">
-                                        <Link2 className="w-5 h-5 text-primary" />
-                                    </div>
-                                    <div>
-                                        <h3 className="font-headline text-xl text-foreground">{item.title}</h3>
-                                        <div className="flex items-center gap-2 mt-1">
-                                            <Badge variant="secondary">{item.tag}</Badge>
-                                            <span className="text-muted-foreground/80 truncate text-sm hidden md:inline">{item.url}</span>
-                                        </div>
-                                    </div>
+                <AccordionItem value={card.id!} key={card.id} className="border-none">
+                    <Card className="glass-card overflow-hidden">
+                        <AccordionTrigger className="w-full p-0 hover:no-underline [&[data-state=open]>div>div>svg]:rotate-180">
+                            <CardHeader className="p-0 relative h-48 w-full">
+                                <Image
+                                    src={card.imageUrl}
+                                    alt={card.title}
+                                    fill
+                                    className="object-cover"
+                                />
+                                <div className="absolute inset-0 bg-black/50 flex items-center justify-between p-4 w-full">
+                                    <CardTitle className="section-title text-3xl text-center flex-1">{card.title}</CardTitle>
+                                    <ChevronDown className="h-8 w-8 text-white transition-transform duration-300" />
                                 </div>
-                            </a>
-                        ))}
-                    </CardContent>
-                </Card>
+                            </CardHeader>
+                        </AccordionTrigger>
+                        <AccordionContent>
+                           <CardContent className="p-4 md:p-6 space-y-4">
+                                {linksForCard.map(item => (
+                                    <a key={item.id} href={item.url} target="_blank" rel="noopener noreferrer" className="block p-4 rounded-lg bg-background/50 hover:bg-background/80 transition-colors">
+                                        <div className="flex items-start gap-4">
+                                            <div className="p-3 bg-primary/10 rounded-full mt-1">
+                                                <Link2 className="w-5 h-5 text-primary" />
+                                            </div>
+                                            <div>
+                                                <h3 className="font-headline text-xl text-foreground">{item.title}</h3>
+                                                <div className="flex items-center gap-2 mt-1">
+                                                    <Badge variant="secondary">{item.tag}</Badge>
+                                                    <span className="text-muted-foreground/80 truncate text-sm hidden md:inline">{item.url}</span>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </a>
+                                ))}
+                            </CardContent>
+                        </AccordionContent>
+                    </Card>
+                </AccordionItem>
               )
             })}
-          </div>
+          </Accordion>
         )}
       </main>
       <Footer />
     </div>
   );
 }
-
-    
