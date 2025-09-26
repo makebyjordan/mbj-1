@@ -3,11 +3,11 @@
 
 import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
-import { uploadImage, getImages, deleteImage, ImageData } from "@/services/images";
+import { uploadImage, getImages, deleteImage, addImageByUrl, ImageData } from "@/services/images";
 import { useToast } from "@/hooks/use-toast";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import { Loader2, UploadCloud, Trash2, Clipboard } from "lucide-react";
+import { Loader2, UploadCloud, Trash2, Clipboard, Link as LinkIcon } from "lucide-react";
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { Input } from "../ui/input";
 
@@ -15,6 +15,8 @@ export default function ImageGallery() {
   const [images, setImages] = useState<ImageData[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [isUploading, setIsUploading] = useState(false);
+  const [imageUrl, setImageUrl] = useState("");
+  const [isUrlDialogOpen, setIsUrlDialogOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
   const { toast } = useToast();
 
@@ -60,10 +62,29 @@ export default function ImageGallery() {
       });
     } finally {
       setIsUploading(false);
-      // Reset file input
       if(fileInputRef.current) {
         fileInputRef.current.value = "";
       }
+    }
+  };
+  
+  const handleAddFromUrl = async () => {
+    if (!imageUrl) {
+        toast({ variant: "destructive", title: "URL vacía", description: "Por favor, introduce una URL." });
+        return;
+    }
+    setIsUploading(true);
+    try {
+        await addImageByUrl(imageUrl);
+        toast({ title: "Imagen añadida", description: "La imagen se ha añadido desde la URL." });
+        fetchImages();
+        setImageUrl("");
+    } catch (error) {
+        console.error("Error adding image from URL:", error);
+        toast({ variant: "destructive", title: "Error", description: "No se pudo añadir la imagen desde la URL. Asegúrate de que la URL es válida y accesible." });
+    } finally {
+        setIsUploading(false);
+        setIsUrlDialogOpen(false);
     }
   };
 
@@ -74,7 +95,7 @@ export default function ImageGallery() {
         title: "Imagen eliminada",
         description: "La imagen ha sido eliminada.",
       });
-      fetchImages(); // Refresh the gallery
+      fetchImages();
     } catch (error) {
       console.error("Error deleting image:", error);
       toast({
@@ -96,30 +117,70 @@ export default function ImageGallery() {
   return (
     <Card>
       <CardContent className="p-4">
-        <div 
-            className="border-2 border-dashed border-muted-foreground/50 rounded-lg p-6 text-center cursor-pointer hover:bg-background/50 transition-colors mb-6"
-            onClick={() => !isUploading && fileInputRef.current?.click()}
-        >
-            <Input 
-                type="file" 
-                className="hidden" 
-                ref={fileInputRef} 
-                onChange={handleFileChange}
-                accept="image/png, image/jpeg, image/gif, image/webp"
-                disabled={isUploading}
-            />
-            {isUploading ? (
-                <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
-                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
-                    <span>Subiendo imagen...</span>
-                </div>
-            ) : (
-                <div className="flex flex-col items-center gap-2 text-muted-foreground">
-                    <UploadCloud className="w-8 h-8" />
-                    <span>Haz clic o arrastra para subir una imagen</span>
-                    <span className="text-xs">PNG, JPG, GIF, WEBP</span>
-                </div>
-            )}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+            <div 
+                className="border-2 border-dashed border-muted-foreground/50 rounded-lg p-6 text-center cursor-pointer hover:bg-background/50 transition-colors"
+                onClick={() => !isUploading && fileInputRef.current?.click()}
+            >
+                <Input 
+                    type="file" 
+                    className="hidden" 
+                    ref={fileInputRef} 
+                    onChange={handleFileChange}
+                    accept="image/png, image/jpeg, image/gif, image/webp"
+                    disabled={isUploading}
+                />
+                {isUploading && !imageUrl ? (
+                    <div className="flex flex-col items-center justify-center gap-2 text-muted-foreground">
+                        <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                        <span>Subiendo imagen...</span>
+                    </div>
+                ) : (
+                    <div className="flex flex-col items-center gap-2 text-muted-foreground">
+                        <UploadCloud className="w-8 h-8" />
+                        <span>Haz clic o arrastra para subir una imagen</span>
+                        <span className="text-xs">PNG, JPG, GIF, WEBP</span>
+                    </div>
+                )}
+            </div>
+             <div className="border-2 border-dashed border-muted-foreground/50 rounded-lg p-6 flex flex-col justify-center">
+                 <p className="text-center text-muted-foreground mb-2">O añade desde una URL</p>
+                 <div className="flex gap-2">
+                     <Input 
+                        type="url"
+                        placeholder="https://ejemplo.com/imagen.jpg"
+                        value={imageUrl}
+                        onChange={(e) => setImageUrl(e.target.value)}
+                        className="bg-background/50"
+                        disabled={isUploading}
+                     />
+                    <AlertDialog open={isUrlDialogOpen} onOpenChange={setIsUrlDialogOpen}>
+                        <AlertDialogTrigger asChild>
+                            <Button disabled={!imageUrl || isUploading}>Añadir</Button>
+                        </AlertDialogTrigger>
+                        <AlertDialogContent>
+                            <AlertDialogHeader>
+                                <AlertDialogTitle>¿Confirmar imagen desde URL?</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                    Se añadirá la siguiente imagen a tu galería. Asegúrate de que la URL es correcta.
+                                </AlertDialogDescription>
+                            </AlertDialogHeader>
+                            {imageUrl && (
+                                <div className="relative w-full h-48 mt-4 rounded-md overflow-hidden border">
+                                    <Image src={imageUrl} alt="Vista previa de la URL" layout="fill" objectFit="contain" />
+                                </div>
+                            )}
+                            <AlertDialogFooter>
+                                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                <AlertDialogAction onClick={handleAddFromUrl} disabled={isUploading}>
+                                    {isUploading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
+                                    Añadir Imagen
+                                </AlertDialogAction>
+                            </AlertDialogFooter>
+                        </AlertDialogContent>
+                    </AlertDialog>
+                 </div>
+            </div>
         </div>
 
         {isLoading ? (
@@ -155,7 +216,7 @@ export default function ImageGallery() {
                             <AlertDialogHeader>
                                 <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
                                 <AlertDialogDescription>
-                                Esta acción no se puede deshacer. Esto eliminará permanentemente la imagen de la galería y de Firebase Storage.
+                                Esta acción no se puede deshacer. Esto eliminará permanentemente la imagen.
                                 </AlertDialogDescription>
                             </AlertDialogHeader>
                             <AlertDialogFooter>
@@ -174,3 +235,5 @@ export default function ImageGallery() {
     </Card>
   );
 }
+
+    

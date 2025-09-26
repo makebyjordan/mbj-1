@@ -10,7 +10,7 @@ const ImageSchema = z.object({
   id: z.string(),
   name: z.string(),
   url: z.string().url(),
-  storagePath: z.string(),
+  storagePath: z.string().optional(),
   createdAt: z.any(),
 });
 
@@ -45,6 +45,26 @@ export const uploadImage = async (file: File): Promise<ImageData> => {
   });
 };
 
+export const addImageByUrl = async (imageUrl: string): Promise<ImageData> => {
+  const url = new URL(imageUrl);
+  const name = url.pathname.split('/').pop() || 'image_from_url';
+
+  const docData = {
+    name,
+    url: imageUrl,
+    storagePath: '', // No storage path for URL-based images
+    createdAt: serverTimestamp(),
+  };
+
+  const docRef = await addDoc(imagesCollection, docData);
+
+  return ImageSchema.parse({
+    id: docRef.id,
+    ...docData,
+    createdAt: new Date(),
+  });
+};
+
 export const getImages = async (): Promise<ImageData[]> => {
   const q = query(imagesCollection, orderBy('createdAt', 'desc'));
   const snapshot = await getDocs(q);
@@ -60,15 +80,19 @@ export const deleteImage = async (image: ImageData): Promise<void> => {
   const imageDoc = doc(db, 'images', image.id);
   await deleteDoc(imageDoc);
 
-  // Delete from Storage
-  try {
-    const storageRef = ref(storage, image.storagePath);
-    await deleteObject(storageRef);
-  } catch (error: any) {
-    if (error.code !== 'storage/object-not-found') {
-      console.error("Error deleting image from storage:", error);
-      // Optional: Handle this error, e.g., by logging it or notifying the user.
-      // We don't re-throw, as the Firestore entry is already deleted.
+  // If there's a storage path, delete from Storage as well
+  if (image.storagePath) {
+    try {
+      const storageRef = ref(storage, image.storagePath);
+      await deleteObject(storageRef);
+    } catch (error: any) {
+      if (error.code !== 'storage/object-not-found') {
+        console.error("Error deleting image from storage:", error);
+        // Optional: Handle this error, e.g., by logging it or notifying the user.
+        // We don't re-throw, as the Firestore entry is already deleted.
+      }
     }
   }
 };
+
+    
