@@ -21,43 +21,21 @@ const linksCollection = collection(db, 'links');
 // Helper to convert Firestore doc to LinkItem
 const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): LinkItem => {
     const data = snapshot.data();
-    // Provides a fallback for cardId to prevent crashes with old data.
-    const rawData = {
+    return LinkSchema.parse({
         id: snapshot.id,
         title: data.title,
         url: data.url,
         tag: data.tag,
-        cardId: data.cardId || '', // Fallback for old documents without a cardId
+        cardId: data.cardId,
         createdAt: data.createdAt?.toDate(),
-    };
-    // We parse to ensure data integrity, but the fallback handles missing cardId.
-    // To be fully compliant, we should only parse valid data.
-    // For now, this lets the app load, but links without a category will need to be re-saved.
-    return LinkSchema.parse({
-        ...rawData,
-        cardId: rawData.cardId || 'temp-id-for-validation' // Make zod happy for parsing
     });
 }
-
-// A more robust fromFirestore that handles old data gracefully
-const robustFromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): LinkItem => {
-    const data = snapshot.data();
-    return {
-        id: snapshot.id,
-        title: data.title || 'Enlace sin título',
-        url: data.url || '',
-        tag: data.tag || 'Sin etiqueta',
-        cardId: data.cardId || '', // Key change: provide default value
-        createdAt: data.createdAt?.toDate(),
-    };
-}
-
 
 // GET all links, ordered by creation date
 export const getLinks = async (): Promise<LinkItem[]> => {
     const q = query(linksCollection, orderBy('createdAt', 'desc'));
     const snapshot = await getDocs(q);
-    return snapshot.docs.map(robustFromFirestore);
+    return snapshot.docs.map(fromFirestore);
 };
 
 // CREATE a new link
