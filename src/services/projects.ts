@@ -1,3 +1,4 @@
+
 "use client";
 
 import { db, storage } from '@/lib/firebase';
@@ -89,13 +90,20 @@ export const updateProject = async (id: string, projectData: Partial<Project>) =
     const dataToUpdate = { ...projectData };
 
     if (projectData.imageUrl && projectData.imageUrl.startsWith('data:image')) {
-        const storageRef = ref(storage, `projects/${id}`);
-        const uploadResult = await uploadString(storageRef, projectData.imageUrl, 'data_url');
-        dataToUpdate.imageUrl = await getDownloadURL(uploadResult.ref);
+        // Prevent re-uploading the same data URL if it hasn't changed
+        const docSnap = await getDoc(projectDoc);
+        if (docSnap.exists() && docSnap.data().imageUrl === projectData.imageUrl) {
+            delete dataToUpdate.imageUrl;
+        } else {
+            const storageRef = ref(storage, `projects/${id}`);
+            const uploadResult = await uploadString(storageRef, projectData.imageUrl, 'data_url');
+            dataToUpdate.imageUrl = await getDownloadURL(uploadResult.ref);
+        }
     }
     
     await updateDoc(projectDoc, dataToUpdate);
 };
+
 
 // DELETE a project
 export const deleteProject = async (id: string) => {

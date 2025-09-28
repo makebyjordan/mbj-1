@@ -1,3 +1,4 @@
+
 "use client";
 
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -124,7 +125,7 @@ export default function ProjectForm({ project, onSave, availableCategories }: Pr
             url: values.url || "",
             type: values.type || 'project',
             htmlContent: values.htmlContent || "",
-            categoryId: values.categoryId || "",
+            categoryId: values.type === 'project' ? '' : values.categoryId || "", // Unset category if it's a project
         };
 
         if (project && project.id) {
