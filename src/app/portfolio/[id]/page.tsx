@@ -28,10 +28,11 @@ const proseStyles = `
 
 export default function ProjectDetailPage({ params }: { params: { id: string } }) {
   const [project, setProject] = useState<Project | null | undefined>(undefined);
-  const { id } = params;
 
   useEffect(() => {
+    const { id } = params;
     if (!id) return;
+    
     const fetchProject = async () => {
       try {
         const fetchedProject = await getProjectById(id);
@@ -42,7 +43,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       }
     };
     fetchProject();
-  }, [id]);
+  }, [params]);
 
   if (project === undefined) {
     return (
