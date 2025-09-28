@@ -3,19 +3,20 @@
 
 import { useEffect, useState, useRef } from "react";
 import { getProjectById, Project } from "@/services/projects";
-import { notFound } from 'next/navigation';
+import { notFound, useParams } from 'next/navigation';
 import Header from "@/components/landing/header";
 import Footer from "@/components/landing/footer";
 import { Loader2 } from "lucide-react";
 import Image from "next/image";
 import { Badge } from "@/components/ui/badge";
 
-export default function ProjectDetailPage({ params }: { params: { id: string } }) {
+export default function ProjectDetailPage() {
   const [project, setProject] = useState<Project | null | undefined>(undefined);
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const params = useParams();
+  const projectId = params.id as string;
 
   useEffect(() => {
-    const projectId = params.id;
     if (!projectId) return;
     
     const fetchProject = async () => {
@@ -28,7 +29,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       }
     };
     fetchProject();
-  }, [params]);
+  }, [projectId]);
   
   useEffect(() => {
     if (project?.htmlContent && iframeRef.current) {
