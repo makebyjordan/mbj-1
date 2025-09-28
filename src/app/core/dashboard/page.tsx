@@ -399,7 +399,7 @@ export default function CoreDashboardPage() {
                     <DialogTrigger asChild>
                        <Button onClick={handleAddNewProject}><PlusCircle className="mr-2 h-4 w-4" />Añadir Nuevo</Button>
                     </DialogTrigger>
-                    <DialogContent className="sm:max-w-[625px] glass-card">
+                    <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto">
                       <DialogHeader>
                         <DialogTitle>{editingProject ? 'Editar' : 'Crear Nuevo'}</DialogTitle>
                          <DialogDescription className="sr-only">{editingProject ? 'Edita los detalles de tu proyecto o entrada de blog aquí.' : 'Crea un nuevo proyecto o entrada de blog.'}</DialogDescription>
