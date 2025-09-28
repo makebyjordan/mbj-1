@@ -30,12 +30,12 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
   const [project, setProject] = useState<Project | null | undefined>(undefined);
 
   useEffect(() => {
-    const { id } = params;
-    if (!id) return;
+    const projectId = params.id;
+    if (!projectId) return;
     
     const fetchProject = async () => {
       try {
-        const fetchedProject = await getProjectById(id);
+        const fetchedProject = await getProjectById(projectId);
         setProject(fetchedProject);
       } catch (error) {
         console.error("Error fetching project:", error);
@@ -43,7 +43,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       }
     };
     fetchProject();
-  }, [params]);
+  }, [params.id]);
 
   if (project === undefined) {
     return (
