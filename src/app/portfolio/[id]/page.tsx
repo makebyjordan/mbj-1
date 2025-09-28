@@ -28,7 +28,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       }
     };
     fetchProject();
-  }, [params.id]);
+  }, [params]);
   
   useEffect(() => {
     if (project?.htmlContent && iframeRef.current) {
