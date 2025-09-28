@@ -11,21 +11,6 @@ import Image from "next/image";
 import { Card, CardContent } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
-// Estilos para el contenido HTML importado
-const proseStyles = `
-  prose-invert 
-  prose-p:text-muted-foreground prose-p:text-lg 
-  prose-headings:text-foreground prose-headings:font-headline
-  prose-h1:text-4xl prose-h2:text-3xl prose-h3:text-2xl
-  prose-a:text-primary hover:prose-a:text-secondary
-  prose-strong:text-foreground
-  prose-blockquote:border-l-primary prose-blockquote:text-muted-foreground
-  prose-ul:list-disc prose-ol:list-decimal
-  prose-li:marker:text-primary
-  max-w-full
-`;
-
-
 export default function ProjectDetailPage({ params }: { params: { id: string } }) {
   const [project, setProject] = useState<Project | null | undefined>(undefined);
 
@@ -80,10 +65,11 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
           {project.htmlContent ? (
              <Card className="glass-card">
                 <CardContent className="p-6 md:p-8">
-                   <div 
-                      className={proseStyles}
-                      dangerouslySetInnerHTML={{ __html: project.htmlContent }} 
-                    />
+                   <pre className="bg-background/50 p-4 rounded-lg overflow-x-auto">
+                      <code className="font-code text-sm text-foreground">
+                        {project.htmlContent}
+                      </code>
+                   </pre>
                 </CardContent>
              </Card>
           ) : (
