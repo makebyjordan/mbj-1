@@ -1,7 +1,7 @@
 "use client";
 
 import { db, storage } from '@/lib/firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, DocumentData, QueryDocumentSnapshot, serverTimestamp, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, DocumentData, QueryDocumentSnapshot, serverTimestamp, orderBy, query, getDoc } from 'firebase/firestore';
 import { ref, uploadString, getDownloadURL, deleteObject } from 'firebase/storage';
 import { z } from 'zod';
 
@@ -14,6 +14,7 @@ const ProjectSchema = z.object({
   url: z.string().url().optional().or(z.literal('')),
   type: z.enum(['project', 'blog']).default('project'),
   htmlContent: z.string().optional(),
+  categoryId: z.string().optional(),
   createdAt: z.any().optional(),
 });
 
@@ -33,6 +34,7 @@ const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): Project =
         url: data.url || "",
         type: data.type || 'project',
         htmlContent: data.htmlContent || "",
+        categoryId: data.categoryId || "",
         createdAt: data.createdAt?.toDate(),
     };
     // Ensure the schema is valid on data read
@@ -52,7 +54,7 @@ export const getProjectById = async (id: string): Promise<Project | null> => {
     const docSnap = await getDoc(projectDoc);
 
     if (docSnap.exists()) {
-        return fromFirestore(docSnap);
+        return fromFirestore(docSnap as QueryDocumentSnapshot<DocumentData>);
     } else {
         return null;
     }

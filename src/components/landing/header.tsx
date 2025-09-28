@@ -26,14 +26,14 @@ const navLinks = [
   { href: "/#services", label: "Servicios" },
   { href: "/#portfolio", label: "Portafolio" },
   { href: "/#about", label: "Sobre Mí" },
-  { href: "/#blog", label: "Blog" },
+  { href: "/blog", label: "Blog" },
 ];
 
 const mobileNavLinks = [
   { href: "/#services", label: "Servicios" },
   { href: "/#portfolio", label: "Portafolio" },
   { href: "/#about", label: "Sobre Mí" },
-  { href: "/#blog", label: "Blog" },
+  { href: "/blog", label: "Blog" },
   { href: "/#latest-shorts", label: "Shorts" },
   { href: "/#formation", label: "Formación" },
   { href: "/links", label: "Enlaces" },

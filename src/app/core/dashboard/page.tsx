@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -29,12 +29,14 @@ import { getFormations, deleteFormation, Formation } from '@/services/formation'
 import { getShorts, deleteShort, Short } from '@/services/shorts';
 import { getLinks, deleteLink, LinkItem } from '@/services/links';
 import { getLinkCards, deleteLinkCard, LinkCard } from '@/services/link-cards';
+import { getBlogCategories, deleteBlogCategory, BlogCategory } from '@/services/blog-categories';
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
 import FormationForm from '@/components/core/FormationForm';
 import ShortForm from '@/components/core/ShortForm';
 import LinkForm from '@/components/core/LinkForm';
 import LinkCardForm from '@/components/core/LinkCardForm';
+import BlogCategoryForm from '@/components/core/BlogCategoryForm';
 import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
@@ -48,24 +50,31 @@ export default function CoreDashboardPage() {
   const [shorts, setShorts] = useState<Short[]>([]);
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [linkCards, setLinkCards] = useState<LinkCard[]>([]);
+  const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
+  
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
   const [isLoadingFormations, setIsLoadingFormations] = useState(true);
   const [isLoadingShorts, setIsLoadingShorts] = useState(true);
   const [isLoadingLinks, setIsLoadingLinks] = useState(true);
   const [isLoadingLinkCards, setIsLoadingLinkCards] = useState(true);
+  const [isLoadingBlogCategories, setIsLoadingBlogCategories] = useState(true);
+
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
   const [isFormationDialogOpen, setIsFormationDialogOpen] = useState(false);
   const [isShortDialogOpen, setIsShortDialogOpen] = useState(false);
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
   const [isLinkCardDialogOpen, setIsLinkCardDialogOpen] = useState(false);
+  const [isBlogCategoryDialogOpen, setIsBlogCategoryDialogOpen] = useState(false);
+
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
   const [editingFormation, setEditingFormation] = useState<Formation | null>(null);
   const [editingShort, setEditingShort] = useState<Short | null>(null);
   const [editingLink, setEditingLink] = useState<LinkItem | null>(null);
   const [editingLinkCard, setEditingLinkCard] = useState<LinkCard | null>(null);
+  const [editingBlogCategory, setEditingBlogCategory] = useState<BlogCategory | null>(null);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -140,9 +149,22 @@ export default function CoreDashboardPage() {
       setLinkCards(linkCardsFromDb);
     } catch (error) {
       console.error("Error fetching link cards:", error);
-      toast({ variant: "destructive", title: "Error al cargar categorías", description: "No se pudieron cargar las categorías de enlaces." });
+      toast({ variant: "destructive", title: "Error al cargar categorías de enlaces", description: "No se pudieron cargar las categorías de enlaces." });
     } finally {
       setIsLoadingLinkCards(false);
+    }
+  }
+
+  const fetchBlogCategories = async () => {
+    setIsLoadingBlogCategories(true);
+    try {
+      const categoriesFromDb = await getBlogCategories();
+      setBlogCategories(categoriesFromDb);
+    } catch (error) {
+      console.error("Error fetching blog categories:", error);
+      toast({ variant: "destructive", title: "Error al cargar categorías de blog", description: "No se pudieron cargar las categorías de blog." });
+    } finally {
+      setIsLoadingBlogCategories(false);
     }
   }
 
@@ -153,13 +175,14 @@ export default function CoreDashboardPage() {
     fetchShorts();
     fetchLinks();
     fetchLinkCards();
+    fetchBlogCategories();
   }, []);
 
   const handleProjectSaved = () => {
     setIsProjectDialogOpen(false);
     setEditingProject(null);
     fetchProjects();
-     toast({ title: "Proyecto guardado", description: "Tu proyecto se ha guardado correctamente." });
+     toast({ title: "Guardado", description: "La entrada se ha guardado correctamente." });
   }
 
   const handleServiceSaved = () => {
@@ -195,7 +218,15 @@ export default function CoreDashboardPage() {
     setEditingLinkCard(null);
     fetchLinkCards();
     fetchLinks(); // Re-fetch links in case a card title changed
-     toast({ title: "Categoría guardada", description: "La categoría de enlaces se ha guardado correctamente." });
+     toast({ title: "Categoría de enlace guardada", description: "La categoría se ha guardado correctamente." });
+  }
+
+  const handleBlogCategorySaved = () => {
+    setIsBlogCategoryDialogOpen(false);
+    setEditingBlogCategory(null);
+    fetchBlogCategories();
+    fetchProjects(); 
+     toast({ title: "Categoría de Blog guardada", description: "La categoría se ha guardado correctamente." });
   }
 
   const handleHeroSaved = () => {
@@ -218,15 +249,17 @@ export default function CoreDashboardPage() {
   const handleAddNewLink = () => { setEditingLink(null); setIsLinkDialogOpen(true); }
   const handleEditLinkCard = (linkCard: LinkCard) => { setEditingLinkCard(linkCard); setIsLinkCardDialogOpen(true); }
   const handleAddNewLinkCard = () => { setEditingLinkCard(null); setIsLinkCardDialogOpen(true); }
+  const handleEditBlogCategory = (category: BlogCategory) => { setEditingBlogCategory(category); setIsBlogCategoryDialogOpen(true); }
+  const handleAddNewBlogCategory = () => { setEditingBlogCategory(null); setIsBlogCategoryDialogOpen(true); }
 
   const handleDeleteProject = async (projectId: string) => {
     try {
       await deleteProject(projectId);
       fetchProjects();
-      toast({ title: "Proyecto eliminado", description: "El proyecto se ha eliminado correctamente." });
+      toast({ title: "Eliminado", description: "La entrada se ha eliminado correctamente." });
     } catch (error) {
       console.error("Error deleting project:", error);
-      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el proyecto." });
+      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la entrada." });
     }
   };
 
@@ -278,9 +311,21 @@ export default function CoreDashboardPage() {
     try {
       await deleteLinkCard(linkCardId);
       fetchLinkCards();
-      toast({ title: "Categoría eliminada", description: "La categoría de enlaces se ha eliminado correctamente." });
+      toast({ title: "Categoría de enlace eliminada", description: "La categoría se ha eliminado correctamente." });
     } catch (error) {
       console.error("Error deleting link card:", error);
+      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la categoría." });
+    }
+  };
+
+  const handleDeleteBlogCategory = async (categoryId: string) => {
+    try {
+      await deleteBlogCategory(categoryId);
+      fetchBlogCategories();
+      fetchProjects();
+      toast({ title: "Categoría de blog eliminada", description: "La categoría se ha eliminado correctamente." });
+    } catch (error) {
+      console.error("Error deleting blog category:", error);
       toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la categoría." });
     }
   };
@@ -392,64 +437,130 @@ export default function CoreDashboardPage() {
           </TabsContent>
           
           <TabsContent value="proyectos" className="mt-6">
-             <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                  <div><CardTitle>Proyectos y Blog</CardTitle></div>
-                   <Dialog open={isProjectDialogOpen} onOpenChange={(isOpen) => { setIsProjectDialogOpen(isOpen); if (!isOpen) setEditingProject(null); }}>
-                    <DialogTrigger asChild>
-                       <Button onClick={handleAddNewProject}><PlusCircle className="mr-2 h-4 w-4" />Añadir Nuevo</Button>
-                    </DialogTrigger>
-                    <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto">
-                      <DialogHeader>
-                        <DialogTitle>{editingProject ? 'Editar' : 'Crear Nuevo'}</DialogTitle>
-                         <DialogDescription className="sr-only">{editingProject ? 'Edita los detalles de tu proyecto o entrada de blog aquí.' : 'Crea un nuevo proyecto o entrada de blog.'}</DialogDescription>
-                      </DialogHeader>
-                      <ProjectForm project={editingProject} onSave={handleProjectSaved} />
-                    </DialogContent>
-                  </Dialog>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingProjects ? (
-                    <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead className="w-[50px]">Tipo</TableHead>
-                          <TableHead>Título</TableHead>
-                          <TableHead>Descripción</TableHead>
-                          <TableHead className="text-right">Acciones</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {projects.map((project) => (
-                          <TableRow key={project.id}>
-                             <TableCell>{project.type === 'blog' ? <FileCode className="h-5 w-5 text-primary" /> : <Briefcase className="h-5 w-5 text-muted-foreground" />}</TableCell>
-                            <TableCell className="font-medium">{project.title}</TableCell>
-                            <TableCell className="max-w-[300px] truncate">{project.description}</TableCell>
-                            <TableCell className="text-right">
-                              <Button variant="ghost" size="icon" onClick={() => handleEditProject(project)}><Edit className="h-4 w-4" /></Button>
-                               <AlertDialog>
-                                <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                    <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente el proyecto.</AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeleteProject(project.id!)}>Eliminar</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
+            <Tabs defaultValue="manage-posts">
+                <TabsList className="mb-4">
+                    <TabsTrigger value="manage-posts">Gestionar Entradas</TabsTrigger>
+                    <TabsTrigger value="manage-categories">Gestionar Categorías</TabsTrigger>
+                </TabsList>
+                <TabsContent value="manage-posts">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                        <div><CardTitle>Proyectos y Blog</CardTitle></div>
+                        <Dialog open={isProjectDialogOpen} onOpenChange={(isOpen) => { setIsProjectDialogOpen(isOpen); if (!isOpen) setEditingProject(null); }}>
+                            <DialogTrigger asChild>
+                            <Button onClick={handleAddNewProject}><PlusCircle className="mr-2 h-4 w-4" />Añadir Nuevo</Button>
+                            </DialogTrigger>
+                            <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto">
+                            <DialogHeader>
+                                <DialogTitle>{editingProject ? 'Editar' : 'Crear Nuevo'}</DialogTitle>
+                                <DialogDescription className="sr-only">{editingProject ? 'Edita los detalles de tu proyecto o entrada de blog aquí.' : 'Crea un nuevo proyecto o entrada de blog.'}</DialogDescription>
+                            </DialogHeader>
+                            <ProjectForm project={editingProject} onSave={handleProjectSaved} availableCategories={blogCategories} />
+                            </DialogContent>
+                        </Dialog>
+                        </CardHeader>
+                        <CardContent>
+                        {isLoadingProjects ? (
+                            <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                        ) : (
+                            <Table>
+                            <TableHeader>
+                                <TableRow>
+                                <TableHead className="w-[50px]">Tipo</TableHead>
+                                <TableHead>Título</TableHead>
+                                <TableHead>Categoría</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {projects.map((project) => {
+                                const category = blogCategories.find(c => c.id === project.categoryId);
+                                return (
+                                <TableRow key={project.id}>
+                                    <TableCell>{project.type === 'blog' ? <FileCode className="h-5 w-5 text-primary" /> : <Briefcase className="h-5 w-5 text-muted-foreground" />}</TableCell>
+                                    <TableCell className="font-medium">{project.title}</TableCell>
+                                    <TableCell className="text-muted-foreground">{category?.title || 'Sin categoría'}</TableCell>
+                                    <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" onClick={() => handleEditProject(project)}><Edit className="h-4 w-4" /></Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                            <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente la entrada.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteProject(project.id!)}>Eliminar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    </TableCell>
+                                </TableRow>
+                                )})}
+                            </TableBody>
+                            </Table>
+                        )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                 <TabsContent value="manage-categories">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle>Categorías de Blog</CardTitle>
+                            <Dialog open={isBlogCategoryDialogOpen} onOpenChange={(isOpen) => { setIsBlogCategoryDialogOpen(isOpen); if (!isOpen) setEditingBlogCategory(null); }}>
+                                <DialogTrigger asChild><Button onClick={handleAddNewBlogCategory}><PlusCircle className="mr-2 h-4 w-4" />Añadir Categoría</Button></DialogTrigger>
+                                <DialogContent className="sm:max-w-[625px] glass-card">
+                                <DialogHeader>
+                                    <DialogTitle>{editingBlogCategory ? 'Editar Categoría' : 'Crear Nueva Categoría'}</DialogTitle>
+                                    <DialogDescription className="sr-only">{editingBlogCategory ? 'Edita los detalles de la categoría aquí.' : 'Crea una nueva categoría para tu blog.'}</DialogDescription>
+                                </DialogHeader>
+                                <BlogCategoryForm category={editingBlogCategory} onSave={handleBlogCategorySaved} />
+                                </DialogContent>
+                            </Dialog>
+                        </CardHeader>
+                        <CardContent>
+                          {isLoadingBlogCategories ? (
+                            <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                          ) : (
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead className="w-[100px]">Imagen</TableHead>
+                                  <TableHead>Título</TableHead>
+                                  <TableHead className="text-right">Acciones</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {blogCategories.map((category) => (
+                                  <TableRow key={category.id}>
+                                     <TableCell><ImageIcon className="h-8 w-8 text-muted-foreground" /></TableCell>
+                                    <TableCell className="font-medium">{category.title}</TableCell>
+                                    <TableCell className="text-right">
+                                      <Button variant="ghost" size="icon" onClick={() => handleEditBlogCategory(category)}><Edit className="h-4 w-4" /></Button>
+                                      <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                          <AlertDialogHeader>
+                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                            <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente la categoría.</AlertDialogDescription>
+                                          </AlertDialogHeader>
+                                          <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteBlogCategory(category.id!)}>Eliminar</AlertDialogAction>
+                                          </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                      </AlertDialog>
+                                    </TableCell>
+                                  </TableRow>
+                                ))}
+                              </TableBody>
+                            </Table>
+                          )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="formacion" className="mt-6">

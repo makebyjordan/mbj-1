@@ -16,10 +16,18 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select"
 import { Textarea } from "@/components/ui/textarea";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef } from "react";
 import { createProject, updateProject, Project } from "@/services/projects";
+import { BlogCategory } from "@/services/blog-categories";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const formSchema = z.object({
@@ -30,14 +38,16 @@ const formSchema = z.object({
   url: z.string().url().optional().or(z.literal('')),
   type: z.enum(['project', 'blog']).default('project'),
   htmlContent: z.string().optional(),
+  categoryId: z.string().optional(),
 });
 
 type ProjectFormProps = {
     project: Project | null;
     onSave: () => void;
+    availableCategories: BlogCategory[];
 }
 
-export default function ProjectForm({ project, onSave }: ProjectFormProps) {
+export default function ProjectForm({ project, onSave, availableCategories }: ProjectFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -53,12 +63,14 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
       url: "",
       type: "project",
       htmlContent: "",
+      categoryId: "",
     },
   });
 
   useEffect(() => {
     if (project) {
         form.reset({
+            ...project,
             title: project.title || "",
             description: project.description || "",
             imageUrl: project.imageUrl || "",
@@ -66,6 +78,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
             url: project.url || "",
             type: project.type || 'project',
             htmlContent: project.htmlContent || "",
+            categoryId: project.categoryId || "",
         });
         if (project.imageUrl) {
             setImagePreview(project.imageUrl);
@@ -81,6 +94,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
             url: "",
             type: "project",
             htmlContent: "",
+            categoryId: "",
         });
         setImagePreview(null);
     }
@@ -110,6 +124,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
             url: values.url || "",
             type: values.type || 'project',
             htmlContent: values.htmlContent || "",
+            categoryId: values.categoryId || "",
         };
 
         if (project && project.id) {
@@ -123,12 +138,14 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
         toast({
             variant: "destructive",
             title: "Error al guardar",
-            description: "No se pudo guardar el proyecto. Revisa la consola para más detalles.",
+            description: "No se pudo guardar la entrada. Revisa la consola para más detalles.",
         });
     } finally {
         setIsLoading(false);
     }
   }
+
+  const selectedType = form.watch('type');
 
   return (
     <Form {...form}>
@@ -151,10 +168,10 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
             name="description"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Descripción</FormLabel>
+                <FormLabel>Descripción Corta</FormLabel>
                 <FormControl>
                     <Textarea
-                    placeholder="Describe tu proyecto o escribe el contenido del blog..."
+                    placeholder="Describe tu proyecto o escribe un resumen..."
                     className="h-24 bg-background/50"
                     {...field}
                     />
@@ -168,7 +185,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                 name="imageUrl"
                 render={({ field }) => (
                     <FormItem>
-                        <FormLabel>Imagen del Proyecto</FormLabel>
+                        <FormLabel>Imagen Principal</FormLabel>
                         <FormControl>
                             <div>
                                 <Input 
@@ -205,10 +222,10 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
               name="htmlContent"
               render={({ field }) => (
                   <FormItem>
-                  <FormLabel>Importar desde HTML (Opcional)</FormLabel>
+                  <FormLabel>Contenido HTML</FormLabel>
                   <FormControl>
                       <Textarea
-                        placeholder="Pega tu código HTML aquí..."
+                        placeholder="Pega tu código HTML aquí para el cuerpo de la entrada..."
                         className="h-40 bg-background/50 font-mono"
                         {...field}
                       />
@@ -220,7 +237,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                   </FormItem>
               )}
             />
-             <FormField
+            <FormField
             control={form.control}
             name="imageHint"
             render={({ field }) => (
@@ -259,14 +276,14 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                     <RadioGroup
                       onValueChange={field.onChange}
                       defaultValue={field.value}
-                      className="flex flex-col space-y-1"
+                      className="flex space-x-4"
                     >
                       <FormItem className="flex items-center space-x-3 space-y-0">
                         <FormControl>
                           <RadioGroupItem value="project" />
                         </FormControl>
                         <FormLabel className="font-normal">
-                          Proyecto (Aparece en "Mis Creaciones")
+                          Proyecto
                         </FormLabel>
                       </FormItem>
                       <FormItem className="flex items-center space-x-3 space-y-0">
@@ -274,7 +291,7 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                           <RadioGroupItem value="blog" />
                         </FormControl>
                         <FormLabel className="font-normal">
-                          Entrada de Blog (Aparece en la sección "Blog")
+                          Blog
                         </FormLabel>
                       </FormItem>
                     </RadioGroup>
@@ -283,6 +300,35 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                 </FormItem>
               )}
             />
+
+            {selectedType === 'blog' && (
+               <FormField
+                control={form.control}
+                name="categoryId"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Categoría del Blog</FormLabel>
+                    <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                      <FormControl>
+                        <SelectTrigger className="bg-background/50">
+                          <SelectValue placeholder="Selecciona una categoría" />
+                        </SelectTrigger>
+                      </FormControl>
+                      <SelectContent>
+                        <SelectItem value="">Sin Categoría</SelectItem>
+                        {availableCategories.map(cat => (
+                          <SelectItem key={cat.id} value={cat.id!}>
+                              {cat.title}
+                          </SelectItem>
+                        ))}
+                      </SelectContent>
+                    </Select>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+            )}
+
             <div className="flex justify-end">
                 <Button type="submit" disabled={isLoading} className="primary-button-glow">
                     {isLoading ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : null}
