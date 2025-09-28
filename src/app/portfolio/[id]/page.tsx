@@ -28,11 +28,13 @@ const proseStyles = `
 
 export default function ProjectDetailPage({ params }: { params: { id: string } }) {
   const [project, setProject] = useState<Project | null | undefined>(undefined);
+  const { id } = params;
 
   useEffect(() => {
+    if (!id) return;
     const fetchProject = async () => {
       try {
-        const fetchedProject = await getProjectById(params.id);
+        const fetchedProject = await getProjectById(id);
         setProject(fetchedProject);
       } catch (error) {
         console.error("Error fetching project:", error);
@@ -40,7 +42,7 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
       }
     };
     fetchProject();
-  }, [params.id]);
+  }, [id]);
 
   if (project === undefined) {
     return (
