@@ -63,15 +63,10 @@ export default function ProjectDetailPage({ params }: { params: { id: string } }
           )}
           
           {project.htmlContent ? (
-             <Card className="glass-card">
-                <CardContent className="p-6 md:p-8">
-                   <pre className="bg-background/50 p-4 rounded-lg overflow-x-auto">
-                      <code className="font-code text-sm text-foreground">
-                        {project.htmlContent}
-                      </code>
-                   </pre>
-                </CardContent>
-             </Card>
+             <div 
+                className="prose prose-invert max-w-none mt-8"
+                dangerouslySetInnerHTML={{ __html: project.htmlContent }} 
+             />
           ) : (
             <p className="text-muted-foreground text-center py-10">No hay contenido adicional para este proyecto.</p>
           )}
