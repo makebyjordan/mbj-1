@@ -75,7 +75,7 @@ export default function BlogPage() {
             Aún no hay entradas en el blog. ¡Crea una desde el CORE!
           </p>
         ) : (
-          <Accordion type="multiple" defaultValue={categorizedPosts.map(c => c.id!)} className="w-full space-y-8">
+          <Accordion type="multiple" defaultValue={[...categorizedPosts.map(c => c.id!), 'uncategorized']} className="w-full space-y-8">
             {categorizedPosts.map(category => (
               <AccordionItem value={category.id!} key={category.id} className="border-none">
                   <Card className="glass-card overflow-hidden">
@@ -179,3 +179,5 @@ export default function BlogPage() {
     </div>
   );
 }
+
+    

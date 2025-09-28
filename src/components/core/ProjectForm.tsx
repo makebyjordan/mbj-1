@@ -309,14 +309,14 @@ export default function ProjectForm({ project, onSave, availableCategories }: Pr
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Categoría del Blog</FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value} defaultValue={field.value}>
+                    <Select onValueChange={field.onChange} value={field.value || ''} defaultValue={field.value || ''}>
                       <FormControl>
                         <SelectTrigger className="bg-background/50">
                           <SelectValue placeholder="Selecciona una categoría" />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent>
-                        <SelectItem value="">Sin Categoría</SelectItem>
+                        <SelectItem value="uncategorized">Sin Categoría</SelectItem>
                         {availableCategories.map(cat => (
                           <SelectItem key={cat.id} value={cat.id!}>
                               {cat.title}
@@ -340,3 +340,5 @@ export default function ProjectForm({ project, onSave, availableCategories }: Pr
     </Form>
   );
 }
+
+    
