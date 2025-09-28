@@ -15,8 +15,8 @@ export default function Blog({ id }: { id: string }) {
     const fetchPosts = async () => {
       try {
         const allProjects = await getProjects();
-        // Filtra los proyectos que están marcados como destacados para el blog.
-        const featuredPosts = allProjects.filter(p => p.isFeatured);
+        // Filtra los proyectos que son de tipo 'blog'.
+        const featuredPosts = allProjects.filter(p => p.type === 'blog');
         setBlogPosts(featuredPosts);
       } catch (error) {
         console.error("Error fetching blog posts:", error);
@@ -44,12 +44,14 @@ export default function Blog({ id }: { id: string }) {
           <p className="text-center text-muted-foreground">Aún no hay entradas en el blog. ¡Crea una desde el CORE!</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {blogPosts.map((post) => (
+            {blogPosts.map((post) => {
+              const postUrl = post.url || `/portfolio/${post.id}`;
+              return (
               <Card key={post.id} className="glass-card overflow-hidden group">
                 <CardHeader className="p-0">
                   <Image
-                    src={post.imageUrl}
-                    alt={post.description}
+                    src={post.imageUrl || 'https://placehold.co/600x400'}
+                    alt={post.description || 'Imagen del post'}
                     width={600}
                     height={400}
                     data-ai-hint={post.imageHint}
@@ -63,12 +65,12 @@ export default function Blog({ id }: { id: string }) {
                   <p className="mt-2 text-muted-foreground line-clamp-3">{post.description}</p>
                 </CardContent>
                 <CardFooter className="p-6 pt-0">
-                    <Link href={post.url || '#'} target="_blank" className="flex items-center text-primary hover:text-secondary transition-colors">
+                    <Link href={postUrl} target={post.url ? "_blank" : "_self"} className="flex items-center text-primary hover:text-secondary transition-colors">
                         Leer Más <ArrowUpRight className="ml-1 w-4 h-4"/>
                     </Link>
                 </CardFooter>
               </Card>
-            ))}
+            )})}
           </div>
         )}
       </div>

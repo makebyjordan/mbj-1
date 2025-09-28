@@ -12,7 +12,8 @@ const ProjectSchema = z.object({
   imageUrl: z.string().url().optional().or(z.literal('')),
   imageHint: z.string().optional(),
   url: z.string().url().optional().or(z.literal('')),
-  isFeatured: z.boolean().default(false),
+  type: z.enum(['project', 'blog']).default('project'),
+  htmlContent: z.string().optional(),
   createdAt: z.any().optional(),
 });
 
@@ -30,7 +31,8 @@ const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): Project =
         imageUrl: data.imageUrl || "",
         imageHint: data.imageHint || "",
         url: data.url || "",
-        isFeatured: data.isFeatured || false,
+        type: data.type || 'project',
+        htmlContent: data.htmlContent || "",
         createdAt: data.createdAt?.toDate(),
     };
     // Ensure the schema is valid on data read
@@ -43,6 +45,18 @@ export const getProjects = async (): Promise<Project[]> => {
     const snapshot = await getDocs(q);
     return snapshot.docs.map(fromFirestore);
 };
+
+// GET a single project by ID
+export const getProjectById = async (id: string): Promise<Project | null> => {
+    const projectDoc = doc(db, 'projects', id);
+    const docSnap = await getDoc(projectDoc);
+
+    if (docSnap.exists()) {
+        return fromFirestore(docSnap);
+    } else {
+        return null;
+    }
+}
 
 // CREATE a new project
 export const createProject = async (projectData: Omit<Project, 'id' | 'createdAt'>) => {

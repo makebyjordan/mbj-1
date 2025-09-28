@@ -15,8 +15,8 @@ export default function Showcase({ id }: { id: string }) {
     const fetchProjects = async () => {
       try {
         const allProjects = await getProjects();
-        // Filtra los proyectos que NO están marcados como destacados para el blog.
-        const portfolioProjects = allProjects.filter(p => !p.isFeatured);
+        // Filtra los proyectos que son de tipo 'project'.
+        const portfolioProjects = allProjects.filter(p => p.type === 'project');
         setProjects(portfolioProjects);
       } catch (error) {
         console.error("Error fetching projects:", error);
@@ -44,12 +44,14 @@ export default function Showcase({ id }: { id: string }) {
           <p className="text-center text-muted-foreground">Aún no hay proyectos en el portafolio. ¡Crea uno desde el CORE!</p>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project) => (
+            {projects.map((project) => {
+               const projectUrl = project.url || `/portfolio/${project.id}`;
+               return (
               <Card key={project.id} className="glass-card overflow-hidden group">
                 <CardHeader className="p-0">
                   <Image
-                    src={project.imageUrl}
-                    alt={project.description}
+                    src={project.imageUrl || 'https://placehold.co/600x400'}
+                    alt={project.description || 'Imagen del proyecto'}
                     width={600}
                     height={400}
                     data-ai-hint={project.imageHint}
@@ -63,12 +65,12 @@ export default function Showcase({ id }: { id: string }) {
                   <p className="mt-2 text-muted-foreground">{project.description}</p>
                 </CardContent>
                 <CardFooter className="p-6 pt-0">
-                    <Link href={project.url || '#'} target="_blank" className="flex items-center text-primary hover:text-secondary transition-colors">
+                    <Link href={projectUrl} target={project.url ? "_blank" : "_self"} className="flex items-center text-primary hover:text-secondary transition-colors">
                         Ver Proyecto <ArrowUpRight className="ml-1 w-4 h-4"/>
                     </Link>
                 </CardFooter>
               </Card>
-            ))}
+            )})}
           </div>
         )}
       </div>

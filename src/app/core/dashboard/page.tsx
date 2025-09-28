@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -401,7 +401,7 @@ export default function CoreDashboardPage() {
                     </DialogTrigger>
                     <DialogContent className="sm:max-w-[625px] glass-card">
                       <DialogHeader>
-                        <DialogTitle>{editingProject ? 'Editar Proyecto' : 'Crear Nuevo Proyecto'}</DialogTitle>
+                        <DialogTitle>{editingProject ? 'Editar' : 'Crear Nuevo'}</DialogTitle>
                          <DialogDescription className="sr-only">{editingProject ? 'Edita los detalles de tu proyecto o entrada de blog aquí.' : 'Crea un nuevo proyecto o entrada de blog.'}</DialogDescription>
                       </DialogHeader>
                       <ProjectForm project={editingProject} onSave={handleProjectSaved} />
@@ -415,7 +415,7 @@ export default function CoreDashboardPage() {
                     <Table>
                       <TableHeader>
                         <TableRow>
-                          <TableHead className="w-[50px]">Blog</TableHead>
+                          <TableHead className="w-[50px]">Tipo</TableHead>
                           <TableHead>Título</TableHead>
                           <TableHead>Descripción</TableHead>
                           <TableHead className="text-right">Acciones</TableHead>
@@ -424,7 +424,7 @@ export default function CoreDashboardPage() {
                       <TableBody>
                         {projects.map((project) => (
                           <TableRow key={project.id}>
-                             <TableCell>{project.isFeatured && <Star className="h-4 w-4 text-primary" />}</TableCell>
+                             <TableCell>{project.type === 'blog' ? <FileCode className="h-5 w-5 text-primary" /> : <Briefcase className="h-5 w-5 text-muted-foreground" />}</TableCell>
                             <TableCell className="font-medium">{project.title}</TableCell>
                             <TableCell className="max-w-[300px] truncate">{project.description}</TableCell>
                             <TableCell className="text-right">

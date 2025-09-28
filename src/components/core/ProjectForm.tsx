@@ -17,10 +17,10 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useToast } from "@/hooks/use-toast";
 import { useState, useEffect, useRef } from "react";
 import { createProject, updateProject, Project } from "@/services/projects";
+import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 
 const formSchema = z.object({
   title: z.string().optional(),
@@ -28,7 +28,8 @@ const formSchema = z.object({
   imageUrl: z.string().optional(),
   imageHint: z.string().optional(),
   url: z.string().url().optional().or(z.literal('')),
-  isFeatured: z.boolean().default(false),
+  type: z.enum(['project', 'blog']).default('project'),
+  htmlContent: z.string().optional(),
 });
 
 type ProjectFormProps = {
@@ -50,7 +51,8 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
       imageUrl: "",
       imageHint: "",
       url: "",
-      isFeatured: false,
+      type: "project",
+      htmlContent: "",
     },
   });
 
@@ -62,7 +64,8 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
             imageUrl: project.imageUrl || "",
             imageHint: project.imageHint || "",
             url: project.url || "",
-            isFeatured: project.isFeatured || false,
+            type: project.type || 'project',
+            htmlContent: project.htmlContent || "",
         });
         if (project.imageUrl) {
             setImagePreview(project.imageUrl);
@@ -76,7 +79,8 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
             imageUrl: "",
             imageHint: "",
             url: "",
-            isFeatured: false,
+            type: "project",
+            htmlContent: "",
         });
         setImagePreview(null);
     }
@@ -98,13 +102,14 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-        const dataToSave = {
+        const dataToSave: Project = {
             title: values.title || "",
             description: values.description || "",
             imageUrl: values.imageUrl || "",
             imageHint: values.imageHint || "",
             url: values.url || "",
-            isFeatured: values.isFeatured || false,
+            type: values.type || 'project',
+            htmlContent: values.htmlContent || "",
         };
 
         if (project && project.id) {
@@ -196,6 +201,26 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
                 )}
             />
              <FormField
+              control={form.control}
+              name="htmlContent"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Importar desde HTML (Opcional)</FormLabel>
+                  <FormControl>
+                      <Textarea
+                        placeholder="Pega tu código HTML aquí..."
+                        className="h-40 bg-background/50 font-mono"
+                        {...field}
+                      />
+                  </FormControl>
+                   <FormDescription>
+                    El contenido HTML se renderizará en la página de detalles.
+                  </FormDescription>
+                  <FormMessage />
+                  </FormItem>
+              )}
+            />
+             <FormField
             control={form.control}
             name="imageHint"
             render={({ field }) => (
@@ -213,33 +238,48 @@ export default function ProjectForm({ project, onSave }: ProjectFormProps) {
             name="url"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>URL del Proyecto (Opcional)</FormLabel>
+                <FormLabel>URL Externa (Opcional)</FormLabel>
                 <FormControl>
                     <Input placeholder="https://mi-proyecto.com" {...field} className="bg-background/50" />
                 </FormControl>
+                 <FormDescription>
+                    Si se proporciona, el botón principal apuntará aquí. Si no, a la página de detalles.
+                  </FormDescription>
                 <FormMessage />
                 </FormItem>
             )}
             />
              <FormField
               control={form.control}
-              name="isFeatured"
+              name="type"
               render={({ field }) => (
-                <FormItem className="flex flex-row items-start space-x-3 space-y-0 rounded-md border p-4">
+                <FormItem className="space-y-3">
+                  <FormLabel>Tipo de Contenido</FormLabel>
                   <FormControl>
-                    <Checkbox
-                      checked={field.value}
-                      onCheckedChange={field.onChange}
-                    />
+                    <RadioGroup
+                      onValueChange={field.onChange}
+                      defaultValue={field.value}
+                      className="flex flex-col space-y-1"
+                    >
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="project" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Proyecto (Aparece en "Mis Creaciones")
+                        </FormLabel>
+                      </FormItem>
+                      <FormItem className="flex items-center space-x-3 space-y-0">
+                        <FormControl>
+                          <RadioGroupItem value="blog" />
+                        </FormControl>
+                        <FormLabel className="font-normal">
+                          Entrada de Blog (Aparece en la sección "Blog")
+                        </FormLabel>
+                      </FormItem>
+                    </RadioGroup>
                   </FormControl>
-                  <div className="space-y-1 leading-none">
-                    <FormLabel>
-                      ¿Destacar en el Blog?
-                    </FormLabel>
-                    <FormDescription>
-                      Si se marca, esta entrada aparecerá en la sección del blog de la página de inicio.
-                    </FormDescription>
-                  </div>
+                  <FormMessage />
                 </FormItem>
               )}
             />
