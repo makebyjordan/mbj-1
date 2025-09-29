@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -374,7 +374,7 @@ export default function CoreDashboardPage() {
   return (
     <main className="flex-1 w-full p-4 md:p-8 space-y-8">
         <Tabs defaultValue="pagina" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-9 h-auto">
             <TabsTrigger value="pagina">Página Principal</TabsTrigger>
             <TabsTrigger value="servicios">Servicios</TabsTrigger>
             <TabsTrigger value="proyectos">Proyectos/Blog</TabsTrigger>
@@ -383,6 +383,7 @@ export default function CoreDashboardPage() {
             <TabsTrigger value="shorts">Shorts</TabsTrigger>
             <TabsTrigger value="prompts">Prompts</TabsTrigger>
             <TabsTrigger value="galeria">Galería</TabsTrigger>
+            <TabsTrigger value="disenos">Diseños</TabsTrigger>
           </TabsList>
           
           <TabsContent value="pagina" className="mt-6">
@@ -925,6 +926,34 @@ export default function CoreDashboardPage() {
             </Card>
           </TabsContent>
           
+          <TabsContent value="disenos" className="mt-6">
+            <Card>
+              <CardHeader  className="flex flex-row items-center justify-between">
+                  <CardTitle className="font-headline text-3xl">Diseños</CardTitle>
+                  <Button><PlusCircle className="mr-2 h-4 w-4" />Añadir Diseño</Button>
+              </CardHeader>
+              <CardContent>
+                  <Table>
+                    <TableHeader>
+                        <TableRow>
+                        <TableHead className="w-[100px]">Imagen</TableHead>
+                        <TableHead>Título</TableHead>
+                        <TableHead className="text-right">Acciones</TableHead>
+                        </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                        {/* Aquí irían los diseños */}
+                        <TableRow>
+                            <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                                Aún no has añadido ningún diseño.
+                            </TableCell>
+                        </TableRow>
+                    </TableBody>
+                  </Table>
+              </CardContent>
+            </Card>
+          </TabsContent>
+
         </Tabs>
     </main>
   );
