@@ -1,8 +1,45 @@
 
+"use client";
+
+import { useEffect, useState } from "react";
 import Header from '@/components/landing/header';
 import Footer from '@/components/landing/footer';
+import { getPrompts, Prompt } from "@/services/prompts";
+import { Loader2, Clipboard, Check } from "lucide-react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 
 export default function PromptsPage() {
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [copiedPromptId, setCopiedPromptId] = useState<string | null>(null);
+  const { toast } = useToast();
+
+  useEffect(() => {
+    const fetchPrompts = async () => {
+      try {
+        const promptsFromDb = await getPrompts();
+        setPrompts(promptsFromDb);
+      } catch (error) {
+        console.error("Error fetching prompts:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchPrompts();
+  }, []);
+
+  const handleCopy = (promptText: string, promptId: string) => {
+    navigator.clipboard.writeText(promptText);
+    toast({
+      title: "Copiado",
+      description: "El prompt ha sido copiado al portapapeles.",
+    });
+    setCopiedPromptId(promptId);
+    setTimeout(() => setCopiedPromptId(null), 2000); // Reset after 2 seconds
+  };
+
   return (
     <div className="relative w-full flex flex-col items-center overflow-x-hidden bg-background min-h-screen">
       <Header />
@@ -13,11 +50,46 @@ export default function PromptsPage() {
                 Una colección de prompts para inspirar la creatividad y la generación de ideas.
             </p>
         </div>
-        <div className="flex justify-center items-center h-64">
-            <p className="text-center text-muted-foreground text-lg py-16">
-                Contenido sobre prompts próximamente...
-            </p>
-        </div>
+        
+        {isLoading ? (
+          <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+          </div>
+        ) : prompts.length === 0 ? (
+          <p className="text-center text-muted-foreground text-lg py-16">
+            Aún no hay prompts para mostrar. ¡Añade uno desde el CORE!
+          </p>
+        ) : (
+          <div className="max-w-4xl mx-auto space-y-6">
+            {prompts.map((prompt) => (
+              <Card key={prompt.id} className="glass-card">
+                <CardHeader>
+                  <CardTitle className="font-headline text-2xl">{prompt.title}</CardTitle>
+                  <CardDescription>{prompt.description}</CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="p-4 bg-background/50 rounded-md relative group">
+                    <pre className="whitespace-pre-wrap font-code text-sm text-foreground">
+                      <code>{prompt.promptText}</code>
+                    </pre>
+                    <Button 
+                      size="icon" 
+                      variant="ghost" 
+                      className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                      onClick={() => handleCopy(prompt.promptText, prompt.id!)}
+                    >
+                      {copiedPromptId === prompt.id ? (
+                        <Check className="w-4 h-4 text-green-500" />
+                      ) : (
+                        <Clipboard className="w-4 h-4" />
+                      )}
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
+        )}
       </main>
       <Footer />
     </div>

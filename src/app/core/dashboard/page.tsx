@@ -4,7 +4,7 @@
 import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -30,6 +30,8 @@ import { getShorts, deleteShort, Short } from '@/services/shorts';
 import { getLinks, deleteLink, LinkItem } from '@/services/links';
 import { getLinkCards, deleteLinkCard, LinkCard } from '@/services/link-cards';
 import { getBlogCategories, deleteBlogCategory, BlogCategory } from '@/services/blog-categories';
+import { getPrompts, deletePrompt, Prompt } from '@/services/prompts';
+
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
 import FormationForm from '@/components/core/FormationForm';
@@ -37,6 +39,7 @@ import ShortForm from '@/components/core/ShortForm';
 import LinkForm from '@/components/core/LinkForm';
 import LinkCardForm from '@/components/core/LinkCardForm';
 import BlogCategoryForm from '@/components/core/BlogCategoryForm';
+import PromptForm from '@/components/core/PromptForm';
 import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
@@ -51,6 +54,7 @@ export default function CoreDashboardPage() {
   const [links, setLinks] = useState<LinkItem[]>([]);
   const [linkCards, setLinkCards] = useState<LinkCard[]>([]);
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
+  const [prompts, setPrompts] = useState<Prompt[]>([]);
   
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
@@ -59,6 +63,7 @@ export default function CoreDashboardPage() {
   const [isLoadingLinks, setIsLoadingLinks] = useState(true);
   const [isLoadingLinkCards, setIsLoadingLinkCards] = useState(true);
   const [isLoadingBlogCategories, setIsLoadingBlogCategories] = useState(true);
+  const [isLoadingPrompts, setIsLoadingPrompts] = useState(true);
 
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
@@ -67,6 +72,7 @@ export default function CoreDashboardPage() {
   const [isLinkDialogOpen, setIsLinkDialogOpen] = useState(false);
   const [isLinkCardDialogOpen, setIsLinkCardDialogOpen] = useState(false);
   const [isBlogCategoryDialogOpen, setIsBlogCategoryDialogOpen] = useState(false);
+  const [isPromptDialogOpen, setIsPromptDialogOpen] = useState(false);
 
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -75,6 +81,7 @@ export default function CoreDashboardPage() {
   const [editingLink, setEditingLink] = useState<LinkItem | null>(null);
   const [editingLinkCard, setEditingLinkCard] = useState<LinkCard | null>(null);
   const [editingBlogCategory, setEditingBlogCategory] = useState<BlogCategory | null>(null);
+  const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -168,6 +175,19 @@ export default function CoreDashboardPage() {
     }
   }
 
+   const fetchPrompts = async () => {
+    setIsLoadingPrompts(true);
+    try {
+      const promptsFromDb = await getPrompts();
+      setPrompts(promptsFromDb);
+    } catch (error) {
+      console.error("Error fetching prompts:", error);
+      toast({ variant: "destructive", title: "Error al cargar prompts", description: "No se pudieron cargar los prompts." });
+    } finally {
+      setIsLoadingPrompts(false);
+    }
+  }
+
   useEffect(() => {
     fetchProjects();
     fetchServices();
@@ -176,6 +196,7 @@ export default function CoreDashboardPage() {
     fetchLinks();
     fetchLinkCards();
     fetchBlogCategories();
+    fetchPrompts();
   }, []);
 
   const handleProjectSaved = () => {
@@ -229,6 +250,13 @@ export default function CoreDashboardPage() {
      toast({ title: "Categoría de Blog guardada", description: "La categoría se ha guardado correctamente." });
   }
 
+  const handlePromptSaved = () => {
+    setIsPromptDialogOpen(false);
+    setEditingPrompt(null);
+    fetchPrompts();
+    toast({ title: "Prompt guardado", description: "Tu prompt se ha guardado correctamente." });
+  }
+
   const handleHeroSaved = () => {
     toast({ title: "Hero Actualizado", description: "La sección principal se ha guardado correctamente." });
   }
@@ -251,6 +279,8 @@ export default function CoreDashboardPage() {
   const handleAddNewLinkCard = () => { setEditingLinkCard(null); setIsLinkCardDialogOpen(true); }
   const handleEditBlogCategory = (category: BlogCategory) => { setEditingBlogCategory(category); setIsBlogCategoryDialogOpen(true); }
   const handleAddNewBlogCategory = () => { setEditingBlogCategory(null); setIsBlogCategoryDialogOpen(true); }
+  const handleEditPrompt = (prompt: Prompt) => { setEditingPrompt(prompt); setIsPromptDialogOpen(true); }
+  const handleAddNewPrompt = () => { setEditingPrompt(null); setIsPromptDialogOpen(true); }
 
   const handleDeleteProject = async (projectId: string) => {
     try {
@@ -330,16 +360,28 @@ export default function CoreDashboardPage() {
     }
   };
 
+  const handleDeletePrompt = async (promptId: string) => {
+    try {
+      await deletePrompt(promptId);
+      fetchPrompts();
+      toast({ title: "Prompt eliminado", description: "El prompt se ha eliminado correctamente." });
+    } catch (error) {
+      console.error("Error deleting prompt:", error);
+      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el prompt." });
+    }
+  };
+
   return (
     <main className="flex-1 w-full p-4 md:p-8 space-y-8">
         <Tabs defaultValue="pagina" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-7 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-8 h-auto">
             <TabsTrigger value="pagina">Página Principal</TabsTrigger>
             <TabsTrigger value="servicios">Servicios</TabsTrigger>
             <TabsTrigger value="proyectos">Proyectos/Blog</TabsTrigger>
             <TabsTrigger value="formacion">Formación</TabsTrigger>
             <TabsTrigger value="links">Enlaces</TabsTrigger>
             <TabsTrigger value="shorts">Shorts</TabsTrigger>
+            <TabsTrigger value="prompts">Prompts</TabsTrigger>
             <TabsTrigger value="galeria">Galería</TabsTrigger>
           </TabsList>
           
@@ -793,6 +835,72 @@ export default function CoreDashboardPage() {
                                   <AlertDialogFooter>
                                     <AlertDialogCancel>Cancelar</AlertDialogCancel>
                                     <AlertDialogAction onClick={() => handleDeleteShort(short.id!)}>Eliminar</AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  )}
+                </CardContent>
+              </Card>
+          </TabsContent>
+
+          <TabsContent value="prompts" className="mt-6">
+             <Card>
+                <CardHeader className="flex flex-row items-center justify-between">
+                    <CardTitle>Prompts</CardTitle>
+                   <Dialog open={isPromptDialogOpen} onOpenChange={(isOpen) => { setIsPromptDialogOpen(isOpen); if (!isOpen) setEditingPrompt(null); }}>
+                    <DialogTrigger asChild>
+                       <Button onClick={handleAddNewPrompt}>
+                        <PlusCircle className="mr-2 h-4 w-4" />
+                        Añadir Prompt
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="sm:max-w-[625px] glass-card">
+                      <DialogHeader>
+                        <DialogTitle>{editingPrompt ? 'Editar Prompt' : 'Crear Nuevo Prompt'}</DialogTitle>
+                        <DialogDescription className="sr-only">
+                            {editingPrompt ? 'Edita los detalles de tu prompt aquí.' : 'Crea un nuevo prompt para compartir.'}
+                        </DialogDescription>
+                      </DialogHeader>
+                      <PromptForm prompt={editingPrompt} onSave={handlePromptSaved} />
+                    </DialogContent>
+                  </Dialog>
+                </CardHeader>
+                <CardContent>
+                  {isLoadingPrompts ? (
+                    <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                  ) : (
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead className="w-[50px]">Icono</TableHead>
+                          <TableHead>Título</TableHead>
+                          <TableHead>Descripción</TableHead>
+                          <TableHead className="text-right">Acciones</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {prompts.map((prompt) => (
+                          <TableRow key={prompt.id}>
+                             <TableCell><Terminal className="h-5 w-5 text-primary" /></TableCell>
+                            <TableCell className="font-medium">{prompt.title}</TableCell>
+                            <TableCell className="max-w-[300px] truncate">{prompt.description}</TableCell>
+                            <TableCell className="text-right">
+                              <Button variant="ghost" size="icon" onClick={() => handleEditPrompt(prompt)}><Edit className="h-4 w-4" /></Button>
+                               <AlertDialog>
+                                <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                    <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente el prompt.</AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                    <AlertDialogAction onClick={() => handleDeletePrompt(prompt.id!)}>Eliminar</AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
                               </AlertDialog>
