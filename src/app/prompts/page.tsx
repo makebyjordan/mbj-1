@@ -5,10 +5,16 @@ import { useEffect, useState } from "react";
 import Header from '@/components/landing/header';
 import Footer from '@/components/landing/footer';
 import { getPrompts, Prompt } from "@/services/prompts";
-import { Loader2, Clipboard, Check } from "lucide-react";
+import { Loader2, Clipboard, Check, ChevronDown } from "lucide-react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
+import {
+  Accordion,
+  AccordionContent,
+  AccordionItem,
+  AccordionTrigger,
+} from "@/components/ui/accordion";
 
 export default function PromptsPage() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
@@ -60,35 +66,44 @@ export default function PromptsPage() {
             Aún no hay prompts para mostrar. ¡Añade uno desde el CORE!
           </p>
         ) : (
-          <div className="max-w-4xl mx-auto space-y-6">
+          <Accordion type="single" collapsible className="w-full max-w-4xl mx-auto space-y-4">
             {prompts.map((prompt) => (
-              <Card key={prompt.id} className="glass-card">
-                <CardHeader>
-                  <CardTitle className="font-headline text-2xl">{prompt.title}</CardTitle>
-                  <CardDescription>{prompt.description}</CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <div className="p-4 bg-background/50 rounded-md relative group">
-                    <pre className="whitespace-pre-wrap font-code text-sm text-foreground">
-                      <code>{prompt.promptText}</code>
-                    </pre>
-                    <Button 
-                      size="icon" 
-                      variant="ghost" 
-                      className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
-                      onClick={() => handleCopy(prompt.promptText, prompt.id!)}
-                    >
-                      {copiedPromptId === prompt.id ? (
-                        <Check className="w-4 h-4 text-green-500" />
-                      ) : (
-                        <Clipboard className="w-4 h-4" />
-                      )}
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
+              <AccordionItem value={prompt.id!} key={prompt.id} className="border-none">
+                <Card className="glass-card overflow-hidden">
+                  <AccordionTrigger className="w-full text-left p-0 hover:no-underline [&[data-state=open]>div>div>svg]:rotate-180">
+                     <CardHeader className="flex-1 flex flex-row items-center justify-between p-4 md:p-6 w-full">
+                        <div>
+                            <CardTitle className="font-headline text-2xl">{prompt.title}</CardTitle>
+                            <CardDescription className="mt-1">{prompt.description}</CardDescription>
+                        </div>
+                        <ChevronDown className="h-6 w-6 text-primary transition-transform duration-300" />
+                     </CardHeader>
+                  </AccordionTrigger>
+                  <AccordionContent>
+                    <CardContent className="p-4 md:p-6 pt-0">
+                      <div className="p-4 bg-background/50 rounded-md relative group">
+                        <pre className="whitespace-pre-wrap font-code text-sm text-foreground">
+                          <code>{prompt.promptText}</code>
+                        </pre>
+                        <Button 
+                          size="icon" 
+                          variant="ghost" 
+                          className="absolute top-2 right-2 h-8 w-8 opacity-0 group-hover:opacity-100 transition-opacity"
+                          onClick={() => handleCopy(prompt.promptText, prompt.id!)}
+                        >
+                          {copiedPromptId === prompt.id ? (
+                            <Check className="w-4 h-4 text-green-500" />
+                          ) : (
+                            <Clipboard className="w-4 h-4" />
+                          )}
+                        </Button>
+                      </div>
+                    </CardContent>
+                  </AccordionContent>
+                </Card>
+              </AccordionItem>
             ))}
-          </div>
+          </Accordion>
         )}
       </main>
       <Footer />
