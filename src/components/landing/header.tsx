@@ -12,6 +12,10 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
+  DropdownMenuSub,
+  DropdownMenuSubContent,
+  DropdownMenuSubTrigger,
+  DropdownMenuPortal
 } from "@/components/ui/dropdown-menu"
 import {
   Sheet,
@@ -98,7 +102,16 @@ export default function Header() {
                 <DropdownMenuItem asChild><Link href="/shorts">Shorts</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/links">Enlaces</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/prompts">Prompts</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/">Diseño</Link></DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <span>Diseño</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem asChild><Link href="/">Me gusta</Link></DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
               </DropdownMenuContent>
             </DropdownMenu>
             </nav>
