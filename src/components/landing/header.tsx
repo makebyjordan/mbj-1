@@ -37,6 +37,7 @@ const mobileNavLinks = [
   { href: "/#latest-shorts", label: "Shorts" },
   { href: "/#formation", label: "Formación" },
   { href: "/links", label: "Enlaces" },
+  { href: "/prompts", label: "Prompts" },
   { href: "/#news", label: "Noticias" },
 ]
 
@@ -96,6 +97,7 @@ export default function Header() {
                 <DropdownMenuItem asChild><Link href="/#formation">Formación</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/shorts">Shorts</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/links">Enlaces</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/prompts">Prompts</Link></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             </nav>
