@@ -2,6 +2,7 @@
 "use client";
 
 import { useState, useEffect } from 'react';
+import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette } from "lucide-react";
@@ -31,6 +32,7 @@ import { getLinks, deleteLink, LinkItem } from '@/services/links';
 import { getLinkCards, deleteLinkCard, LinkCard } from '@/services/link-cards';
 import { getBlogCategories, deleteBlogCategory, BlogCategory } from '@/services/blog-categories';
 import { getPrompts, deletePrompt, Prompt } from '@/services/prompts';
+import { getDesigns, deleteDesign, Design } from '@/services/designs';
 
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
@@ -43,8 +45,9 @@ import PromptForm from '@/components/core/PromptForm';
 import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
+import DesignForm from '@/components/core/DesignForm';
 import { Badge } from '@/components/ui/badge';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 export default function CoreDashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -55,6 +58,7 @@ export default function CoreDashboardPage() {
   const [linkCards, setLinkCards] = useState<LinkCard[]>([]);
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
+  const [designs, setDesigns] = useState<Design[]>([]);
   
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
@@ -64,6 +68,7 @@ export default function CoreDashboardPage() {
   const [isLoadingLinkCards, setIsLoadingLinkCards] = useState(true);
   const [isLoadingBlogCategories, setIsLoadingBlogCategories] = useState(true);
   const [isLoadingPrompts, setIsLoadingPrompts] = useState(true);
+  const [isLoadingDesigns, setIsLoadingDesigns] = useState(true);
 
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
@@ -73,6 +78,7 @@ export default function CoreDashboardPage() {
   const [isLinkCardDialogOpen, setIsLinkCardDialogOpen] = useState(false);
   const [isBlogCategoryDialogOpen, setIsBlogCategoryDialogOpen] = useState(false);
   const [isPromptDialogOpen, setIsPromptDialogOpen] = useState(false);
+  const [isDesignDialogOpen, setIsDesignDialogOpen] = useState(false);
 
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -82,6 +88,7 @@ export default function CoreDashboardPage() {
   const [editingLinkCard, setEditingLinkCard] = useState<LinkCard | null>(null);
   const [editingBlogCategory, setEditingBlogCategory] = useState<BlogCategory | null>(null);
   const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
+  const [editingDesign, setEditingDesign] = useState<Design | null>(null);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -187,6 +194,19 @@ export default function CoreDashboardPage() {
       setIsLoadingPrompts(false);
     }
   }
+  
+  const fetchDesigns = async () => {
+    setIsLoadingDesigns(true);
+    try {
+      const designsFromDb = await getDesigns();
+      setDesigns(designsFromDb);
+    } catch (error) {
+      console.error("Error fetching designs:", error);
+      toast({ variant: "destructive", title: "Error al cargar diseños", description: "No se pudieron cargar los diseños." });
+    } finally {
+      setIsLoadingDesigns(false);
+    }
+  }
 
   useEffect(() => {
     fetchProjects();
@@ -197,6 +217,7 @@ export default function CoreDashboardPage() {
     fetchLinkCards();
     fetchBlogCategories();
     fetchPrompts();
+    fetchDesigns();
   }, []);
 
   const handleProjectSaved = () => {
@@ -257,6 +278,13 @@ export default function CoreDashboardPage() {
     toast({ title: "Prompt guardado", description: "Tu prompt se ha guardado correctamente." });
   }
 
+  const handleDesignSaved = () => {
+    setIsDesignDialogOpen(false);
+    setEditingDesign(null);
+    fetchDesigns();
+    toast({ title: "Diseño guardado", description: "Tu diseño se ha guardado correctamente." });
+  }
+
   const handleHeroSaved = () => {
     toast({ title: "Hero Actualizado", description: "La sección principal se ha guardado correctamente." });
   }
@@ -281,6 +309,8 @@ export default function CoreDashboardPage() {
   const handleAddNewBlogCategory = () => { setEditingBlogCategory(null); setIsBlogCategoryDialogOpen(true); }
   const handleEditPrompt = (prompt: Prompt) => { setEditingPrompt(prompt); setIsPromptDialogOpen(true); }
   const handleAddNewPrompt = () => { setEditingPrompt(null); setIsPromptDialogOpen(true); }
+  const handleEditDesign = (design: Design) => { setEditingDesign(design); setIsDesignDialogOpen(true); }
+  const handleAddNewDesign = () => { setEditingDesign(null); setIsDesignDialogOpen(true); }
 
   const handleDeleteProject = async (projectId: string) => {
     try {
@@ -368,6 +398,17 @@ export default function CoreDashboardPage() {
     } catch (error) {
       console.error("Error deleting prompt:", error);
       toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el prompt." });
+    }
+  };
+
+  const handleDeleteDesign = async (designId: string) => {
+    try {
+      await deleteDesign(designId);
+      fetchDesigns();
+      toast({ title: "Diseño eliminado", description: "El diseño se ha eliminado correctamente." });
+    } catch (error) {
+      console.error("Error deleting design:", error);
+      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el diseño." });
     }
   };
 
@@ -928,28 +969,80 @@ export default function CoreDashboardPage() {
           
           <TabsContent value="disenos" className="mt-6">
             <Card>
-              <CardHeader  className="flex flex-row items-center justify-between">
-                  <CardTitle className="font-headline text-3xl">Diseños</CardTitle>
-                  <Button><PlusCircle className="mr-2 h-4 w-4" />Añadir Diseño</Button>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="font-headline text-3xl">Diseños</CardTitle>
+                <Dialog open={isDesignDialogOpen} onOpenChange={(isOpen) => { setIsDesignDialogOpen(isOpen); if (!isOpen) setEditingDesign(null); }}>
+                  <DialogTrigger asChild>
+                    <Button onClick={handleAddNewDesign}>
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Añadir Diseño
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[625px] glass-card">
+                    <DialogHeader>
+                      <DialogTitle>{editingDesign ? 'Editar Diseño' : 'Crear Nuevo Diseño'}</DialogTitle>
+                      <DialogDescription className="sr-only">
+                        {editingDesign ? 'Edita los detalles de tu diseño aquí.' : 'Añade un nuevo diseño a tu colección.'}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <DesignForm design={editingDesign} onSave={handleDesignSaved} />
+                  </DialogContent>
+                </Dialog>
               </CardHeader>
               <CardContent>
+                {isLoadingDesigns ? (
+                  <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                ) : (
                   <Table>
                     <TableHeader>
-                        <TableRow>
+                      <TableRow>
                         <TableHead className="w-[100px]">Imagen</TableHead>
                         <TableHead>Título</TableHead>
                         <TableHead className="text-right">Acciones</TableHead>
-                        </TableRow>
+                      </TableRow>
                     </TableHeader>
                     <TableBody>
-                        {/* Aquí irían los diseños */}
-                        <TableRow>
-                            <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
-                                Aún no has añadido ningún diseño.
-                            </TableCell>
+                      {designs.length > 0 ? designs.map((design) => (
+                        <TableRow key={design.id}>
+                          <TableCell>
+                            <Image
+                              src={design.imageUrl}
+                              alt={design.title}
+                              width={60}
+                              height={60}
+                              className="rounded-md object-cover aspect-square"
+                            />
+                          </TableCell>
+                          <TableCell className="font-medium">{design.title}</TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditDesign(design)}><Edit className="h-4 w-4" /></Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                  <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente el diseño.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteDesign(design.id!)}>Eliminar</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
                         </TableRow>
+                      )) : (
+                        <TableRow>
+                          <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
+                            Aún no has añadido ningún diseño.
+                          </TableCell>
+                        </TableRow>
+                      )}
                     </TableBody>
                   </Table>
+                )}
               </CardContent>
             </Card>
           </TabsContent>
@@ -958,5 +1051,3 @@ export default function CoreDashboardPage() {
     </main>
   );
 }
-
-    
