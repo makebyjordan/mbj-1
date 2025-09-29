@@ -98,6 +98,7 @@ export default function Header() {
                 <DropdownMenuItem asChild><Link href="/shorts">Shorts</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/links">Enlaces</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/prompts">Prompts</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/">Diseño</Link></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             </nav>
