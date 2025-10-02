@@ -1,7 +1,8 @@
+
 "use client";
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { redirect } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -12,7 +13,6 @@ import Link from 'next/link';
 export default function CoreLoginPage() {
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const router = useRouter();
   const { toast } = useToast();
 
   const handleLogin = (e: React.FormEvent) => {
@@ -26,7 +26,8 @@ export default function CoreLoginPage() {
           title: 'Acceso Concedido',
           description: 'Bienvenido al CORE.',
         });
-        router.push('/core/dashboard');
+        // Usar redirect en lugar de router.push
+        redirect('/core/dashboard');
       } else {
         toast({
           variant: 'destructive',
