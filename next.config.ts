@@ -46,6 +46,12 @@ const nextConfig: NextConfig = {
         hostname: 'www.ttandem.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'b2729162.smushcdn.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
