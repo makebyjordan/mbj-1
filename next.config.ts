@@ -52,6 +52,12 @@ const nextConfig: NextConfig = {
         hostname: 'b2729162.smushcdn.com',
         port: '',
         pathname: '/**',
+      },
+      {
+        protocol: 'https',
+        hostname: 'ugc.futurelearn.com',
+        port: '',
+        pathname: '/**',
       }
     ],
   },
