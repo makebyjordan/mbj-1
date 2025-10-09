@@ -14,7 +14,12 @@ export default function AprendePage() {
   const [courses, setCourses] = useState<Formation[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const params = useParams();
-  const tag = params.tag as string;
+  let tag = params.tag as string;
+
+  // Decodificar el tag de la URL para manejar espacios y otros caracteres
+  if (tag) {
+    tag = decodeURIComponent(tag);
+  }
 
   useEffect(() => {
     if (!tag) return;
@@ -44,7 +49,7 @@ export default function AprendePage() {
     );
   }
 
-  if (!courses.length) {
+  if (!isLoading && courses.length === 0) {
     // This will show a 404 if no courses are found for that tag, 
     // which is reasonable as it means the tag doesn't exist or has no content.
     notFound();
