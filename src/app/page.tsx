@@ -11,6 +11,18 @@ import Links from '@/components/landing/links';
 import NewsSummarizer from '@/components/landing/news-summarizer';
 import Contact from '@/components/landing/contact';
 import Footer from '@/components/landing/footer';
+import { Metadata } from 'next';
+
+// --- 2. Añade este objeto ---
+export const metadata: Metadata = {
+  title: 'El Lienzo de Jordan',
+  description: 'Creaciones por MakeByJordan: Sitios web, marcas, proyectos y más.',
+  openGraph: {
+    title: 'El Lienzo de Jordan',
+    description: 'Creaciones por MakeByJordan: Sitios web, marcas, proyectos y más.',
+  },
+};
+// -----------------------------
 
 export default function Home() {
   return (

@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -648,60 +648,128 @@ export default function CoreDashboardPage() {
           </TabsContent>
 
           <TabsContent value="formacion" className="mt-6">
-             <Card>
-                <CardHeader className="flex flex-row items-center justify-between">
-                    <CardTitle>Formación</CardTitle>
-                   <Dialog open={isFormationDialogOpen} onOpenChange={(isOpen) => { setIsFormationDialogOpen(isOpen); if (!isOpen) setEditingFormation(null); }}>
-                    <DialogTrigger asChild><Button onClick={handleAddNewFormation}><PlusCircle className="mr-2 h-4 w-4" />Añadir Formación</Button></DialogTrigger>
-                    <DialogContent className="sm:max-w-[625px] glass-card">
-                      <DialogHeader>
-                        <DialogTitle>{editingFormation ? 'Editar Formación' : 'Crear Nueva Formación'}</DialogTitle>
-                         <DialogDescription className="sr-only">{editingFormation ? 'Edita los detalles de tu formación aquí.' : 'Crea una nueva entrada de formación.'}</DialogDescription>
-                      </DialogHeader>
-                      <FormationForm formation={editingFormation} onSave={handleFormationSaved} />
-                    </DialogContent>
-                  </Dialog>
-                </CardHeader>
-                <CardContent>
-                  {isLoadingFormations ? (
-                    <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-                  ) : (
-                    <Table>
-                      <TableHeader>
-                        <TableRow>
-                          <TableHead>Título</TableHead>
-                          <TableHead>Descripción</TableHead>
-                          <TableHead className="text-right">Acciones</TableHead>
-                        </TableRow>
-                      </TableHeader>
-                      <TableBody>
-                        {formations.map((formation) => (
-                          <TableRow key={formation.id}>
-                            <TableCell className="font-medium">{formation.title}</TableCell>
-                            <TableCell className="max-w-[300px] truncate">{formation.description}</TableCell>
-                            <TableCell className="text-right">
-                              <Button variant="ghost" size="icon" onClick={() => handleEditFormation(formation)}><Edit className="h-4 w-4" /></Button>
-                               <AlertDialog>
-                                <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
-                                <AlertDialogContent>
-                                  <AlertDialogHeader>
-                                    <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                    <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente la formación.</AlertDialogDescription>
-                                  </AlertDialogHeader>
-                                  <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                    <AlertDialogAction onClick={() => handleDeleteFormation(formation.id!)}>Eliminar</AlertDialogAction>
-                                  </AlertDialogFooter>
-                                </AlertDialogContent>
-                              </AlertDialog>
-                            </TableCell>
-                          </TableRow>
-                        ))}
-                      </TableBody>
-                    </Table>
-                  )}
-                </CardContent>
-              </Card>
+            <Tabs defaultValue="certifications">
+                <TabsList className="mb-4">
+                    <TabsTrigger value="certifications">Certificaciones</TabsTrigger>
+                    <TabsTrigger value="courses">Cursos (Aprende)</TabsTrigger>
+                </TabsList>
+                <TabsContent value="certifications">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle>Certificaciones y Formación</CardTitle>
+                            <Dialog open={isFormationDialogOpen} onOpenChange={(isOpen) => { setIsFormationDialogOpen(isOpen); if (!isOpen) setEditingFormation(null); }}>
+                                <DialogTrigger asChild><Button onClick={handleAddNewFormation}><PlusCircle className="mr-2 h-4 w-4" />Añadir Formación</Button></DialogTrigger>
+                                <DialogContent className="sm:max-w-[625px] glass-card">
+                                <DialogHeader>
+                                    <DialogTitle>{editingFormation ? 'Editar Formación' : 'Crear Nueva Formación'}</DialogTitle>
+                                    <DialogDescription className="sr-only">{editingFormation ? 'Edita los detalles de tu formación aquí.' : 'Crea una nueva entrada de formación.'}</DialogDescription>
+                                </DialogHeader>
+                                <FormationForm formation={editingFormation} onSave={handleFormationSaved} />
+                                </DialogContent>
+                            </Dialog>
+                        </CardHeader>
+                        <CardContent>
+                        {isLoadingFormations ? (
+                            <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                        ) : (
+                            <Table>
+                            <TableHeader>
+                                <TableRow>
+                                <TableHead>Título</TableHead>
+                                <TableHead>Descripción</TableHead>
+                                <TableHead>Etiqueta</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {formations.filter(f => !f.tag).map((formation) => (
+                                <TableRow key={formation.id}>
+                                    <TableCell className="font-medium">{formation.title}</TableCell>
+                                    <TableCell className="max-w-[300px] truncate">{formation.description}</TableCell>
+                                    <TableCell><Badge variant="secondary">Certificación</Badge></TableCell>
+                                    <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" onClick={() => handleEditFormation(formation)}><Edit className="h-4 w-4" /></Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                            <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente la formación.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteFormation(formation.id!)}>Eliminar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    </TableCell>
+                                </TableRow>
+                                ))}
+                            </TableBody>
+                            </Table>
+                        )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="courses">
+                     <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle>Cursos "Aprende"</CardTitle>
+                             <Dialog open={isFormationDialogOpen} onOpenChange={(isOpen) => { setIsFormationDialogOpen(isOpen); if (!isOpen) setEditingFormation(null); }}>
+                                <DialogTrigger asChild><Button onClick={handleAddNewFormation}><PlusCircle className="mr-2 h-4 w-4" />Añadir Curso</Button></DialogTrigger>
+                                <DialogContent className="sm:max-w-[625px] glass-card">
+                                <DialogHeader>
+                                    <DialogTitle>{editingFormation ? 'Editar Curso' : 'Crear Nuevo Curso'}</DialogTitle>
+                                    <DialogDescription className="sr-only">{editingFormation ? 'Edita los detalles de tu curso aquí.' : 'Crea un nuevo curso.'}</DialogDescription>
+                                </DialogHeader>
+                                <FormationForm formation={editingFormation} onSave={handleFormationSaved} />
+                                </DialogContent>
+                            </Dialog>
+                        </CardHeader>
+                        <CardContent>
+                         {isLoadingFormations ? (
+                            <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                        ) : (
+                            <Table>
+                            <TableHeader>
+                                <TableRow>
+                                <TableHead>Título</TableHead>
+                                <TableHead>Descripción</TableHead>
+                                <TableHead>Etiqueta</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {formations.filter(f => f.tag).map((formation) => (
+                                <TableRow key={formation.id}>
+                                    <TableCell className="font-medium">{formation.title}</TableCell>
+                                    <TableCell className="max-w-[300px] truncate">{formation.description}</TableCell>
+                                    <TableCell><Badge variant="outline">{formation.tag}</Badge></TableCell>
+                                    <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" onClick={() => handleEditFormation(formation)}><Edit className="h-4 w-4" /></Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                            <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente el curso.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteFormation(formation.id!)}>Eliminar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    </TableCell>
+                                </TableRow>
+                                ))}
+                            </TableBody>
+                            </Table>
+                        )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="links" className="mt-6">

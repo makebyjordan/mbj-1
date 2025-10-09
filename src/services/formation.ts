@@ -10,6 +10,7 @@ const FormationSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
   description: z.string().min(1, "La descripción es requerida."),
   url: z.string().url("Debe ser una URL válida.").optional().or(z.literal('')),
+  tag: z.string().optional(),
   createdAt: z.any().optional(),
 });
 
@@ -25,6 +26,7 @@ const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): Formation
         title: data.title,
         description: data.description,
         url: data.url,
+        tag: data.tag,
         createdAt: data.createdAt?.toDate(),
     });
 }

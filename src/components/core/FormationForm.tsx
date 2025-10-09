@@ -23,6 +23,7 @@ const formSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
   description: z.string().min(1, "La descripción es requerida."),
   url: z.string().url("Debe ser una URL válida.").optional().or(z.literal('')),
+  tag: z.string().optional(),
 });
 
 type FormationFormProps = {
@@ -40,6 +41,7 @@ export default function FormationForm({ formation, onSave }: FormationFormProps)
       title: "",
       description: "",
       url: "",
+      tag: "",
     },
   });
 
@@ -51,6 +53,7 @@ export default function FormationForm({ formation, onSave }: FormationFormProps)
             title: "",
             description: "",
             url: "",
+            tag: "",
         });
     }
   }, [formation, form]);
@@ -114,9 +117,22 @@ export default function FormationForm({ formation, onSave }: FormationFormProps)
             name="url"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>URL de la Credencial (Opcional)</FormLabel>
+                <FormLabel>URL (Opcional)</FormLabel>
                 <FormControl>
                     <Input placeholder="https://mi-credencial.com" {...field} className="bg-background/50" />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+            <FormField
+            control={form.control}
+            name="tag"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>Etiqueta (Tag)</FormLabel>
+                <FormControl>
+                    <Input placeholder="Ej. desarrollo-web, diseño-grafico" {...field} className="bg-background/50" />
                 </FormControl>
                 <FormMessage />
                 </FormItem>

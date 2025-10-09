@@ -25,6 +25,7 @@ import {
 } from "@/components/ui/sheet"
 import { Separator } from "@/components/ui/separator";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import { getFormations, Formation } from "@/services/formation";
 
 const navLinks = [
   { href: "/#services", label: "Servicios" },
@@ -48,12 +49,25 @@ const mobileNavLinks = [
 export default function Header() {
   const [scrolled, setScrolled] = useState(false);
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const [formationTags, setFormationTags] = useState<string[]>([]);
 
   useEffect(() => {
     const handleScroll = () => {
       setScrolled(window.scrollY > 10);
     };
     window.addEventListener("scroll", handleScroll);
+
+    const fetchTags = async () => {
+      try {
+        const formations = await getFormations();
+        const tags = new Set(formations.map(f => f.tag).filter(Boolean) as string[]);
+        setFormationTags(Array.from(tags));
+      } catch (error) {
+        console.error("Error fetching formation tags:", error);
+      }
+    };
+    fetchTags();
+
     return () => window.removeEventListener("scroll", handleScroll);
   }, []);
 
@@ -98,7 +112,22 @@ export default function Header() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent>
-                <DropdownMenuItem asChild><Link href="/#formation">Formación</Link></DropdownMenuItem>
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
+                    <span>Formación</span>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                       <DropdownMenuItem asChild><Link href="/#formation">Certificaciones</Link></DropdownMenuItem>
+                       <Separator />
+                       {formationTags.map(tag => (
+                         <DropdownMenuItem key={tag} asChild>
+                           <Link href={`/aprende/${tag}`}>{tag.replace(/-/g, ' ')}</Link>
+                         </DropdownMenuItem>
+                       ))}
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
                 <DropdownMenuItem asChild><Link href="/shorts">Shorts</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/links">Enlaces</Link></DropdownMenuItem>
                 <DropdownMenuItem asChild><Link href="/prompts">Prompts</Link></DropdownMenuItem>
