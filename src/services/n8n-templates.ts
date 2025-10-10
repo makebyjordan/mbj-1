@@ -2,13 +2,14 @@
 "use client";
 
 import { db } from '@/lib/firebase';
-import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, DocumentData, QueryDocumentSnapshot, serverTimestamp, orderBy, query } from 'firebase/firestore';
+import { collection, getDocs, addDoc, updateDoc, deleteDoc, doc, DocumentData, QueryDocumentSnapshot, serverTimestamp, orderBy, query, getDoc } from 'firebase/firestore';
 import { z } from 'zod';
 
 const N8NTemplateSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1, "El título es requerido."),
   jsonContent: z.string().min(1, "El contenido JSON es requerido."),
+  htmlContent: z.string().optional(),
   createdAt: z.any().optional(),
 });
 
@@ -23,6 +24,7 @@ const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): N8NTempla
         id: snapshot.id,
         title: data.title,
         jsonContent: data.jsonContent,
+        htmlContent: data.htmlContent || "",
         createdAt: data.createdAt?.toDate(),
     });
 }
@@ -33,6 +35,18 @@ export const getN8NTemplates = async (): Promise<N8NTemplate[]> => {
     const snapshot = await getDocs(q);
     return snapshot.docs.map(fromFirestore);
 };
+
+// GET a single template by ID
+export const getN8NTemplateById = async (id: string): Promise<N8NTemplate | null> => {
+    const templateDoc = doc(db, 'n8nTemplates', id);
+    const docSnap = await getDoc(templateDoc);
+
+    if (docSnap.exists()) {
+        return fromFirestore(docSnap as QueryDocumentSnapshot<DocumentData>);
+    } else {
+        return null;
+    }
+}
 
 // CREATE a new template
 export const createN8NTemplate = async (templateData: Omit<N8NTemplate, 'id' | 'createdAt'>): Promise<string> => {

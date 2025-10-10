@@ -13,6 +13,7 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
+  FormDescription,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
@@ -23,6 +24,7 @@ import { createN8NTemplate, updateN8NTemplate, N8NTemplate } from "@/services/n8
 const formSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
   jsonContent: z.string().min(1, "El contenido JSON es requerido."),
+  htmlContent: z.string().optional(),
 });
 
 type N8NTemplateFormProps = {
@@ -39,6 +41,7 @@ export default function N8NTemplateForm({ template, onSave }: N8NTemplateFormPro
     defaultValues: {
       title: "",
       jsonContent: "",
+      htmlContent: "",
     },
   });
 
@@ -49,6 +52,7 @@ export default function N8NTemplateForm({ template, onSave }: N8NTemplateFormPro
         form.reset({
             title: "",
             jsonContent: "",
+            htmlContent: "",
         });
     }
   }, [template, form]);
@@ -112,6 +116,26 @@ export default function N8NTemplateForm({ template, onSave }: N8NTemplateFormPro
                 <FormMessage />
                 </FormItem>
             )}
+            />
+             <FormField
+              control={form.control}
+              name="htmlContent"
+              render={({ field }) => (
+                  <FormItem>
+                  <FormLabel>Contenido HTML (Opcional)</FormLabel>
+                  <FormControl>
+                      <Textarea
+                        placeholder="Pega tu código HTML aquí para la página de 'Aprender'..."
+                        className="h-48 bg-background/50 font-mono"
+                        {...field}
+                      />
+                  </FormControl>
+                   <FormDescription>
+                    Este contenido se mostrará en una página separada de aprendizaje.
+                  </FormDescription>
+                  <FormMessage />
+                  </FormItem>
+              )}
             />
             <div className="flex justify-end">
                 <Button type="submit" disabled={isLoading} className="primary-button-glow">

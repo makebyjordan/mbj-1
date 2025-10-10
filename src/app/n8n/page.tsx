@@ -2,9 +2,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import Link from "next/link";
 import { getN8NTemplates, N8NTemplate } from "@/services/n8n-templates";
-import { Loader2, Copy, Check } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Loader2, Copy, Check, BookOpen } from "lucide-react";
+import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
 
@@ -58,7 +59,7 @@ export default function N8NPage() {
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((template) => (
-            <Card key={template.id} className="glass-card">
+            <Card key={template.id} className="glass-card flex flex-col">
               <CardHeader className="flex-row items-center justify-between">
                 <CardTitle className="font-headline text-2xl">{template.title}</CardTitle>
                 <Button 
@@ -74,9 +75,19 @@ export default function N8NPage() {
                   )}
                 </Button>
               </CardHeader>
-              <CardContent>
+              <CardContent className="flex-grow">
                 <p className="text-sm text-muted-foreground">Haz clic en el icono para copiar el flujo de trabajo.</p>
               </CardContent>
+              {template.htmlContent && (
+                <CardFooter>
+                    <Button asChild variant="link" className="p-0 text-primary">
+                        <Link href={`/n8n/aprende/${template.id}`} target="_blank">
+                            <BookOpen className="mr-2 h-4 w-4" />
+                            Aprender
+                        </Link>
+                    </Button>
+                </CardFooter>
+              )}
             </Card>
           ))}
         </div>
