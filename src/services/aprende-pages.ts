@@ -1,9 +1,7 @@
-
 "use client";
 
 import { db } from '@/lib/firebase';
 import { collection, doc, addDoc, updateDoc, deleteDoc, serverTimestamp, getDoc, getDocs, query, orderBy } from 'firebase/firestore';
-import { revalidatePath } from 'next/cache';
 
 export interface FeatureCard {
   icon?: string;
