@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -33,6 +33,7 @@ import { getLinkCards, deleteLinkCard, LinkCard } from '@/services/link-cards';
 import { getBlogCategories, deleteBlogCategory, BlogCategory } from '@/services/blog-categories';
 import { getPrompts, deletePrompt, Prompt } from '@/services/prompts';
 import { getDesigns, deleteDesign, Design } from '@/services/designs';
+import { getN8NTemplates, deleteN8NTemplate, N8NTemplate } from '@/services/n8n-templates';
 
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
@@ -46,6 +47,7 @@ import ImageGallery from '@/components/core/ImageGallery';
 import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
 import DesignForm from '@/components/core/DesignForm';
+import N8NTemplateForm from '@/components/core/N8NTemplateForm';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
@@ -59,6 +61,7 @@ export default function CoreDashboardPage() {
   const [blogCategories, setBlogCategories] = useState<BlogCategory[]>([]);
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [designs, setDesigns] = useState<Design[]>([]);
+  const [n8nTemplates, setN8nTemplates] = useState<N8NTemplate[]>([]);
   
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
@@ -69,6 +72,7 @@ export default function CoreDashboardPage() {
   const [isLoadingBlogCategories, setIsLoadingBlogCategories] = useState(true);
   const [isLoadingPrompts, setIsLoadingPrompts] = useState(true);
   const [isLoadingDesigns, setIsLoadingDesigns] = useState(true);
+  const [isLoadingN8nTemplates, setIsLoadingN8nTemplates] = useState(true);
 
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
@@ -79,6 +83,7 @@ export default function CoreDashboardPage() {
   const [isBlogCategoryDialogOpen, setIsBlogCategoryDialogOpen] = useState(false);
   const [isPromptDialogOpen, setIsPromptDialogOpen] = useState(false);
   const [isDesignDialogOpen, setIsDesignDialogOpen] = useState(false);
+  const [isN8nTemplateDialogOpen, setIsN8nTemplateDialogOpen] = useState(false);
 
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -89,6 +94,7 @@ export default function CoreDashboardPage() {
   const [editingBlogCategory, setEditingBlogCategory] = useState<BlogCategory | null>(null);
   const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
   const [editingDesign, setEditingDesign] = useState<Design | null>(null);
+  const [editingN8nTemplate, setEditingN8nTemplate] = useState<N8NTemplate | null>(null);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -208,6 +214,19 @@ export default function CoreDashboardPage() {
     }
   }
 
+  const fetchN8nTemplates = async () => {
+    setIsLoadingN8nTemplates(true);
+    try {
+        const templatesFromDb = await getN8NTemplates();
+        setN8nTemplates(templatesFromDb);
+    } catch (error) {
+        console.error("Error fetching N8N templates:", error);
+        toast({ variant: "destructive", title: "Error al cargar plantillas N8N", description: "No se pudieron cargar las plantillas N8N." });
+    } finally {
+        setIsLoadingN8nTemplates(false);
+    }
+  }
+
   useEffect(() => {
     fetchProjects();
     fetchServices();
@@ -218,6 +237,7 @@ export default function CoreDashboardPage() {
     fetchBlogCategories();
     fetchPrompts();
     fetchDesigns();
+    fetchN8nTemplates();
   }, []);
 
   const handleProjectSaved = () => {
@@ -285,6 +305,13 @@ export default function CoreDashboardPage() {
     toast({ title: "Diseño guardado", description: "Tu diseño se ha guardado correctamente." });
   }
 
+  const handleN8nTemplateSaved = () => {
+    setIsN8nTemplateDialogOpen(false);
+    setEditingN8nTemplate(null);
+    fetchN8nTemplates();
+    toast({ title: "Plantilla N8N guardada", description: "Tu plantilla se ha guardado correctamente." });
+  }
+
   const handleHeroSaved = () => {
     toast({ title: "Hero Actualizado", description: "La sección principal se ha guardado correctamente." });
   }
@@ -311,6 +338,8 @@ export default function CoreDashboardPage() {
   const handleAddNewPrompt = () => { setEditingPrompt(null); setIsPromptDialogOpen(true); }
   const handleEditDesign = (design: Design) => { setEditingDesign(design); setIsDesignDialogOpen(true); }
   const handleAddNewDesign = () => { setEditingDesign(null); setIsDesignDialogOpen(true); }
+  const handleEditN8nTemplate = (template: N8NTemplate) => { setEditingN8nTemplate(template); setIsN8nTemplateDialogOpen(true); }
+  const handleAddNewN8nTemplate = () => { setEditingN8nTemplate(null); setIsN8nTemplateDialogOpen(true); }
 
   const handleDeleteProject = async (projectId: string) => {
     try {
@@ -412,10 +441,21 @@ export default function CoreDashboardPage() {
     }
   };
 
+  const handleDeleteN8nTemplate = async (templateId: string) => {
+    try {
+        await deleteN8NTemplate(templateId);
+        fetchN8nTemplates();
+        toast({ title: "Plantilla N8N eliminada", description: "La plantilla se ha eliminado correctamente." });
+    } catch (error) {
+        console.error("Error deleting N8N template:", error);
+        toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la plantilla." });
+    }
+  };
+
   return (
     <main className="flex-1 w-full p-4 md:p-8 space-y-8">
         <Tabs defaultValue="pagina" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-4 lg:grid-cols-9 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-10 h-auto">
             <TabsTrigger value="pagina">Página Principal</TabsTrigger>
             <TabsTrigger value="servicios">Servicios</TabsTrigger>
             <TabsTrigger value="proyectos">Proyectos/Blog</TabsTrigger>
@@ -425,6 +465,7 @@ export default function CoreDashboardPage() {
             <TabsTrigger value="prompts">Prompts</TabsTrigger>
             <TabsTrigger value="galeria">Galería</TabsTrigger>
             <TabsTrigger value="disenos">Diseños</TabsTrigger>
+            <TabsTrigger value="n8n">N8N</TabsTrigger>
           </TabsList>
           
           <TabsContent value="pagina" className="mt-6">
@@ -1105,6 +1146,76 @@ export default function CoreDashboardPage() {
                         <TableRow>
                           <TableCell colSpan={3} className="text-center text-muted-foreground py-8">
                             Aún no has añadido ningún diseño.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="n8n" className="mt-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="font-headline text-3xl">Plantillas N8N</CardTitle>
+                <Dialog open={isN8nTemplateDialogOpen} onOpenChange={(isOpen) => { setIsN8nTemplateDialogOpen(isOpen); if (!isOpen) setEditingN8nTemplate(null); }}>
+                  <DialogTrigger asChild>
+                    <Button onClick={handleAddNewN8nTemplate}>
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Añadir Plantilla
+                    </Button>
+                  </DialogTrigger>
+                  <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto">
+                    <DialogHeader>
+                      <DialogTitle>{editingN8nTemplate ? 'Editar Plantilla' : 'Crear Nueva Plantilla'}</DialogTitle>
+                      <DialogDescription className="sr-only">
+                        {editingN8nTemplate ? 'Edita los detalles de tu plantilla aquí.' : 'Añade una nueva plantilla N8N a tu colección.'}
+                      </DialogDescription>
+                    </DialogHeader>
+                    <N8NTemplateForm template={editingN8nTemplate} onSave={handleN8nTemplateSaved} />
+                  </DialogContent>
+                </Dialog>
+              </CardHeader>
+              <CardContent>
+                {isLoadingN8nTemplates ? (
+                  <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Título</TableHead>
+                        <TableHead className="text-right">Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {n8nTemplates.length > 0 ? n8nTemplates.map((template) => (
+                        <TableRow key={template.id}>
+                          <TableCell className="font-medium">{template.title}</TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditN8nTemplate(template)}><Edit className="h-4 w-4" /></Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                  <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente la plantilla.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteN8nTemplate(template.id!)}>Eliminar</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      )) : (
+                        <TableRow>
+                          <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
+                            Aún no has añadido ninguna plantilla N8N.
                           </TableCell>
                         </TableRow>
                       )}
