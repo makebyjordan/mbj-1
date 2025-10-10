@@ -693,6 +693,7 @@ export default function CoreDashboardPage() {
                 <TabsList className="mb-4">
                     <TabsTrigger value="certifications">Certificaciones</TabsTrigger>
                     <TabsTrigger value="courses">Cursos (Aprende)</TabsTrigger>
+                    <TabsTrigger value="aprende">Aprende</TabsTrigger>
                 </TabsList>
                 <TabsContent value="certifications">
                     <Card>
@@ -753,6 +754,64 @@ export default function CoreDashboardPage() {
                     </Card>
                 </TabsContent>
                 <TabsContent value="courses">
+                     <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle>Cursos "Aprende"</CardTitle>
+                             <Dialog open={isFormationDialogOpen} onOpenChange={(isOpen) => { setIsFormationDialogOpen(isOpen); if (!isOpen) setEditingFormation(null); }}>
+                                <DialogTrigger asChild><Button onClick={handleAddNewFormation}><PlusCircle className="mr-2 h-4 w-4" />Añadir Curso</Button></DialogTrigger>
+                                <DialogContent className="sm:max-w-[625px] glass-card">
+                                <DialogHeader>
+                                    <DialogTitle>{editingFormation ? 'Editar Curso' : 'Crear Nuevo Curso'}</DialogTitle>
+                                    <DialogDescription className="sr-only">{editingFormation ? 'Edita los detalles de tu curso aquí.' : 'Crea un nuevo curso.'}</DialogDescription>
+                                </DialogHeader>
+                                <FormationForm formation={editingFormation} onSave={handleFormationSaved} />
+                                </DialogContent>
+                            </Dialog>
+                        </CardHeader>
+                        <CardContent>
+                         {isLoadingFormations ? (
+                            <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                        ) : (
+                            <Table>
+                            <TableHeader>
+                                <TableRow>
+                                <TableHead>Título</TableHead>
+                                <TableHead>Descripción</TableHead>
+                                <TableHead>Etiqueta</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
+                                </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                                {formations.filter(f => f.tag).map((formation) => (
+                                <TableRow key={formation.id}>
+                                    <TableCell className="font-medium">{formation.title}</TableCell>
+                                    <TableCell className="max-w-[300px] truncate">{formation.description}</TableCell>
+                                    <TableCell><Badge variant="outline">{formation.tag}</Badge></TableCell>
+                                    <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" onClick={() => handleEditFormation(formation)}><Edit className="h-4 w-4" /></Button>
+                                    <AlertDialog>
+                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                        <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                            <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                            <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente el curso.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                            <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                            <AlertDialogAction onClick={() => handleDeleteFormation(formation.id!)}>Eliminar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                        </AlertDialogContent>
+                                    </AlertDialog>
+                                    </TableCell>
+                                </TableRow>
+                                ))}
+                            </TableBody>
+                            </Table>
+                        )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="aprende">
                      <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
                             <CardTitle>Cursos "Aprende"</CardTitle>
