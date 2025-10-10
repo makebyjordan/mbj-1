@@ -1,11 +1,12 @@
 
+
 "use client";
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -14,6 +15,12 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table"
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
 import {
   Dialog,
   DialogContent,
@@ -34,6 +41,7 @@ import { getBlogCategories, deleteBlogCategory, BlogCategory } from '@/services/
 import { getPrompts, deletePrompt, Prompt } from '@/services/prompts';
 import { getDesigns, deleteDesign, Design } from '@/services/designs';
 import { getN8NTemplates, deleteN8NTemplate, N8NTemplate } from '@/services/n8n-templates';
+import { getAprendePages, deleteAprendePage, duplicateAprendePage, AprendePageData } from '@/services/aprende-pages';
 
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
@@ -48,8 +56,11 @@ import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
 import DesignForm from '@/components/core/DesignForm';
 import N8NTemplateForm from '@/components/core/N8NTemplateForm';
+import AprendePageForm from '@/components/core/AprendePageForm';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import { onSnapshot, collection, query, orderBy, Timestamp } from 'firebase/firestore';
+import { db } from '@/lib/firebase';
 
 export default function CoreDashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -62,6 +73,7 @@ export default function CoreDashboardPage() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [designs, setDesigns] = useState<Design[]>([]);
   const [n8nTemplates, setN8nTemplates] = useState<N8NTemplate[]>([]);
+  const [aprendePages, setAprendePages] = useState<AprendePageData[]>([]);
   
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
@@ -73,6 +85,7 @@ export default function CoreDashboardPage() {
   const [isLoadingPrompts, setIsLoadingPrompts] = useState(true);
   const [isLoadingDesigns, setIsLoadingDesigns] = useState(true);
   const [isLoadingN8nTemplates, setIsLoadingN8nTemplates] = useState(true);
+  const [isLoadingAprendePages, setIsLoadingAprendePages] = useState(true);
 
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
@@ -84,6 +97,7 @@ export default function CoreDashboardPage() {
   const [isPromptDialogOpen, setIsPromptDialogOpen] = useState(false);
   const [isDesignDialogOpen, setIsDesignDialogOpen] = useState(false);
   const [isN8nTemplateDialogOpen, setIsN8nTemplateDialogOpen] = useState(false);
+  const [isAprendePageFormOpen, setIsAprendePageFormOpen] = useState(false);
 
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -95,6 +109,8 @@ export default function CoreDashboardPage() {
   const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
   const [editingDesign, setEditingDesign] = useState<Design | null>(null);
   const [editingN8nTemplate, setEditingN8nTemplate] = useState<N8NTemplate | null>(null);
+  const [editingAprendePage, setEditingAprendePage] = useState<AprendePageData | null>(null);
+  const [deletingAprendePage, setDeletingAprendePage] = useState<AprendePageData | null>(null);
   const { toast } = useToast();
 
   const fetchProjects = async () => {
@@ -238,87 +254,44 @@ export default function CoreDashboardPage() {
     fetchPrompts();
     fetchDesigns();
     fetchN8nTemplates();
+
+    const q = query(collection(db, "aprendePages"), orderBy("createdAt", "desc"));
+    const unsubscribe = onSnapshot(q, 
+      (querySnapshot) => {
+        const pagesData: AprendePageData[] = [];
+        querySnapshot.forEach((doc) => {
+          const data = doc.data();
+          pagesData.push({
+            id: doc.id,
+            ...data
+          } as AprendePageData);
+        });
+        setAprendePages(pagesData);
+        setIsLoadingAprendePages(false);
+      }, 
+      (err) => {
+        console.error("Error fetching Aprende Pages in real-time: ", err);
+        toast({ variant: "destructive", title: "Error al cargar páginas", description: "No se pudieron cargar las páginas." });
+        setIsLoadingAprendePages(false);
+      }
+    );
+
+    return () => unsubscribe();
   }, []);
 
-  const handleProjectSaved = () => {
-    setIsProjectDialogOpen(false);
-    setEditingProject(null);
-    fetchProjects();
-     toast({ title: "Guardado", description: "La entrada se ha guardado correctamente." });
-  }
-
-  const handleServiceSaved = () => {
-    setIsServiceDialogOpen(false);
-    setEditingService(null);
-    fetchServices();
-     toast({ title: "Servicio guardado", description: "Tu servicio se ha guardado correctamente." });
-  }
-
-  const handleFormationSaved = () => {
-    setIsFormationDialogOpen(false);
-    setEditingFormation(null);
-    fetchFormations();
-     toast({ title: "Formación guardada", description: "Tu formación se ha guardado correctamente." });
-  }
-  
-  const handleShortSaved = () => {
-    setIsShortDialogOpen(false);
-    setEditingShort(null);
-    fetchShorts();
-     toast({ title: "Short guardado", description: "Tu short se ha guardado correctamente." });
-  }
-
-  const handleLinkSaved = () => {
-    setIsLinkDialogOpen(false);
-    setEditingLink(null);
-    fetchLinks();
-     toast({ title: "Enlace guardado", description: "Tu enlace se ha guardado correctamente." });
-  }
-
-  const handleLinkCardSaved = () => {
-    setIsLinkCardDialogOpen(false);
-    setEditingLinkCard(null);
-    fetchLinkCards();
-    fetchLinks(); // Re-fetch links in case a card title changed
-     toast({ title: "Categoría de enlace guardada", description: "La categoría se ha guardado correctamente." });
-  }
-
-  const handleBlogCategorySaved = () => {
-    setIsBlogCategoryDialogOpen(false);
-    setEditingBlogCategory(null);
-    fetchBlogCategories();
-    fetchProjects(); 
-     toast({ title: "Categoría de Blog guardada", description: "La categoría se ha guardado correctamente." });
-  }
-
-  const handlePromptSaved = () => {
-    setIsPromptDialogOpen(false);
-    setEditingPrompt(null);
-    fetchPrompts();
-    toast({ title: "Prompt guardado", description: "Tu prompt se ha guardado correctamente." });
-  }
-
-  const handleDesignSaved = () => {
-    setIsDesignDialogOpen(false);
-    setEditingDesign(null);
-    fetchDesigns();
-    toast({ title: "Diseño guardado", description: "Tu diseño se ha guardado correctamente." });
-  }
-
-  const handleN8nTemplateSaved = () => {
-    setIsN8nTemplateDialogOpen(false);
-    setEditingN8nTemplate(null);
-    fetchN8nTemplates();
-    toast({ title: "Plantilla N8N guardada", description: "Tu plantilla se ha guardado correctamente." });
-  }
-
-  const handleHeroSaved = () => {
-    toast({ title: "Hero Actualizado", description: "La sección principal se ha guardado correctamente." });
-  }
-
-  const handleAboutSaved = () => {
-    toast({ title: "Sección 'Sobre Mí' Actualizada", description: "La sección se ha guardado correctamente." });
-  }
+  const handleProjectSaved = () => { setIsProjectDialogOpen(false); setEditingProject(null); fetchProjects(); toast({ title: "Guardado", description: "La entrada se ha guardado correctamente." }); }
+  const handleServiceSaved = () => { setIsServiceDialogOpen(false); setEditingService(null); fetchServices(); toast({ title: "Servicio guardado", description: "Tu servicio se ha guardado correctamente." }); }
+  const handleFormationSaved = () => { setIsFormationDialogOpen(false); setEditingFormation(null); fetchFormations(); toast({ title: "Formación guardada", description: "Tu formación se ha guardado correctamente." }); }
+  const handleShortSaved = () => { setIsShortDialogOpen(false); setEditingShort(null); fetchShorts(); toast({ title: "Short guardado", description: "Tu short se ha guardado correctamente." }); }
+  const handleLinkSaved = () => { setIsLinkDialogOpen(false); setEditingLink(null); fetchLinks(); toast({ title: "Enlace guardado", description: "Tu enlace se ha guardado correctamente." }); }
+  const handleLinkCardSaved = () => { setIsLinkCardDialogOpen(false); setEditingLinkCard(null); fetchLinkCards(); fetchLinks(); toast({ title: "Categoría de enlace guardada", description: "La categoría se ha guardado correctamente." }); }
+  const handleBlogCategorySaved = () => { setIsBlogCategoryDialogOpen(false); setEditingBlogCategory(null); fetchBlogCategories(); fetchProjects(); toast({ title: "Categoría de Blog guardada", description: "La categoría se ha guardado correctamente." }); }
+  const handlePromptSaved = () => { setIsPromptDialogOpen(false); setEditingPrompt(null); fetchPrompts(); toast({ title: "Prompt guardado", description: "Tu prompt se ha guardado correctamente." }); }
+  const handleDesignSaved = () => { setIsDesignDialogOpen(false); setEditingDesign(null); fetchDesigns(); toast({ title: "Diseño guardado", description: "Tu diseño se ha guardado correctamente." }); }
+  const handleN8nTemplateSaved = () => { setIsN8nTemplateDialogOpen(false); setEditingN8nTemplate(null); fetchN8nTemplates(); toast({ title: "Plantilla N8N guardada", description: "Tu plantilla se ha guardado correctamente." }); }
+  const handleHeroSaved = () => { toast({ title: "Hero Actualizado", description: "La sección principal se ha guardado correctamente." }); }
+  const handleAboutSaved = () => { toast({ title: "Sección 'Sobre Mí' Actualizada", description: "La sección se ha guardado correctamente." }); }
+  const handleAprendePageSaved = () => { setIsAprendePageFormOpen(false); setEditingAprendePage(null); /* Real-time updates handle refresh */ }
 
   const handleEditProject = (project: Project) => { setEditingProject(project); setIsProjectDialogOpen(true); }
   const handleAddNewProject = () => { setEditingProject(null); setIsProjectDialogOpen(true); }
@@ -340,120 +313,62 @@ export default function CoreDashboardPage() {
   const handleAddNewDesign = () => { setEditingDesign(null); setIsDesignDialogOpen(true); }
   const handleEditN8nTemplate = (template: N8NTemplate) => { setEditingN8nTemplate(template); setIsN8nTemplateDialogOpen(true); }
   const handleAddNewN8nTemplate = () => { setEditingN8nTemplate(null); setIsN8nTemplateDialogOpen(true); }
+  const handleEditAprendePage = (page: AprendePageData) => { setEditingAprendePage(page); setIsAprendePageFormOpen(true); }
+  const handleAddNewAprendePage = () => { setEditingAprendePage(null); setIsAprendePageFormOpen(true); }
+  
+  const handleDeleteProject = async (projectId: string) => { try { await deleteProject(projectId); fetchProjects(); toast({ title: "Eliminado", description: "La entrada se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting project:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la entrada." }); } };
+  const handleDeleteService = async (serviceId: string) => { try { await deleteService(serviceId); fetchServices(); toast({ title: "Servicio eliminado", description: "El servicio se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting service:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el servicio." }); } };
+  const handleDeleteFormation = async (formationId: string) => { try { await deleteFormation(formationId); fetchFormations(); toast({ title: "Formación eliminada", description: "La formación se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting formation:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la formación." }); } };
+  const handleDeleteShort = async (shortId: string) => { try { await deleteShort(shortId); fetchShorts(); toast({ title: "Short eliminado", description: "El short se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting short:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el short." }); } };
+  const handleDeleteLink = async (linkId: string) => { try { await deleteLink(linkId); fetchLinks(); toast({ title: "Enlace eliminado", description: "El enlace se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting link:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el enlace." }); } };
+  const handleDeleteLinkCard = async (linkCardId: string) => { try { await deleteLinkCard(linkCardId); fetchLinkCards(); toast({ title: "Categoría de enlace eliminada", description: "La categoría se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting link card:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la categoría." }); } };
+  const handleDeleteBlogCategory = async (categoryId: string) => { try { await deleteBlogCategory(categoryId); fetchBlogCategories(); fetchProjects(); toast({ title: "Categoría de blog eliminada", description: "La categoría se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting blog category:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la categoría." }); } };
+  const handleDeletePrompt = async (promptId: string) => { try { await deletePrompt(promptId); fetchPrompts(); toast({ title: "Prompt eliminado", description: "El prompt se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting prompt:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el prompt." }); } };
+  const handleDeleteDesign = async (designId: string) => { try { await deleteDesign(designId); fetchDesigns(); toast({ title: "Diseño eliminado", description: "El diseño se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting design:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el diseño." }); } };
+  const handleDeleteN8nTemplate = async (templateId: string) => { try { await deleteN8NTemplate(templateId); fetchN8nTemplates(); toast({ title: "Plantilla N8N eliminada", description: "La plantilla se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting N8N template:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la plantilla." }); } };
 
-  const handleDeleteProject = async (projectId: string) => {
-    try {
-      await deleteProject(projectId);
-      fetchProjects();
-      toast({ title: "Eliminado", description: "La entrada se ha eliminado correctamente." });
-    } catch (error) {
-      console.error("Error deleting project:", error);
-      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la entrada." });
+  const handleConfirmDeleteAprendePage = async () => {
+    if (!deletingAprendePage) return;
+    const result = await deleteAprendePage(deletingAprendePage.id);
+    if (result.success) {
+      toast({ title: "Página Eliminada", description: "La página ha sido eliminada con éxito." });
+    } else {
+      toast({ variant: "destructive", title: "Error al Eliminar", description: result.error || "No se pudo eliminar la página." });
     }
-  };
-
-  const handleDeleteService = async (serviceId: string) => {
-    try {
-      await deleteService(serviceId);
-      fetchServices();
-      toast({ title: "Servicio eliminado", description: "El servicio se ha eliminado correctamente." });
-    } catch (error) {
-      console.error("Error deleting service:", error);
-      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el servicio." });
-    }
-  };
-
-  const handleDeleteFormation = async (formationId: string) => {
-    try {
-      await deleteFormation(formationId);
-      fetchFormations();
-      toast({ title: "Formación eliminada", description: "La formación se ha eliminado correctamente." });
-    } catch (error) {
-      console.error("Error deleting formation:", error);
-      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la formación." });
-    }
+    setDeletingAprendePage(null);
   };
   
-  const handleDeleteShort = async (shortId: string) => {
-    try {
-      await deleteShort(shortId);
-      fetchShorts();
-      toast({ title: "Short eliminado", description: "El short se ha eliminado correctamente." });
-    } catch (error) {
-      console.error("Error deleting short:", error);
-      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el short." });
+  const handleDuplicateAprendePage = async (id: string) => {
+    const result = await duplicateAprendePage(id);
+    if (result.success) {
+      toast({ title: "Página Duplicada", description: "Se ha creado una copia de la página." });
+    } else {
+      toast({ variant: "destructive", title: "Error al Duplicar", description: result.error || "No se pudo duplicar la página." });
     }
   };
 
-  const handleDeleteLink = async (linkId: string) => {
-    try {
-      await deleteLink(linkId);
-      fetchLinks();
-      toast({ title: "Enlace eliminado", description: "El enlace se ha eliminado correctamente." });
-    } catch (error) {
-      console.error("Error deleting link:", error);
-      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el enlace." });
-    }
-  };
-
-  const handleDeleteLinkCard = async (linkCardId: string) => {
-    try {
-      await deleteLinkCard(linkCardId);
-      fetchLinkCards();
-      toast({ title: "Categoría de enlace eliminada", description: "La categoría se ha eliminado correctamente." });
-    } catch (error) {
-      console.error("Error deleting link card:", error);
-      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la categoría." });
-    }
-  };
-
-  const handleDeleteBlogCategory = async (categoryId: string) => {
-    try {
-      await deleteBlogCategory(categoryId);
-      fetchBlogCategories();
-      fetchProjects();
-      toast({ title: "Categoría de blog eliminada", description: "La categoría se ha eliminado correctamente." });
-    } catch (error) {
-      console.error("Error deleting blog category:", error);
-      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la categoría." });
-    }
-  };
-
-  const handleDeletePrompt = async (promptId: string) => {
-    try {
-      await deletePrompt(promptId);
-      fetchPrompts();
-      toast({ title: "Prompt eliminado", description: "El prompt se ha eliminado correctamente." });
-    } catch (error) {
-      console.error("Error deleting prompt:", error);
-      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el prompt." });
-    }
-  };
-
-  const handleDeleteDesign = async (designId: string) => {
-    try {
-      await deleteDesign(designId);
-      fetchDesigns();
-      toast({ title: "Diseño eliminado", description: "El diseño se ha eliminado correctamente." });
-    } catch (error) {
-      console.error("Error deleting design:", error);
-      toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el diseño." });
-    }
-  };
-
-  const handleDeleteN8nTemplate = async (templateId: string) => {
-    try {
-        await deleteN8NTemplate(templateId);
-        fetchN8nTemplates();
-        toast({ title: "Plantilla N8N eliminada", description: "La plantilla se ha eliminado correctamente." });
-    } catch (error) {
-        console.error("Error deleting N8N template:", error);
-        toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la plantilla." });
-    }
-  };
 
   return (
     <main className="flex-1 w-full p-4 md:p-8 space-y-8">
+        <AprendePageForm
+          isOpen={isAprendePageFormOpen}
+          setIsOpen={setIsAprendePageFormOpen}
+          onFormSubmit={handleAprendePageSaved}
+          pageData={editingAprendePage}
+        />
+         <AlertDialog open={!!deletingAprendePage} onOpenChange={(isOpen) => !isOpen && setDeletingAprendePage(null)}>
+            <AlertDialogContent>
+              <AlertDialogHeader>
+                <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente la página.</AlertDialogDescription>
+              </AlertDialogHeader>
+              <AlertDialogFooter>
+                <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                <AlertDialogAction onClick={handleConfirmDeleteAprendePage}>Eliminar</AlertDialogAction>
+              </AlertDialogFooter>
+            </AlertDialogContent>
+        </AlertDialog>
+
         <Tabs defaultValue="pagina" className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-10 h-auto">
             <TabsTrigger value="pagina">Página Principal</TabsTrigger>
@@ -813,11 +728,73 @@ export default function CoreDashboardPage() {
                 </TabsContent>
                 <TabsContent value="aprende">
                      <Card>
-                        <CardHeader>
-                            <CardTitle>Aprende</CardTitle>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle>Constructor de Páginas "Aprende"</CardTitle>
+                            <Button onClick={handleAddNewAprendePage}>
+                              <PlusCircle className="mr-2 h-4 w-4" />
+                              Crear Nueva Página
+                            </Button>
                         </CardHeader>
                         <CardContent>
-                            <p className="text-muted-foreground">Esta sección está en construcción. ¡Vuelve pronto!</p>
+                           {isLoadingAprendePages ? (
+                              <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                           ) : (
+                            <Table>
+                              <TableHeader>
+                                <TableRow>
+                                  <TableHead>Título</TableHead>
+                                  <TableHead>Código</TableHead>
+                                  <TableHead>Fecha Creación</TableHead>
+                                  <TableHead className="text-right">Acciones</TableHead>
+                                </TableRow>
+                              </TableHeader>
+                              <TableBody>
+                                {aprendePages.length > 0 ? (
+                                  aprendePages.map((page) => (
+                                    <TableRow key={page.id}>
+                                      <TableCell className="font-medium">{page.title}</TableCell>
+                                      <TableCell>{page.code}</TableCell>
+                                      <TableCell>{page.createdAt ? new Date(page.createdAt.seconds * 1000).toLocaleDateString() : 'N/A'}</TableCell>
+                                      <TableCell className="text-right">
+                                        <DropdownMenu>
+                                          <DropdownMenuTrigger asChild>
+                                            <Button variant="ghost" className="h-8 w-8 p-0">
+                                              <span className="sr-only">Abrir menú</span>
+                                              <MoreHorizontal className="h-4 w-4" />
+                                            </Button>
+                                          </DropdownMenuTrigger>
+                                          <DropdownMenuContent align="end">
+                                            <DropdownMenuItem onClick={() => window.open(`/aprende/view/${page.id}`, '_blank')}>
+                                              <Eye className="mr-2 h-4 w-4" />
+                                              Ver
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleDuplicateAprendePage(page.id)}>
+                                              <Copy className="mr-2 h-4 w-4" />
+                                              Duplicar
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => handleEditAprendePage(page)}>
+                                              <Pencil className="mr-2 h-4 w-4" />
+                                              Editar
+                                            </DropdownMenuItem>
+                                            <DropdownMenuItem onClick={() => setDeletingAprendePage(page)} className="text-destructive">
+                                              <Trash2 className="mr-2 h-4 w-4" />
+                                              Eliminar
+                                            </DropdownMenuItem>
+                                          </DropdownMenuContent>
+                                        </DropdownMenu>
+                                      </TableCell>
+                                    </TableRow>
+                                  ))
+                                ) : (
+                                  <TableRow>
+                                    <TableCell colSpan={4} className="h-24 text-center">
+                                      No has creado ninguna página todavía.
+                                    </TableCell>
+                                  </TableRow>
+                                )}
+                              </TableBody>
+                            </Table>
+                           )}
                         </CardContent>
                     </Card>
                 </TabsContent>
