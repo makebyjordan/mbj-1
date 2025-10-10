@@ -122,7 +122,7 @@ export default function Header() {
                        <Separator />
                        {formationTags.map(tag => (
                          <DropdownMenuItem key={tag} asChild>
-                           <Link href={`/aprende/${tag}`}>{tag.replace(/-/g, ' ')}</Link>
+                           <Link href={`/aprende/${encodeURIComponent(tag)}`}>{tag.replace(/-/g, ' ')}</Link>
                          </DropdownMenuItem>
                        ))}
                     </DropdownMenuSubContent>
@@ -141,6 +141,7 @@ export default function Header() {
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
+                <DropdownMenuItem asChild><Link href="#">Plantillas N8N</Link></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             </nav>
