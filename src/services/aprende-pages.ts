@@ -1,3 +1,4 @@
+
 "use client";
 
 import { db } from '@/lib/firebase';
@@ -157,9 +158,6 @@ export async function saveAprendePage(data: AprendePageInput): Promise<ActionRes
       docId = docRef.id;
     }
     
-    // In a client component context, we can't use revalidatePath
-    // The real-time listener in the dashboard will handle UI updates.
-
     return { success: true, data: docId };
 
   } catch (error: any) {
