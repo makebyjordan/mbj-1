@@ -58,6 +58,9 @@ export default function Footer() {
           <div className="flex flex-col gap-2">
             <Link href="/#formation" className="text-muted-foreground hover:text-primary transition-colors">Certificaciones</Link>
             <Link href="/aprende" className="text-muted-foreground hover:text-primary transition-colors">Cursos</Link>
+            <Link href="/aprende" className="text-muted-foreground hover:text-primary transition-colors">Aprende</Link>
+            <Link href="/n8n/login" className="text-muted-foreground hover:text-primary transition-colors">Plantillas N8N</Link>
+            <Link href="/htmls" className="text-muted-foreground hover:text-primary transition-colors">HTMLs</Link>
           </div>
         </div>
         
@@ -68,8 +71,6 @@ export default function Footer() {
                 <Link href="/shorts" className="text-muted-foreground hover:text-primary transition-colors">Shorts</Link>
                 <Link href="/links" className="text-muted-foreground hover:text-primary transition-colors">Enlaces</Link>
                 <Link href="/prompts" className="text-muted-foreground hover:text-primary transition-colors">Prompts</Link>
-                <Link href="/n8n/login" className="text-muted-foreground hover:text-primary transition-colors">Plantillas N8N</Link>
-                <Link href="/htmls" className="text-muted-foreground hover:text-primary transition-colors">HTMLs</Link>
                  <Link href="/#news" className="text-muted-foreground hover:text-primary transition-colors block">Noticias</Link>
             </div>
         </div>
