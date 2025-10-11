@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
+import { useRouter } from 'next/navigation';
 import { getN8NTemplates, N8NTemplate } from "@/services/n8n-templates";
 import { Loader2, Copy, Check, BookOpen } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
@@ -14,8 +15,21 @@ export default function N8NPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [copiedTemplateId, setCopiedTemplateId] = useState<string | null>(null);
   const { toast } = useToast();
+  const router = useRouter();
 
   useEffect(() => {
+    try {
+        const isAuth = localStorage.getItem('n8n-auth') === 'true';
+        if (!isAuth) {
+            router.replace('/n8n/login');
+            return;
+        }
+    } catch (error) {
+        console.error("Acceso a localStorage bloqueado, redirigiendo al login", error);
+        router.replace('/n8n/login');
+        return;
+    }
+
     const fetchTemplates = async () => {
       try {
         const templatesFromDb = await getN8NTemplates();
@@ -27,7 +41,7 @@ export default function N8NPage() {
       }
     };
     fetchTemplates();
-  }, []);
+  }, [router]);
 
   const handleCopy = (jsonContent: string, templateId: string) => {
     navigator.clipboard.writeText(jsonContent);
@@ -38,6 +52,16 @@ export default function N8NPage() {
     setCopiedTemplateId(templateId);
     setTimeout(() => setCopiedTemplateId(null), 2000); // Reset icon after 2 seconds
   };
+  
+  if (isLoading) {
+    return (
+      <main className="w-full container mx-auto px-4 py-20 md:py-32 flex-grow">
+        <div className="flex justify-center items-center h-64">
+            <Loader2 className="h-12 w-12 animate-spin text-primary" />
+        </div>
+      </main>
+    );
+  }
 
   return (
     <main className="w-full container mx-auto px-4 py-20 md:py-32 flex-grow">
@@ -48,11 +72,7 @@ export default function N8NPage() {
         </p>
       </div>
 
-      {isLoading ? (
-        <div className="flex justify-center items-center h-64">
-          <Loader2 className="h-12 w-12 animate-spin text-primary" />
-        </div>
-      ) : templates.length === 0 ? (
+      {templates.length === 0 ? (
         <p className="text-center text-muted-foreground text-lg py-16">
           Aún no hay plantillas para mostrar. ¡Añade una desde el CORE!
         </p>
@@ -95,3 +115,4 @@ export default function N8NPage() {
     </main>
   );
 }
+

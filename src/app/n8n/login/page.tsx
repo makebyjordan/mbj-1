@@ -2,7 +2,7 @@
 "use client";
 
 import { useState } from 'react';
-import { redirect } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -14,18 +14,31 @@ export default function N8NLoginPage() {
   const [code, setCode] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const { toast } = useToast();
+  const router = useRouter();
 
   const handleLogin = (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
     setTimeout(() => {
-      if (code === '1234') {
+      if (code === '111111') {
         toast({
           title: 'Acceso Concedido',
           description: 'Bienvenido a las plantillas N8N.',
         });
-        redirect('/n8n');
+        // Set a session cookie or a flag in local storage
+        try {
+          localStorage.setItem('n8n-auth', 'true');
+          router.push('/n8n');
+        } catch (error) {
+           console.error("No se pudo guardar en localStorage", error);
+           toast({
+              variant: 'destructive',
+              title: 'Error del Navegador',
+              description: 'No se pudo guardar la sesión. Habilita las cookies y el almacenamiento local.',
+            });
+           setIsLoading(false);
+        }
       } else {
         toast({
           variant: 'destructive',
