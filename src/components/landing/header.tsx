@@ -119,13 +119,14 @@ export default function Header() {
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent>
                        <DropdownMenuItem asChild><Link href="/#formation">Certificaciones</Link></DropdownMenuItem>
-                       <DropdownMenuItem asChild><Link href="/aprende">Aprende</Link></DropdownMenuItem>
+                       <DropdownMenuItem asChild><Link href="/aprende">Cursos</Link></DropdownMenuItem>
                        <Separator />
                        {formationTags.map(tag => (
                          <DropdownMenuItem key={tag} asChild>
                            <Link href={`/aprende/${encodeURIComponent(tag)}`}>{tag.replace(/-/g, ' ')}</Link>
                          </DropdownMenuItem>
                        ))}
+                       <DropdownMenuItem asChild><Link href="/aprende">Aprende</Link></DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
@@ -143,7 +144,7 @@ export default function Header() {
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
                 <DropdownMenuItem asChild><Link href="/n8n/login">Plantillas N8N</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild><Link href="/htmls">HTMLs</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/htmls">Didácticos</Link></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             </nav>
