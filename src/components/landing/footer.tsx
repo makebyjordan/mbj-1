@@ -60,7 +60,7 @@ export default function Footer() {
             <Link href="/aprende" className="text-muted-foreground hover:text-primary transition-colors">Cursos</Link>
             <Link href="/aprende" className="text-muted-foreground hover:text-primary transition-colors">Aprende</Link>
             <Link href="/n8n/login" className="text-muted-foreground hover:text-primary transition-colors">Plantillas N8N</Link>
-            <Link href="/htmls" className="text-muted-foreground hover:text-primary transition-colors">HTMLs</Link>
+            <Link href="/htmls" className="text-muted-foreground hover:text-primary transition-colors">Didácticos</Link>
           </div>
         </div>
         
