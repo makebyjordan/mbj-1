@@ -119,7 +119,7 @@ export default function Header() {
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent>
                        <DropdownMenuItem asChild><Link href="/#formation">Certificaciones</Link></DropdownMenuItem>
-                        <DropdownMenuItem asChild><Link href="/blog">Aprende</Link></DropdownMenuItem>
+                        <DropdownMenuItem asChild><Link href="/blog">Cursos</Link></DropdownMenuItem>
                        <Separator />
                        {formationTags.map(tag => (
                          <DropdownMenuItem key={tag} asChild>
