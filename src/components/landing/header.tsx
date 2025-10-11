@@ -143,6 +143,7 @@ export default function Header() {
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
                 <DropdownMenuItem asChild><Link href="/n8n/login">Plantillas N8N</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild><Link href="/htmls">HTMLs</Link></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             </nav>

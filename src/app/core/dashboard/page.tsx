@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil, Code } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -42,6 +42,7 @@ import { getPrompts, deletePrompt, Prompt } from '@/services/prompts';
 import { getDesigns, deleteDesign, Design } from '@/services/designs';
 import { getN8NTemplates, deleteN8NTemplate, N8NTemplate } from '@/services/n8n-templates';
 import { getAprendePages, deleteAprendePage, duplicateAprendePage, AprendePageData } from '@/services/aprende-pages';
+import { getHtmls, deleteHtml, HtmlPage } from '@/services/htmls';
 
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
@@ -57,6 +58,7 @@ import AboutForm from '@/components/core/AboutForm';
 import DesignForm from '@/components/core/DesignForm';
 import N8NTemplateForm from '@/components/core/N8NTemplateForm';
 import AprendePageForm from '@/components/core/AprendePageForm';
+import HtmlForm from '@/components/core/HtmlForm';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { onSnapshot, collection, query, orderBy, Timestamp } from 'firebase/firestore';
@@ -74,6 +76,7 @@ export default function CoreDashboardPage() {
   const [designs, setDesigns] = useState<Design[]>([]);
   const [n8nTemplates, setN8nTemplates] = useState<N8NTemplate[]>([]);
   const [aprendePages, setAprendePages] = useState<AprendePageData[]>([]);
+  const [htmls, setHtmls] = useState<HtmlPage[]>([]);
   
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
@@ -86,6 +89,7 @@ export default function CoreDashboardPage() {
   const [isLoadingDesigns, setIsLoadingDesigns] = useState(true);
   const [isLoadingN8nTemplates, setIsLoadingN8nTemplates] = useState(true);
   const [isLoadingAprendePages, setIsLoadingAprendePages] = useState(true);
+  const [isLoadingHtmls, setIsLoadingHtmls] = useState(true);
 
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
@@ -98,6 +102,7 @@ export default function CoreDashboardPage() {
   const [isDesignDialogOpen, setIsDesignDialogOpen] = useState(false);
   const [isN8nTemplateDialogOpen, setIsN8nTemplateDialogOpen] = useState(false);
   const [isAprendePageFormOpen, setIsAprendePageFormOpen] = useState(false);
+  const [isHtmlDialogOpen, setIsHtmlDialogOpen] = useState(false);
 
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -110,6 +115,7 @@ export default function CoreDashboardPage() {
   const [editingDesign, setEditingDesign] = useState<Design | null>(null);
   const [editingN8nTemplate, setEditingN8nTemplate] = useState<N8NTemplate | null>(null);
   const [editingAprendePage, setEditingAprendePage] = useState<AprendePageData | null>(null);
+  const [editingHtml, setEditingHtml] = useState<HtmlPage | null>(null);
   const [deletingAprendePage, setDeletingAprendePage] = useState<AprendePageData | null>(null);
   const { toast } = useToast();
 
@@ -243,6 +249,19 @@ export default function CoreDashboardPage() {
     }
   }
 
+  const fetchHtmls = async () => {
+    setIsLoadingHtmls(true);
+    try {
+        const htmlsFromDb = await getHtmls();
+        setHtmls(htmlsFromDb);
+    } catch (error) {
+        console.error("Error fetching HTML pages:", error);
+        toast({ variant: "destructive", title: "Error al cargar páginas HTML", description: "No se pudieron cargar las páginas." });
+    } finally {
+        setIsLoadingHtmls(false);
+    }
+  }
+
   useEffect(() => {
     fetchProjects();
     fetchServices();
@@ -254,6 +273,7 @@ export default function CoreDashboardPage() {
     fetchPrompts();
     fetchDesigns();
     fetchN8nTemplates();
+    fetchHtmls();
 
     const q = query(collection(db, "aprendePages"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, 
@@ -292,6 +312,7 @@ export default function CoreDashboardPage() {
   const handleHeroSaved = () => { toast({ title: "Hero Actualizado", description: "La sección principal se ha guardado correctamente." }); }
   const handleAboutSaved = () => { toast({ title: "Sección 'Sobre Mí' Actualizada", description: "La sección se ha guardado correctamente." }); }
   const handleAprendePageSaved = () => { setIsAprendePageFormOpen(false); setEditingAprendePage(null); /* Real-time updates handle refresh */ }
+  const handleHtmlSaved = () => { setIsHtmlDialogOpen(false); setEditingHtml(null); fetchHtmls(); toast({ title: "Página HTML guardada", description: "Tu página se ha guardado correctamente." }); }
 
   const handleEditProject = (project: Project) => { setEditingProject(project); setIsProjectDialogOpen(true); }
   const handleAddNewProject = () => { setEditingProject(null); setIsProjectDialogOpen(true); }
@@ -313,6 +334,8 @@ export default function CoreDashboardPage() {
   const handleAddNewDesign = () => { setEditingDesign(null); setIsDesignDialogOpen(true); }
   const handleEditN8nTemplate = (template: N8NTemplate) => { setEditingN8nTemplate(template); setIsN8nTemplateDialogOpen(true); }
   const handleAddNewN8nTemplate = () => { setEditingN8nTemplate(null); setIsN8nTemplateDialogOpen(true); }
+  const handleEditHtml = (htmlPage: HtmlPage) => { setEditingHtml(htmlPage); setIsHtmlDialogOpen(true); }
+  const handleAddNewHtml = () => { setEditingHtml(null); setIsHtmlDialogOpen(true); }
   const handleEditAprendePage = (page: AprendePageData) => { setEditingAprendePage(page); setIsAprendePageFormOpen(true); }
   const handleAddNewAprendePage = () => { setEditingAprendePage(null); setIsAprendePageFormOpen(true); }
   
@@ -326,6 +349,7 @@ export default function CoreDashboardPage() {
   const handleDeletePrompt = async (promptId: string) => { try { await deletePrompt(promptId); fetchPrompts(); toast({ title: "Prompt eliminado", description: "El prompt se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting prompt:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el prompt." }); } };
   const handleDeleteDesign = async (designId: string) => { try { await deleteDesign(designId); fetchDesigns(); toast({ title: "Diseño eliminado", description: "El diseño se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting design:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el diseño." }); } };
   const handleDeleteN8nTemplate = async (templateId: string) => { try { await deleteN8NTemplate(templateId); fetchN8nTemplates(); toast({ title: "Plantilla N8N eliminada", description: "La plantilla se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting N8N template:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la plantilla." }); } };
+  const handleDeleteHtml = async (htmlId: string) => { try { await deleteHtml(htmlId); fetchHtmls(); toast({ title: "Página HTML eliminada", description: "La página se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting HTML page:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la página HTML." }); } };
 
   const handleConfirmDeleteAprendePage = async () => {
     if (!deletingAprendePage) return;
@@ -356,6 +380,17 @@ export default function CoreDashboardPage() {
           onFormSubmit={handleAprendePageSaved}
           pageData={editingAprendePage}
         />
+        <Dialog open={isHtmlDialogOpen} onOpenChange={(isOpen) => { setIsHtmlDialogOpen(isOpen); if (!isOpen) setEditingHtml(null); }}>
+            <DialogContent className="sm:max-w-[625px] glass-card">
+                <DialogHeader>
+                <DialogTitle>{editingHtml ? 'Editar Página HTML' : 'Crear Página HTML'}</DialogTitle>
+                <DialogDescription className="sr-only">
+                    {editingHtml ? 'Edita los detalles de tu página aquí.' : 'Crea una nueva página HTML.'}
+                </DialogDescription>
+                </DialogHeader>
+                <HtmlForm htmlPage={editingHtml} onSave={handleHtmlSaved} />
+            </DialogContent>
+        </Dialog>
          <AlertDialog open={!!deletingAprendePage} onOpenChange={(isOpen) => !isOpen && setDeletingAprendePage(null)}>
             <AlertDialogContent>
               <AlertDialogHeader>
@@ -370,7 +405,7 @@ export default function CoreDashboardPage() {
         </AlertDialog>
 
         <Tabs defaultValue="pagina" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-10 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-5 lg:grid-cols-11 h-auto">
             <TabsTrigger value="pagina">Página Principal</TabsTrigger>
             <TabsTrigger value="servicios">Servicios</TabsTrigger>
             <TabsTrigger value="proyectos">Proyectos/Blog</TabsTrigger>
@@ -381,6 +416,7 @@ export default function CoreDashboardPage() {
             <TabsTrigger value="galeria">Galería</TabsTrigger>
             <TabsTrigger value="disenos">Diseños</TabsTrigger>
             <TabsTrigger value="n8n">N8N</TabsTrigger>
+            <TabsTrigger value="htmls">HTMLs</TabsTrigger>
           </TabsList>
           
           <TabsContent value="pagina" className="mt-6">
@@ -1204,6 +1240,68 @@ export default function CoreDashboardPage() {
                         <TableRow>
                           <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
                             Aún no has añadido ninguna plantilla N8N.
+                          </TableCell>
+                        </TableRow>
+                      )}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="htmls" className="mt-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle className="font-headline text-3xl">Páginas HTML</CardTitle>
+                <Dialog open={isHtmlDialogOpen} onOpenChange={(isOpen) => { setIsHtmlDialogOpen(isOpen); if (!isOpen) setEditingHtml(null); }}>
+                  <DialogTrigger asChild>
+                    <Button onClick={handleAddNewHtml}>
+                      <PlusCircle className="mr-2 h-4 w-4" />
+                      Añadir Página HTML
+                    </Button>
+                  </DialogTrigger>
+                </Dialog>
+              </CardHeader>
+              <CardContent>
+                {isLoadingHtmls ? (
+                  <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                ) : (
+                  <Table>
+                    <TableHeader>
+                      <TableRow>
+                        <TableHead>Título</TableHead>
+                        <TableHead className="text-right">Acciones</TableHead>
+                      </TableRow>
+                    </TableHeader>
+                    <TableBody>
+                      {htmls.length > 0 ? htmls.map((htmlPage) => (
+                        <TableRow key={htmlPage.id}>
+                          <TableCell className="font-medium">{htmlPage.title}</TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => window.open(`/htmls/${htmlPage.id}`, '_blank')}><Eye className="h-4 w-4" /></Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleEditHtml(htmlPage)}><Edit className="h-4 w-4" /></Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                  <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente la página HTML.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteHtml(htmlPage.id!)}>Eliminar</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      )) : (
+                        <TableRow>
+                          <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
+                            Aún no has añadido ninguna página HTML.
                           </TableCell>
                         </TableRow>
                       )}
