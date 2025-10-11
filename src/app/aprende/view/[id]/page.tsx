@@ -77,6 +77,31 @@ const FeatureSection = ({ pageData }: { pageData: AprendePageData }) => (
     </section>
 );
 
+const StepsSection = ({ pageData }: { pageData: AprendePageData }) => (
+  <section className="py-20 md:py-32 w-full space-y-16">
+    {pageData.stepsSectionItems?.map((step, index) => (
+      <div key={index} className="flex flex-col gap-8 items-center">
+        {step.imageUrl && (
+          <div className="w-full relative h-[50vh] rounded-lg overflow-hidden shadow-lg">
+            <Image
+              src={step.imageUrl}
+              alt={step.title || `Paso ${index + 1}`}
+              fill
+              className="object-cover"
+            />
+          </div>
+        )}
+        <div className="max-w-3xl text-center">
+          <h3 className="section-title text-3xl">{step.title}</h3>
+          <p className="mt-4 text-lg text-muted-foreground">
+            {step.description}
+          </p>
+        </div>
+      </div>
+    ))}
+  </section>
+);
+
 const IconListSection = ({ pageData }: { pageData: AprendePageData }) => (
     <section className="py-20 md:py-32 w-full">
         <div className="max-w-4xl mx-auto">
@@ -307,6 +332,7 @@ export default function AprendeViewPage() {
         <div className="container mx-auto px-4">
             {pageData.htmlText && <div className="prose prose-invert max-w-none py-16" dangerouslySetInnerHTML={{ __html: pageData.htmlText }} />}
             {pageData.featureSectionEnabled && <FeatureSection pageData={pageData} />}
+            {pageData.stepsSectionEnabled && <StepsSection pageData={pageData} />}
             {pageData.iconListSectionEnabled && <IconListSection pageData={pageData} />}
             {pageData.mediaGridSectionEnabled && <MediaGridSection pageData={pageData} />}
             {pageData.pricingSectionEnabled && <PricingSection pageData={pageData} />}

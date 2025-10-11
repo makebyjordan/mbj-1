@@ -9,6 +9,12 @@ export interface FeatureCard {
   description?: string;
 }
 
+export interface StepItem {
+  title?: string;
+  description?: string;
+  imageUrl?: string;
+}
+
 export interface IconListItem {
   icon?: string;
   title?: string;
@@ -64,6 +70,8 @@ export interface AprendePageData {
   featureSectionCtaText?: string;
   featureSectionCtaUrl?: string;
   featureSectionCards?: FeatureCard[];
+  stepsSectionEnabled?: boolean;
+  stepsSectionItems?: StepItem[];
   iconListSectionEnabled?: boolean;
   iconListSectionDescription?: string;
   iconListSectionItems?: IconListItem[];

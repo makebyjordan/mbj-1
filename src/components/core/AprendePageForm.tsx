@@ -1,4 +1,3 @@
-
 "use client";
 
 import { useForm, useFieldArray } from "react-hook-form";
@@ -36,6 +35,12 @@ const featureCardSchema = z.object({
   icon: z.string().optional(),
   title: z.string().optional(),
   description: z.string().optional(),
+});
+
+const stepItemSchema = z.object({
+  title: z.string().optional(),
+  description: z.string().optional(),
+  imageUrl: z.string().optional(),
 });
 
 const iconListItemSchema = z.object({
@@ -91,6 +96,8 @@ const formSchema = z.object({
   featureSectionCtaText: z.string().optional(),
   featureSectionCtaUrl: z.string().optional(),
   featureSectionCards: z.array(featureCardSchema).optional(),
+  stepsSectionEnabled: z.boolean().default(false),
+  stepsSectionItems: z.array(stepItemSchema).optional(),
   iconListSectionEnabled: z.boolean().default(false),
   iconListSectionDescription: z.string().optional(),
   iconListSectionItems: z.array(iconListItemSchema).optional(),
@@ -159,6 +166,8 @@ export default function AprendePageForm({ isOpen, setIsOpen, onFormSubmit, pageD
       featureSectionCtaText: "",
       featureSectionCtaUrl: "",
       featureSectionCards: [],
+      stepsSectionEnabled: false,
+      stepsSectionItems: [],
       iconListSectionEnabled: false,
       iconListSectionDescription: "",
       iconListSectionItems: [],
@@ -199,6 +208,7 @@ export default function AprendePageForm({ isOpen, setIsOpen, onFormSubmit, pageD
   
   const heroEnabled = form.watch("heroEnabled");
   const featureSectionEnabled = form.watch("featureSectionEnabled");
+  const stepsSectionEnabled = form.watch("stepsSectionEnabled");
   const iconListSectionEnabled = form.watch("iconListSectionEnabled");
   const mediaGridSectionEnabled = form.watch("mediaGridSectionEnabled");
   const pricingSectionEnabled = form.watch("pricingSectionEnabled");
@@ -210,6 +220,7 @@ export default function AprendePageForm({ isOpen, setIsOpen, onFormSubmit, pageD
   const ctaSectionEnabled = form.watch("ctaSectionEnabled");
 
   const { fields: featureFields, append: appendFeature, remove: removeFeature } = useFieldArray({ control: form.control, name: "featureSectionCards", });
+  const { fields: stepsFields, append: appendStep, remove: removeStep } = useFieldArray({ control: form.control, name: "stepsSectionItems", });
   const { fields: iconListFields, append: appendIconList, remove: removeIconList } = useFieldArray({ control: form.control, name: "iconListSectionItems", });
   const { fields: mediaGridFields, append: appendMediaGrid, remove: removeMediaGrid } = useFieldArray({ control: form.control, name: "mediaGridSectionCards", });
   const { fields: pricingFields, append: appendPricing, remove: removePricing } = useFieldArray({ control: form.control, name: "pricingSectionCards", });
@@ -390,6 +401,37 @@ export default function AprendePageForm({ isOpen, setIsOpen, onFormSubmit, pageD
                 </div>
             )}
              <Separator />
+            
+             <FormField
+                control={form.control}
+                name="stepsSectionEnabled"
+                render={({ field }) => (
+                    <FormItem className="flex flex-row items-center justify-between rounded-lg border p-3 shadow-sm">
+                    <div className="space-y-0.5">
+                        <FormLabel>Activar Sección de Pasos</FormLabel>
+                        <FormDescription>Añade una guía paso a paso con imágenes.</FormDescription>
+                    </div>
+                    <FormControl><Switch checked={field.value} onCheckedChange={field.onChange} /></FormControl>
+                    </FormItem>
+                )}
+             />
+
+            {stepsSectionEnabled && (
+                <div className="space-y-4 p-4 border rounded-md">
+                    <h3 className="text-lg font-medium mb-2">Pasos</h3>
+                    {stepsFields.map((field, index) => (
+                    <div key={field.id} className="p-4 border rounded-lg relative space-y-4 mb-4">
+                        <Button type="button" variant="destructive" size="icon" className="absolute -top-3 -right-3 h-7 w-7" onClick={() => removeStep(index)}><Trash2 className="h-4 w-4" /></Button>
+                        <FormField control={form.control} name={`stepsSectionItems.${index}.title`} render={({ field }) => ( <FormItem><FormLabel>Título del Paso</FormLabel><FormControl><Input placeholder="Título del paso" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={form.control} name={`stepsSectionItems.${index}.description`} render={({ field }) => ( <FormItem><FormLabel>Descripción del Paso</FormLabel><FormControl><Textarea rows={3} placeholder="Descripción detallada del paso" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                        <FormField control={form.control} name={`stepsSectionItems.${index}.imageUrl`} render={({ field }) => ( <FormItem><FormLabel>URL de Imagen del Paso</FormLabel><FormControl><Input placeholder="https://ejemplo.com/imagen_paso.jpg" {...field} /></FormControl><FormMessage /></FormItem> )} />
+                    </div>
+                    ))}
+                    <Button type="button" variant="outline" className="mt-2" onClick={() => appendStep({ title: "", description: "", imageUrl: "" })}><PlusCircle className="mr-2 h-4 w-4" />Añadir Paso</Button>
+                </div>
+            )}
+
+            <Separator />
 
             <FormField
               control={form.control}
