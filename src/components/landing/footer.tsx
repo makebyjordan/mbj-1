@@ -59,7 +59,8 @@ export default function Footer() {
             <Link href="/#formation" className="text-muted-foreground hover:text-primary transition-colors">Certificaciones</Link>
             <Link href="/aprende" className="text-muted-foreground hover:text-primary transition-colors">Cursos</Link>
             <Link href="/aprende" className="text-muted-foreground hover:text-primary transition-colors">Aprende</Link>
-            <Link href="/n8n/login" className="text-muted-foreground hover:text-primary transition-colors">Plantillas N8N</Link>
+            <Link href="/n8n" className="text-muted-foreground hover:text-primary transition-colors">Plantillas N8N</Link>
+            <Link href="/n8n/servers" className="text-muted-foreground hover:text-primary transition-colors">Servidores N8N</Link>
             <Link href="/htmls" className="text-muted-foreground hover:text-primary transition-colors">Didácticos</Link>
           </div>
         </div>

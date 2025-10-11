@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil, Code } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil, Code, Server } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -41,6 +41,7 @@ import { getBlogCategories, deleteBlogCategory, BlogCategory } from '@/services/
 import { getPrompts, deletePrompt, Prompt } from '@/services/prompts';
 import { getDesigns, deleteDesign, Design } from '@/services/designs';
 import { getN8NTemplates, deleteN8NTemplate, N8NTemplate } from '@/services/n8n-templates';
+import { getN8NServers, deleteN8NServer, N8NServer } from '@/services/n8n-servers';
 import { getAprendePages, deleteAprendePage, duplicateAprendePage, AprendePageData } from '@/services/aprende-pages';
 import { getHtmls, deleteHtml, HtmlPage } from '@/services/htmls';
 
@@ -57,6 +58,7 @@ import HeroForm from '@/components/core/HeroForm';
 import AboutForm from '@/components/core/AboutForm';
 import DesignForm from '@/components/core/DesignForm';
 import N8NTemplateForm from '@/components/core/N8NTemplateForm';
+import N8NServerForm from '@/components/core/N8NServerForm';
 import AprendePageForm from '@/components/core/AprendePageForm';
 import HtmlForm from '@/components/core/HtmlForm';
 import { Badge } from '@/components/ui/badge';
@@ -75,6 +77,7 @@ export default function CoreDashboardPage() {
   const [prompts, setPrompts] = useState<Prompt[]>([]);
   const [designs, setDesigns] = useState<Design[]>([]);
   const [n8nTemplates, setN8nTemplates] = useState<N8NTemplate[]>([]);
+  const [n8nServers, setN8nServers] = useState<N8NServer[]>([]);
   const [aprendePages, setAprendePages] = useState<AprendePageData[]>([]);
   const [htmls, setHtmls] = useState<HtmlPage[]>([]);
   
@@ -88,6 +91,7 @@ export default function CoreDashboardPage() {
   const [isLoadingPrompts, setIsLoadingPrompts] = useState(true);
   const [isLoadingDesigns, setIsLoadingDesigns] = useState(true);
   const [isLoadingN8nTemplates, setIsLoadingN8nTemplates] = useState(true);
+  const [isLoadingN8nServers, setIsLoadingN8nServers] = useState(true);
   const [isLoadingAprendePages, setIsLoadingAprendePages] = useState(true);
   const [isLoadingHtmls, setIsLoadingHtmls] = useState(true);
 
@@ -101,6 +105,7 @@ export default function CoreDashboardPage() {
   const [isPromptDialogOpen, setIsPromptDialogOpen] = useState(false);
   const [isDesignDialogOpen, setIsDesignDialogOpen] = useState(false);
   const [isN8nTemplateDialogOpen, setIsN8nTemplateDialogOpen] = useState(false);
+  const [isN8nServerDialogOpen, setIsN8nServerDialogOpen] = useState(false);
   const [isAprendePageFormOpen, setIsAprendePageFormOpen] = useState(false);
   const [isHtmlDialogOpen, setIsHtmlDialogOpen] = useState(false);
 
@@ -114,6 +119,7 @@ export default function CoreDashboardPage() {
   const [editingPrompt, setEditingPrompt] = useState<Prompt | null>(null);
   const [editingDesign, setEditingDesign] = useState<Design | null>(null);
   const [editingN8nTemplate, setEditingN8nTemplate] = useState<N8NTemplate | null>(null);
+  const [editingN8nServer, setEditingN8nServer] = useState<N8NServer | null>(null);
   const [editingAprendePage, setEditingAprendePage] = useState<AprendePageData | null>(null);
   const [editingHtml, setEditingHtml] = useState<HtmlPage | null>(null);
   const [deletingAprendePage, setDeletingAprendePage] = useState<AprendePageData | null>(null);
@@ -249,6 +255,19 @@ export default function CoreDashboardPage() {
     }
   }
 
+  const fetchN8nServers = async () => {
+    setIsLoadingN8nServers(true);
+    try {
+        const serversFromDb = await getN8NServers();
+        setN8nServers(serversFromDb);
+    } catch (error) {
+        console.error("Error fetching N8N servers:", error);
+        toast({ variant: "destructive", title: "Error al cargar servidores N8N", description: "No se pudieron cargar los servidores N8N." });
+    } finally {
+        setIsLoadingN8nServers(false);
+    }
+  }
+
   const fetchHtmls = async () => {
     setIsLoadingHtmls(true);
     try {
@@ -273,6 +292,7 @@ export default function CoreDashboardPage() {
     fetchPrompts();
     fetchDesigns();
     fetchN8nTemplates();
+    fetchN8nServers();
     fetchHtmls();
 
     const q = query(collection(db, "aprendePages"), orderBy("createdAt", "desc"));
@@ -309,6 +329,7 @@ export default function CoreDashboardPage() {
   const handlePromptSaved = () => { setIsPromptDialogOpen(false); setEditingPrompt(null); fetchPrompts(); toast({ title: "Prompt guardado", description: "Tu prompt se ha guardado correctamente." }); }
   const handleDesignSaved = () => { setIsDesignDialogOpen(false); setEditingDesign(null); fetchDesigns(); toast({ title: "Diseño guardado", description: "Tu diseño se ha guardado correctamente." }); }
   const handleN8nTemplateSaved = () => { setIsN8nTemplateDialogOpen(false); setEditingN8nTemplate(null); fetchN8nTemplates(); toast({ title: "Plantilla N8N guardada", description: "Tu plantilla se ha guardado correctamente." }); }
+  const handleN8nServerSaved = () => { setIsN8nServerDialogOpen(false); setEditingN8nServer(null); fetchN8nServers(); toast({ title: "Servidor N8N guardado", description: "Tu servidor se ha guardado correctamente." }); }
   const handleHeroSaved = () => { toast({ title: "Hero Actualizado", description: "La sección principal se ha guardado correctamente." }); }
   const handleAboutSaved = () => { toast({ title: "Sección 'Sobre Mí' Actualizada", description: "La sección se ha guardado correctamente." }); }
   const handleAprendePageSaved = () => { setIsAprendePageFormOpen(false); setEditingAprendePage(null); /* Real-time updates handle refresh */ }
@@ -334,6 +355,8 @@ export default function CoreDashboardPage() {
   const handleAddNewDesign = () => { setEditingDesign(null); setIsDesignDialogOpen(true); }
   const handleEditN8nTemplate = (template: N8NTemplate) => { setEditingN8nTemplate(template); setIsN8nTemplateDialogOpen(true); }
   const handleAddNewN8nTemplate = () => { setEditingN8nTemplate(null); setIsN8nTemplateDialogOpen(true); }
+  const handleEditN8nServer = (server: N8NServer) => { setEditingN8nServer(server); setIsN8nServerDialogOpen(true); }
+  const handleAddNewN8nServer = () => { setEditingN8nServer(null); setIsN8nServerDialogOpen(true); }
   const handleEditHtml = (htmlPage: HtmlPage) => { setEditingHtml(htmlPage); setIsHtmlDialogOpen(true); }
   const handleAddNewHtml = () => { setEditingHtml(null); setIsHtmlDialogOpen(true); }
   const handleEditAprendePage = (page: AprendePageData) => { setEditingAprendePage(page); setIsAprendePageFormOpen(true); }
@@ -349,6 +372,7 @@ export default function CoreDashboardPage() {
   const handleDeletePrompt = async (promptId: string) => { try { await deletePrompt(promptId); fetchPrompts(); toast({ title: "Prompt eliminado", description: "El prompt se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting prompt:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el prompt." }); } };
   const handleDeleteDesign = async (designId: string) => { try { await deleteDesign(designId); fetchDesigns(); toast({ title: "Diseño eliminado", description: "El diseño se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting design:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el diseño." }); } };
   const handleDeleteN8nTemplate = async (templateId: string) => { try { await deleteN8NTemplate(templateId); fetchN8nTemplates(); toast({ title: "Plantilla N8N eliminada", description: "La plantilla se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting N8N template:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la plantilla." }); } };
+  const handleDeleteN8nServer = async (serverId: string) => { try { await deleteN8NServer(serverId); fetchN8nServers(); toast({ title: "Servidor N8N eliminado", description: "El servidor se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting N8N server:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar el servidor." }); } };
   const handleDeleteHtml = async (htmlId: string) => { try { await deleteHtml(htmlId); fetchHtmls(); toast({ title: "Página HTML eliminada", description: "La página se ha eliminado correctamente." }); } catch (error) { console.error("Error deleting HTML page:", error); toast({ variant: "destructive", title: "Error al eliminar", description: "No se pudo eliminar la página HTML." }); } };
 
   const handleConfirmDeleteAprendePage = async () => {
@@ -1181,73 +1205,139 @@ export default function CoreDashboardPage() {
           </TabsContent>
 
           <TabsContent value="n8n" className="mt-6">
-            <Card>
-              <CardHeader className="flex flex-row items-center justify-between">
-                <CardTitle className="font-headline text-3xl">Plantillas N8N</CardTitle>
-                <Dialog open={isN8nTemplateDialogOpen} onOpenChange={(isOpen) => { setIsN8nTemplateDialogOpen(isOpen); if (!isOpen) setEditingN8nTemplate(null); }}>
-                  <DialogTrigger asChild>
-                    <Button onClick={handleAddNewN8nTemplate}>
-                      <PlusCircle className="mr-2 h-4 w-4" />
-                      Añadir Plantilla
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto">
-                    <DialogHeader>
-                      <DialogTitle>{editingN8nTemplate ? 'Editar Plantilla' : 'Crear Nueva Plantilla'}</DialogTitle>
-                      <DialogDescription className="sr-only">
-                        {editingN8nTemplate ? 'Edita los detalles de tu plantilla aquí.' : 'Añade una nueva plantilla N8N a tu colección.'}
-                      </DialogDescription>
-                    </DialogHeader>
-                    <N8NTemplateForm template={editingN8nTemplate} onSave={handleN8nTemplateSaved} />
-                  </DialogContent>
-                </Dialog>
-              </CardHeader>
-              <CardContent>
-                {isLoadingN8nTemplates ? (
-                  <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
-                ) : (
-                  <Table>
-                    <TableHeader>
-                      <TableRow>
-                        <TableHead>Título</TableHead>
-                        <TableHead className="text-right">Acciones</TableHead>
-                      </TableRow>
-                    </TableHeader>
-                    <TableBody>
-                      {n8nTemplates.length > 0 ? n8nTemplates.map((template) => (
-                        <TableRow key={template.id}>
-                          <TableCell className="font-medium">{template.title}</TableCell>
-                          <TableCell className="text-right">
-                            <Button variant="ghost" size="icon" onClick={() => handleEditN8nTemplate(template)}><Edit className="h-4 w-4" /></Button>
-                            <AlertDialog>
-                              <AlertDialogTrigger asChild>
-                                <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
-                              </AlertDialogTrigger>
-                              <AlertDialogContent>
-                                <AlertDialogHeader>
-                                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
-                                  <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente la plantilla.</AlertDialogDescription>
-                                </AlertDialogHeader>
-                                <AlertDialogFooter>
-                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
-                                  <AlertDialogAction onClick={() => handleDeleteN8nTemplate(template.id!)}>Eliminar</AlertDialogAction>
-                                </AlertDialogFooter>
-                              </AlertDialogContent>
-                            </AlertDialog>
-                          </TableCell>
-                        </TableRow>
-                      )) : (
-                        <TableRow>
-                          <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
-                            Aún no has añadido ninguna plantilla N8N.
-                          </TableCell>
-                        </TableRow>
+             <Tabs defaultValue="manage-templates">
+                <TabsList className="mb-4">
+                    <TabsTrigger value="manage-templates">Plantillas</TabsTrigger>
+                    <TabsTrigger value="manage-servers">Servidores</TabsTrigger>
+                </TabsList>
+                <TabsContent value="manage-templates">
+                  <Card>
+                    <CardHeader className="flex flex-row items-center justify-between">
+                      <CardTitle className="font-headline text-3xl">Plantillas N8N</CardTitle>
+                      <Dialog open={isN8nTemplateDialogOpen} onOpenChange={(isOpen) => { setIsN8nTemplateDialogOpen(isOpen); if (!isOpen) setEditingN8nTemplate(null); }}>
+                        <DialogTrigger asChild>
+                          <Button onClick={handleAddNewN8nTemplate}>
+                            <PlusCircle className="mr-2 h-4 w-4" />
+                            Añadir Plantilla
+                          </Button>
+                        </DialogTrigger>
+                        <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto">
+                          <DialogHeader>
+                            <DialogTitle>{editingN8nTemplate ? 'Editar Plantilla' : 'Crear Nueva Plantilla'}</DialogTitle>
+                            <DialogDescription className="sr-only">
+                              {editingN8nTemplate ? 'Edita los detalles de tu plantilla aquí.' : 'Añade una nueva plantilla N8N a tu colección.'}
+                            </DialogDescription>
+                          </DialogHeader>
+                          <N8NTemplateForm template={editingN8nTemplate} onSave={handleN8nTemplateSaved} />
+                        </DialogContent>
+                      </Dialog>
+                    </CardHeader>
+                    <CardContent>
+                      {isLoadingN8nTemplates ? (
+                        <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                      ) : (
+                        <Table>
+                          <TableHeader>
+                            <TableRow>
+                              <TableHead>Título</TableHead>
+                              <TableHead className="text-right">Acciones</TableHead>
+                            </TableRow>
+                          </TableHeader>
+                          <TableBody>
+                            {n8nTemplates.length > 0 ? n8nTemplates.map((template) => (
+                              <TableRow key={template.id}>
+                                <TableCell className="font-medium">{template.title}</TableCell>
+                                <TableCell className="text-right">
+                                  <Button variant="ghost" size="icon" onClick={() => handleEditN8nTemplate(template)}><Edit className="h-4 w-4" /></Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild>
+                                      <Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button>
+                                    </AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader>
+                                        <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                        <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente la plantilla.</AlertDialogDescription>
+                                      </AlertDialogHeader>
+                                      <AlertDialogFooter>
+                                        <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                        <AlertDialogAction onClick={() => handleDeleteN8nTemplate(template.id!)}>Eliminar</AlertDialogAction>
+                                      </AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                                </TableCell>
+                              </TableRow>
+                            )) : (
+                              <TableRow>
+                                <TableCell colSpan={2} className="text-center text-muted-foreground py-8">
+                                  Aún no has añadido ninguna plantilla N8N.
+                                </TableCell>
+                              </TableRow>
+                            )}
+                          </TableBody>
+                        </Table>
                       )}
-                    </TableBody>
-                  </Table>
-                )}
-              </CardContent>
-            </Card>
+                    </CardContent>
+                  </Card>
+                </TabsContent>
+                <TabsContent value="manage-servers">
+                    <Card>
+                      <CardHeader className="flex flex-row items-center justify-between">
+                          <CardTitle>Servidores N8N</CardTitle>
+                          <Dialog open={isN8nServerDialogOpen} onOpenChange={(isOpen) => { setIsN8nServerDialogOpen(isOpen); if (!isOpen) setEditingN8nServer(null); }}>
+                              <DialogTrigger asChild><Button onClick={handleAddNewN8nServer}><PlusCircle className="mr-2 h-4 w-4" />Añadir Servidor</Button></DialogTrigger>
+                              <DialogContent className="sm:max-w-[625px] glass-card">
+                              <DialogHeader>
+                                  <DialogTitle>{editingN8nServer ? 'Editar Servidor' : 'Crear Nuevo Servidor'}</DialogTitle>
+                                  <DialogDescription className="sr-only">{editingN8nServer ? 'Edita los detalles del servidor aquí.' : 'Añade un nuevo servidor N8N.'}</DialogDescription>
+                              </DialogHeader>
+                              <N8NServerForm server={editingN8nServer} onSave={handleN8nServerSaved} />
+                              </DialogContent>
+                          </Dialog>
+                      </CardHeader>
+                      <CardContent>
+                        {isLoadingN8nServers ? (
+                          <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>
+                        ) : (
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-[50px]">Icono</TableHead>
+                                <TableHead>Título</TableHead>
+                                <TableHead>URL</TableHead>
+                                <TableHead className="text-right">Acciones</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {n8nServers.map((server) => (
+                                <TableRow key={server.id}>
+                                  <TableCell><Server className="h-5 w-5 text-primary" /></TableCell>
+                                  <TableCell className="font-medium">{server.title}</TableCell>
+                                  <TableCell className="text-muted-foreground truncate max-w-xs">{server.url}</TableCell>
+                                  <TableCell className="text-right">
+                                    <Button variant="ghost" size="icon" onClick={() => handleEditN8nServer(server)}><Edit className="h-4 w-4" /></Button>
+                                    <AlertDialog>
+                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                      <AlertDialogContent>
+                                        <AlertDialogHeader>
+                                          <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                          <AlertDialogDescription>Esta acción no se puede deshacer. Esto eliminará permanentemente el servidor.</AlertDialogDescription>
+                                        </AlertDialogHeader>
+                                        <AlertDialogFooter>
+                                          <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                          <AlertDialogAction onClick={() => handleDeleteN8nServer(server.id!)}>Eliminar</AlertDialogAction>
+                                        </AlertDialogFooter>
+                                      </AlertDialogContent>
+                                    </AlertDialog>
+                                  </TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        )}
+                      </CardContent>
+                  </Card>
+                </TabsContent>
+            </Tabs>
           </TabsContent>
 
           <TabsContent value="htmls" className="mt-6">
