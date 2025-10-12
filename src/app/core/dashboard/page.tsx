@@ -28,6 +28,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogDescription,
+  DialogFooter,
 } from "@/components/ui/dialog"
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from "@/components/ui/alert-dialog";
 import { useToast } from "@/hooks/use-toast";
@@ -136,6 +137,7 @@ export default function CoreDashboardPage() {
   const [editingProtocol, setEditingProtocol] = useState<Protocol | null>(null);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [deletingAprendePage, setDeletingAprendePage] = useState<AprendePageData | null>(null);
+  const [viewingProtocol, setViewingProtocol] = useState<Protocol | null>(null);
   const { toast } = useToast();
 
   const fetchProjects = async () => { setIsLoadingProjects(true); try { const data = await getProjects(); setProjects(data); } catch (error) { console.error("Error fetching projects:", error); toast({ variant: "destructive", title: "Error al cargar proyectos" }); } finally { setIsLoadingProjects(false); } };
@@ -258,6 +260,15 @@ export default function CoreDashboardPage() {
     }
   };
 
+  const handleViewProtocol = (protocol: Protocol) => {
+    setViewingProtocol(protocol);
+  };
+
+  const copyToClipboard = (text: string) => {
+    navigator.clipboard.writeText(text);
+    toast({ title: "Copiado", description: "El texto se ha copiado al portapapeles." });
+  };
+
 
   return (
     <main className="flex-1 w-full p-4 md:p-8 space-y-8">
@@ -274,6 +285,36 @@ export default function CoreDashboardPage() {
          <AlertDialog open={!!deletingAprendePage} onOpenChange={(isOpen) => !isOpen && setDeletingAprendePage(null)}>
             <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleConfirmDeleteAprendePage}>Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
         </AlertDialog>
+        <Dialog open={!!viewingProtocol} onOpenChange={(isOpen) => !isOpen && setViewingProtocol(null)}>
+            <DialogContent className="sm:max-w-2xl glass-card max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                    <DialogTitle className="font-headline text-2xl text-primary">{viewingProtocol?.title}</DialogTitle>
+                    <DialogDescription>Pasos del protocolo de actuación.</DialogDescription>
+                </DialogHeader>
+                <div className="prose prose-invert max-w-none">
+                    {viewingProtocol?.steps?.map((step, index) => (
+                        <div key={index} className="py-4 border-b border-primary/20 relative group">
+                            <h4 className="font-bold text-primary">Paso {index + 1}: {step.title}</h4>
+                            <p>{step.description}</p>
+                             {step.description && (
+                                <Button
+                                    variant="ghost"
+                                    size="icon"
+                                    className="absolute top-4 right-4 h-7 w-7 opacity-0 group-hover:opacity-100 transition-opacity"
+                                    onClick={() => copyToClipboard(step.description || '')}
+                                >
+                                    <Copy className="h-4 w-4" />
+                                </Button>
+                            )}
+                            {step.imageUrl && <img src={step.imageUrl} alt={`Paso ${index+1}`} className="mt-2 rounded-md max-w-full h-auto" />}
+                        </div>
+                    ))}
+                </div>
+                <DialogFooter>
+                    <Button variant="outline" onClick={() => setViewingProtocol(null)}>Cerrar</Button>
+                </DialogFooter>
+            </DialogContent>
+        </Dialog>
 
         <Tabs defaultValue="pagina" className="w-full">
           <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-13 h-auto">
@@ -352,6 +393,7 @@ export default function CoreDashboardPage() {
                              <div className="flex justify-between items-center w-full">
                                 <span className="font-headline text-xl">{protocol.title}</span>
                                 <div className="flex items-center gap-2">
+                                    <Button variant="ghost" size="icon" onClick={(e) => {e.stopPropagation(); handleViewProtocol(protocol);}}><Eye className="h-4 w-4" /></Button>
                                     <Button variant="ghost" size="icon" onClick={(e) => {e.stopPropagation(); handleEditProtocol(protocol)}}><Edit className="h-4 w-4" /></Button>
                                     <AlertDialog>
                                       <AlertDialogTrigger asChild><Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
