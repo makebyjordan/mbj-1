@@ -138,21 +138,23 @@ export default function ToolForm({ tool, onSave, onCategoryCreated, allCategorie
             <FormField control={form.control} name="categoryIds" render={({ field }) => (
                 <FormItem>
                     <FormLabel>Categorías de Uso</FormLabel>
-                    <CreatableSelect
-                        isMulti
-                        isClearable
-                        isDisabled={isLoading}
-                        isLoading={isLoading}
-                        options={categoryOptions}
-                        value={selectedCategories}
-                        onChange={(selectedOptions) => {
-                            const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
-                            field.onChange(selectedIds);
-                        }}
-                        onCreateOption={handleCreateCategory}
-                        placeholder="Selecciona o crea categorías..."
-                        formatCreateLabel={(inputValue) => `Crear "${inputValue}"`}
-                    />
+                    <FormControl>
+                        <CreatableSelect
+                            isMulti
+                            isClearable
+                            isDisabled={isLoading}
+                            isLoading={isLoading}
+                            options={categoryOptions}
+                            value={selectedCategories}
+                            onChange={(selectedOptions) => {
+                                const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                                field.onChange(selectedIds);
+                            }}
+                            onCreateOption={handleCreateCategory}
+                            placeholder="Selecciona o crea categorías..."
+                            formatCreateLabel={(inputValue) => `Crear "${inputValue}"`}
+                        />
+                    </FormControl>
                     <FormMessage />
                 </FormItem>
             )}/>
