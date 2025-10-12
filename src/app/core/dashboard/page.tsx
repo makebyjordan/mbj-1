@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil, Code, Server, BookCopy, FileText, ChevronDown } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil, Code, Server, BookCopy, FileText, ChevronDown, DollarSign } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -46,6 +46,8 @@ import { getAprendePages, deleteAprendePage, duplicateAprendePage, AprendePageDa
 import { getHtmls, deleteHtml, HtmlPage } from '@/services/htmls';
 import { getProtocols, deleteProtocol, Protocol } from '@/services/protocols';
 import { getNotes, deleteNote, Note } from '@/services/notes';
+import { getTools, deleteTool, Tool } from '@/services/tools';
+import { getToolCategories, deleteToolCategory, ToolCategory } from '@/services/toolCategories';
 
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
@@ -65,11 +67,13 @@ import AprendePageForm from '@/components/core/AprendePageForm';
 import HtmlForm from '@/components/core/HtmlForm';
 import ProtocolForm from '@/components/core/ProtocolForm';
 import NoteForm from '@/components/core/NoteForm';
+import ToolForm from '@/components/core/ToolForm';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { onSnapshot, collection, query, orderBy, Timestamp } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Checkbox } from '@/components/ui/checkbox';
 
 export default function CoreDashboardPage() {
   const [projects, setProjects] = useState<Project[]>([]);
@@ -87,6 +91,8 @@ export default function CoreDashboardPage() {
   const [htmls, setHtmls] = useState<HtmlPage[]>([]);
   const [protocols, setProtocols] = useState<Protocol[]>([]);
   const [notes, setNotes] = useState<Note[]>([]);
+  const [tools, setTools] = useState<Tool[]>([]);
+  const [toolCategories, setToolCategories] = useState<ToolCategory[]>([]);
   
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
@@ -103,6 +109,8 @@ export default function CoreDashboardPage() {
   const [isLoadingHtmls, setIsLoadingHtmls] = useState(true);
   const [isLoadingProtocols, setIsLoadingProtocols] = useState(true);
   const [isLoadingNotes, setIsLoadingNotes] = useState(true);
+  const [isLoadingTools, setIsLoadingTools] = useState(true);
+  const [isLoadingToolCategories, setIsLoadingToolCategories] = useState(true);
 
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
@@ -119,6 +127,8 @@ export default function CoreDashboardPage() {
   const [isHtmlDialogOpen, setIsHtmlDialogOpen] = useState(false);
   const [isProtocolDialogOpen, setIsProtocolDialogOpen] = useState(false);
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
+  const [isToolDialogOpen, setIsToolDialogOpen] = useState(false);
+  const [isToolCategoryDialogOpen, setIsToolCategoryDialogOpen] = useState(false);
 
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -135,6 +145,7 @@ export default function CoreDashboardPage() {
   const [editingHtml, setEditingHtml] = useState<HtmlPage | null>(null);
   const [editingProtocol, setEditingProtocol] = useState<Protocol | null>(null);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
+  const [editingTool, setEditingTool] = useState<Tool | null>(null);
   const [deletingAprendePage, setDeletingAprendePage] = useState<AprendePageData | null>(null);
   const [viewingProtocol, setViewingProtocol] = useState<Protocol | null>(null);
   const { toast } = useToast();
@@ -153,6 +164,9 @@ export default function CoreDashboardPage() {
   const fetchHtmls = async () => { setIsLoadingHtmls(true); try { const data = await getHtmls(); setHtmls(data); } catch (error) { console.error("Error fetching HTML pages:", error); toast({ variant: "destructive", title: "Error al cargar páginas HTML" }); } finally { setIsLoadingHtmls(false); } };
   const fetchProtocols = async () => { setIsLoadingProtocols(true); try { const data = await getProtocols(); setProtocols(data); } catch (error) { console.error("Error fetching protocols:", error); toast({ variant: "destructive", title: "Error al cargar protocolos" }); } finally { setIsLoadingProtocols(false); } };
   const fetchNotes = async () => { setIsLoadingNotes(true); try { const data = await getNotes(); setNotes(data); } catch (error) { console.error("Error fetching notes:", error); toast({ variant: "destructive", title: "Error al cargar notas" }); } finally { setIsLoadingNotes(false); } };
+  const fetchTools = async () => { setIsLoadingTools(true); try { const data = await getTools(); setTools(data); } catch (error) { console.error("Error fetching tools:", error); toast({ variant: "destructive", title: "Error al cargar herramientas" }); } finally { setIsLoadingTools(false); } };
+  const fetchToolCategories = async () => { setIsLoadingToolCategories(true); try { const data = await getToolCategories(); setToolCategories(data); } catch (error) { console.error("Error fetching tool categories:", error); toast({ variant: "destructive", title: "Error al cargar categorías de herramientas" }); } finally { setIsLoadingToolCategories(false); } };
+
 
   useEffect(() => {
     fetchProjects();
@@ -169,6 +183,8 @@ export default function CoreDashboardPage() {
     fetchHtmls();
     fetchProtocols();
     fetchNotes();
+    fetchTools();
+    fetchToolCategories();
 
     const q = query(collection(db, "aprendePages"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => { const pagesData: AprendePageData[] = []; querySnapshot.forEach((doc) => { const data = doc.data(); pagesData.push({ id: doc.id, ...data } as AprendePageData); }); setAprendePages(pagesData); setIsLoadingAprendePages(false); }, (err) => { console.error("Error fetching Aprende Pages in real-time: ", err); toast({ variant: "destructive", title: "Error al cargar páginas" }); setIsLoadingAprendePages(false); } );
@@ -192,6 +208,9 @@ export default function CoreDashboardPage() {
   const handleHtmlSaved = () => { setIsHtmlDialogOpen(false); setEditingHtml(null); fetchHtmls(); toast({ title: "Página HTML guardada" }); };
   const handleProtocolSaved = () => { setIsProtocolDialogOpen(false); setEditingProtocol(null); fetchProtocols(); toast({ title: "Protocolo guardado" }); };
   const handleNoteSaved = () => { setIsNoteDialogOpen(false); setEditingNote(null); fetchNotes(); toast({ title: "Nota guardada" }); };
+  const handleToolSaved = () => { setIsToolDialogOpen(false); setEditingTool(null); fetchTools(); toast({ title: "Herramienta guardada" }); };
+  const handleToolCategorySaved = () => { fetchToolCategories(); toast({ title: "Categoría de herramienta guardada" }); };
+
 
   const handleEditProject = (project: Project) => { setEditingProject(project); setIsProjectDialogOpen(true); };
   const handleAddNewProject = () => { setEditingProject(null); setIsProjectDialogOpen(true); };
@@ -223,6 +242,8 @@ export default function CoreDashboardPage() {
   const handleAddNewProtocol = () => { setEditingProtocol(null); setIsProtocolDialogOpen(true); };
   const handleEditNote = (note: Note) => { setEditingNote(note); setIsNoteDialogOpen(true); };
   const handleAddNewNote = () => { setEditingNote(null); setIsNoteDialogOpen(true); };
+  const handleEditTool = (tool: Tool) => { setEditingTool(tool); setIsToolDialogOpen(true); };
+  const handleAddNewTool = () => { setEditingTool(null); setIsToolDialogOpen(true); };
   
   const handleDeleteProject = async (projectId: string) => { try { await deleteProject(projectId); fetchProjects(); toast({ title: "Eliminado" }); } catch (error) { console.error("Error deleting project:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
   const handleDeleteService = async (serviceId: string) => { try { await deleteService(serviceId); fetchServices(); toast({ title: "Servicio eliminado" }); } catch (error) { console.error("Error deleting service:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
@@ -238,6 +259,8 @@ export default function CoreDashboardPage() {
   const handleDeleteHtml = async (htmlId: string) => { try { await deleteHtml(htmlId); fetchHtmls(); toast({ title: "Página HTML eliminada" }); } catch (error) { console.error("Error deleting HTML page:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
   const handleDeleteProtocol = async (protocolId: string) => { try { await deleteProtocol(protocolId); fetchProtocols(); toast({ title: "Protocolo eliminado" }); } catch (error) { console.error("Error deleting protocol:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
   const handleDeleteNote = async (noteId: string) => { try { await deleteNote(noteId); fetchNotes(); toast({ title: "Nota eliminada" }); } catch (error) { console.error("Error deleting note:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
+  const handleDeleteTool = async (toolId: string) => { try { await deleteTool(toolId); fetchTools(); toast({ title: "Herramienta eliminada" }); } catch (error) { console.error("Error deleting tool:", error); toast({ variant: "destructive", title: "Error al eliminar herramienta" }); } };
+  const handleDeleteToolCategory = async (categoryId: string) => { try { await deleteToolCategory(categoryId); fetchToolCategories(); fetchTools(); toast({ title: "Categoría de herramienta eliminada" }); } catch (error) { console.error("Error deleting tool category:", error); toast({ variant: "destructive", title: "Error al eliminar categoría" }); } };
 
   const handleConfirmDeleteAprendePage = async () => {
     if (!deletingAprendePage) return;
@@ -281,6 +304,9 @@ export default function CoreDashboardPage() {
         <Dialog open={isNoteDialogOpen} onOpenChange={(isOpen) => { setIsNoteDialogOpen(isOpen); if (!isOpen) setEditingNote(null); }}>
             <DialogContent className="sm:max-w-[625px] glass-card"><DialogHeader><DialogTitle>{editingNote ? 'Editar' : 'Crear'} Nota</DialogTitle></DialogHeader><NoteForm note={editingNote} onSave={handleNoteSaved} /></DialogContent>
         </Dialog>
+        <Dialog open={isToolDialogOpen} onOpenChange={(isOpen) => { setIsToolDialogOpen(isOpen); if (!isOpen) setEditingTool(null); }}>
+            <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{editingTool ? 'Editar' : 'Crear'} Herramienta</DialogTitle></DialogHeader><ToolForm tool={editingTool} onSave={handleToolSaved} onCategoryCreated={fetchToolCategories} allCategories={toolCategories} /></DialogContent>
+        </Dialog>
          <AlertDialog open={!!deletingAprendePage} onOpenChange={(isOpen) => !isOpen && setDeletingAprendePage(null)}>
             <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleConfirmDeleteAprendePage}>Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
         </AlertDialog>
@@ -316,7 +342,7 @@ export default function CoreDashboardPage() {
         </Dialog>
 
         <Tabs defaultValue="pagina" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-13 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-14 h-auto">
             <TabsTrigger value="pagina">Página Principal</TabsTrigger>
             <TabsTrigger value="servicios">Servicios</TabsTrigger>
             <TabsTrigger value="proyectos">Proyectos/Blog</TabsTrigger>
@@ -327,9 +353,10 @@ export default function CoreDashboardPage() {
             <TabsTrigger value="galeria">Galería</TabsTrigger>
             <TabsTrigger value="disenos">Diseños</TabsTrigger>
             <TabsTrigger value="n8n">N8N</TabsTrigger>
-            <TabsTrigger value="htmls">HTMLs</TabsTrigger>
+            <TabsTrigger value="htmls">Didácticos</TabsTrigger>
             <TabsTrigger value="protocols">Protocolos</TabsTrigger>
             <TabsTrigger value="notes">Notas</TabsTrigger>
+            <TabsTrigger value="tools">Tools</TabsTrigger>
           </TabsList>
           
           <TabsContent value="pagina" className="mt-6">
@@ -455,9 +482,87 @@ export default function CoreDashboardPage() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="tools" className="mt-6">
+            <Tabs defaultValue="manage-tools">
+                <TabsList className="mb-4">
+                    <TabsTrigger value="manage-tools">Gestionar Herramientas</TabsTrigger>
+                    <TabsTrigger value="manage-categories">Gestionar Categorías</TabsTrigger>
+                </TabsList>
+                <TabsContent value="manage-tools">
+                    <Card>
+                        <CardHeader className="flex flex-row items-center justify-between">
+                            <CardTitle>Herramientas (SaaS, Suscripciones)</CardTitle>
+                            <Button onClick={handleAddNewTool}><PlusCircle className="mr-2 h-4 w-4" />Añadir Herramienta</Button>
+                        </CardHeader>
+                        <CardContent>
+                            {isLoadingTools ? <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : (
+                                <Table>
+                                    <TableHeader><TableRow><TableHead>Pagado</TableHead><TableHead>Herramienta</TableHead><TableHead>Precio</TableHead><TableHead>Día Pago</TableHead><TableHead>Categorías</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow></TableHeader>
+                                    <TableBody>
+                                        {tools.map((tool) => {
+                                            const categories = tool.categoryIds?.map(id => toolCategories.find(c => c.id === id)?.name).filter(Boolean).join(', ') || 'N/A';
+                                            return (
+                                                <TableRow key={tool.id}>
+                                                    <TableCell><Checkbox checked={tool.isPaid} disabled /></TableCell>
+                                                    <TableCell className="font-medium">{tool.title}</TableCell>
+                                                    <TableCell>{tool.price ? `${tool.price.toFixed(2)}€` : 'N/A'}</TableCell>
+                                                    <TableCell>{tool.paymentDay || 'N/A'}</TableCell>
+                                                    <TableCell className="max-w-[200px] truncate">{categories}</TableCell>
+                                                    <TableCell className="text-right">
+                                                        <Button variant="ghost" size="icon" onClick={() => handleEditTool(tool)}><Edit className="h-4 w-4" /></Button>
+                                                        <AlertDialog>
+                                                            <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                                            <AlertDialogContent>
+                                                                <AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción eliminará la herramienta.</AlertDialogDescription></AlertDialogHeader>
+                                                                <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteTool(tool.id!)}>Eliminar</AlertDialogAction></AlertDialogFooter>
+                                                            </AlertDialogContent>
+                                                        </AlertDialog>
+                                                    </TableCell>
+                                                </TableRow>
+                                            );
+                                        })}
+                                    </TableBody>
+                                </Table>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+                <TabsContent value="manage-categories">
+                    <Card>
+                         <CardHeader><CardTitle>Categorías de Herramientas</CardTitle></CardHeader>
+                        <CardContent>
+                           <p className="text-muted-foreground mb-4">Las categorías se crean directamente desde el formulario de añadir/editar herramienta.</p>
+                            {isLoadingToolCategories ? <div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div> : (
+                                <Table>
+                                    <TableHeader><TableRow><TableHead>Nombre</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow></TableHeader>
+                                    <TableBody>
+                                        {toolCategories.map((category) => (
+                                            <TableRow key={category.id}>
+                                                <TableCell className="font-medium">{category.name}</TableCell>
+                                                <TableCell className="text-right">
+                                                    <AlertDialog>
+                                                        <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                                        <AlertDialogContent>
+                                                            <AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción eliminará la categoría de herramienta. No se puede deshacer.</AlertDialogDescription></AlertDialogHeader>
+                                                            <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteToolCategory(category.id!)}>Eliminar</AlertDialogAction></AlertDialogFooter>
+                                                        </AlertDialogContent>
+                                                    </AlertDialog>
+                                                </TableCell>
+                                            </TableRow>
+                                        ))}
+                                    </TableBody>
+                                </Table>
+                            )}
+                        </CardContent>
+                    </Card>
+                </TabsContent>
+            </Tabs>
+          </TabsContent>
+
         </Tabs>
     </main>
   );
 }
+
 
 
