@@ -150,8 +150,8 @@ export default function ToolForm({ tool, onSave, onCategoryCreated, allCategorie
                         placeholder="Selecciona o crea categorías..."
                         formatCreateLabel={(inputValue) => `Crear "${inputValue}"`}
                         name={field.name}
-                        ref={field.ref}
                         onBlur={field.onBlur}
+                        ref={field.ref}
                     />
                     <FormMessage />
                 </FormItem>
