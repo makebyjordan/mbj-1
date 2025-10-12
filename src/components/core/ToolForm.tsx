@@ -89,7 +89,6 @@ export default function ToolForm({ tool, onSave, onCategoryCreated, allCategorie
     try {
         const newCategoryId = await createToolCategory({ name: inputValue });
         onCategoryCreated(); // This will refetch categories in the dashboard
-        const newOption = { value: newCategoryId, label: inputValue };
         const currentCategoryIds = form.getValues('categoryIds') || [];
         form.setValue('categoryIds', [...currentCategoryIds, newCategoryId]);
     } catch(e) {
@@ -138,14 +137,13 @@ export default function ToolForm({ tool, onSave, onCategoryCreated, allCategorie
             <FormField control={form.control} name="categoryIds" render={({ field }) => (
                 <FormItem>
                     <FormLabel>Categorías de Uso</FormLabel>
-                    <FormControl>
                         <CreatableSelect
                             isMulti
                             isClearable
                             isDisabled={isLoading}
                             isLoading={isLoading}
                             options={categoryOptions}
-                            value={selectedCategories}
+                            value={categoryOptions.filter(option => field.value?.includes(option.value))}
                             onChange={(selectedOptions) => {
                                 const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
                                 field.onChange(selectedIds);
@@ -154,7 +152,6 @@ export default function ToolForm({ tool, onSave, onCategoryCreated, allCategorie
                             placeholder="Selecciona o crea categorías..."
                             formatCreateLabel={(inputValue) => `Crear "${inputValue}"`}
                         />
-                    </FormControl>
                     <FormMessage />
                 </FormItem>
             )}/>
