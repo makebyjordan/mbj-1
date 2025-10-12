@@ -1,12 +1,11 @@
 
-
 "use client";
 
 import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil, Code, Server, BookCopy, FileText } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil, Code, Server, BookCopy, FileText, ChevronDown } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -389,22 +388,22 @@ export default function CoreDashboardPage() {
                     {protocols.map(protocol => (
                       <AccordionItem value={protocol.id!} key={protocol.id}>
                         <Card className="mb-2 glass-card">
-                           <AccordionTrigger className="w-full text-left p-4 hover:no-underline">
-                             <div className="flex justify-between items-center w-full">
+                           <div className="flex justify-between items-center w-full p-4">
+                              <AccordionTrigger className="flex-1 text-left p-0 hover:no-underline [&_svg]:ml-auto">
                                 <span className="font-headline text-xl">{protocol.title}</span>
-                                <div className="flex items-center gap-2">
-                                    <Button variant="ghost" size="icon" onClick={(e) => {e.stopPropagation(); handleViewProtocol(protocol);}}><Eye className="h-4 w-4" /></Button>
-                                    <Button variant="ghost" size="icon" onClick={(e) => {e.stopPropagation(); handleEditProtocol(protocol)}}><Edit className="h-4 w-4" /></Button>
-                                    <AlertDialog>
-                                      <AlertDialogTrigger asChild><Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
-                                      <AlertDialogContent>
-                                        <AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción eliminará el protocolo.</AlertDialogDescription></AlertDialogHeader>
-                                        <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteProtocol(protocol.id!)}>Eliminar</AlertDialogAction></AlertDialogFooter>
-                                      </AlertDialogContent>
-                                    </AlertDialog>
-                                </div>
-                             </div>
-                           </AccordionTrigger>
+                              </AccordionTrigger>
+                              <div className="flex items-center gap-2 ml-4">
+                                  <Button variant="ghost" size="icon" onClick={(e) => {e.stopPropagation(); handleViewProtocol(protocol);}}><Eye className="h-4 w-4" /></Button>
+                                  <Button variant="ghost" size="icon" onClick={(e) => {e.stopPropagation(); handleEditProtocol(protocol)}}><Edit className="h-4 w-4" /></Button>
+                                  <AlertDialog>
+                                    <AlertDialogTrigger asChild><Button variant="ghost" size="icon" onClick={(e) => e.stopPropagation()}><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                                    <AlertDialogContent>
+                                      <AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción eliminará el protocolo.</AlertDialogDescription></AlertDialogHeader>
+                                      <AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteProtocol(protocol.id!)}>Eliminar</AlertDialogAction></AlertDialogFooter>
+                                    </AlertDialogContent>
+                                  </AlertDialog>
+                              </div>
+                           </div>
                            <AccordionContent className="p-4 pt-0">
                              <div className="prose prose-invert max-w-none">
                                 {protocol.steps?.map((step, index) => (
@@ -460,4 +459,5 @@ export default function CoreDashboardPage() {
     </main>
   );
 }
+
 
