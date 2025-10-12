@@ -119,8 +119,6 @@ export default function ToolForm({ tool, onSave, onCategoryCreated, allCategorie
     }
   }
 
-  const selectedCategories = categoryOptions.filter(option => form.watch('categoryIds')?.includes(option.value));
-
   return (
     <Form {...form}>
         <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
@@ -137,21 +135,24 @@ export default function ToolForm({ tool, onSave, onCategoryCreated, allCategorie
             <FormField control={form.control} name="categoryIds" render={({ field }) => (
                 <FormItem>
                     <FormLabel>Categorías de Uso</FormLabel>
-                        <CreatableSelect
-                            isMulti
-                            isClearable
-                            isDisabled={isLoading}
-                            isLoading={isLoading}
-                            options={categoryOptions}
-                            value={categoryOptions.filter(option => field.value?.includes(option.value))}
-                            onChange={(selectedOptions) => {
-                                const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
-                                field.onChange(selectedIds);
-                            }}
-                            onCreateOption={handleCreateCategory}
-                            placeholder="Selecciona o crea categorías..."
-                            formatCreateLabel={(inputValue) => `Crear "${inputValue}"`}
-                        />
+                    <CreatableSelect
+                        isMulti
+                        isClearable
+                        isDisabled={isLoading}
+                        isLoading={isLoading}
+                        options={categoryOptions}
+                        value={categoryOptions.filter(option => field.value?.includes(option.value))}
+                        onChange={(selectedOptions) => {
+                            const selectedIds = selectedOptions ? selectedOptions.map(option => option.value) : [];
+                            field.onChange(selectedIds);
+                        }}
+                        onCreateOption={handleCreateCategory}
+                        placeholder="Selecciona o crea categorías..."
+                        formatCreateLabel={(inputValue) => `Crear "${inputValue}"`}
+                        name={field.name}
+                        ref={field.ref}
+                        onBlur={field.onBlur}
+                    />
                     <FormMessage />
                 </FormItem>
             )}/>
