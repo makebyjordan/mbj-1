@@ -23,7 +23,7 @@ import { createN8NTemplate, updateN8NTemplate, N8NTemplate } from "@/services/n8
 
 const formSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
-  jsonContent: z.string().min(1, "El contenido JSON es requerido."),
+  jsonContent: z.string().optional(),
   htmlContent: z.string().optional(),
   url: z.string().url().optional().or(z.literal('')),
 });
@@ -63,8 +63,10 @@ export default function N8NTemplateForm({ template, onSave }: N8NTemplateFormPro
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setIsLoading(true);
     try {
-        // Basic JSON validation
-        JSON.parse(values.jsonContent);
+        // Basic JSON validation only if content is present
+        if (values.jsonContent) {
+          JSON.parse(values.jsonContent);
+        }
 
         if (template && template.id) {
             await updateN8NTemplate(template.id, values);
@@ -108,7 +110,7 @@ export default function N8NTemplateForm({ template, onSave }: N8NTemplateFormPro
             name="jsonContent"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Contenido JSON</FormLabel>
+                <FormLabel>Contenido JSON (Opcional)</FormLabel>
                 <FormControl>
                     <Textarea
                     placeholder="Pega aquí el código JSON de tu plantilla N8N..."

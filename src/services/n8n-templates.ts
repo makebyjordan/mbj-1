@@ -8,7 +8,7 @@ import { z } from 'zod';
 const N8NTemplateSchema = z.object({
   id: z.string().optional(),
   title: z.string().min(1, "El título es requerido."),
-  jsonContent: z.string().min(1, "El contenido JSON es requerido."),
+  jsonContent: z.string().optional(),
   htmlContent: z.string().optional(),
   url: z.string().url().optional().or(z.literal('')),
   createdAt: z.any().optional(),
@@ -24,7 +24,7 @@ const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): N8NTempla
     return N8NTemplateSchema.parse({
         id: snapshot.id,
         title: data.title,
-        jsonContent: data.jsonContent,
+        jsonContent: data.jsonContent || "",
         htmlContent: data.htmlContent || "",
         url: data.url || "",
         createdAt: data.createdAt?.toDate(),
@@ -44,7 +44,16 @@ export const getN8NTemplateById = async (id: string): Promise<N8NTemplate | null
     const docSnap = await getDoc(templateDoc);
 
     if (docSnap.exists()) {
-        return fromFirestore(docSnap as QueryDocumentSnapshot<DocumentData>);
+        const data = docSnap.data();
+        const parsedData = N8NTemplateSchema.parse({
+            id: docSnap.id,
+            title: data.title,
+            jsonContent: data.jsonContent || "",
+            htmlContent: data.htmlContent || "",
+            url: data.url || "",
+            createdAt: data.createdAt?.toDate(),
+        });
+        return parsedData;
     } else {
         return null;
     }
