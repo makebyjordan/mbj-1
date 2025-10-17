@@ -170,6 +170,9 @@ export default function Header() {
           <Button asChild variant="outline" className="border-primary/50 bg-transparent hover:bg-primary/10 hover:text-foreground">
             <Link href="/team/login">TEAM</Link>
           </Button>
+          <Button asChild variant="outline" className="border-primary/50 bg-transparent hover:bg-primary/10 hover:text-foreground">
+            <Link href="/sajor/login">SaJor</Link>
+          </Button>
         </div>
 
         {/* Mobile Navigation */}
