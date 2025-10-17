@@ -10,6 +10,7 @@ const N8NTemplateSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
   jsonContent: z.string().min(1, "El contenido JSON es requerido."),
   htmlContent: z.string().optional(),
+  url: z.string().url().optional().or(z.literal('')),
   createdAt: z.any().optional(),
 });
 
@@ -25,6 +26,7 @@ const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): N8NTempla
         title: data.title,
         jsonContent: data.jsonContent,
         htmlContent: data.htmlContent || "",
+        url: data.url || "",
         createdAt: data.createdAt?.toDate(),
     });
 }

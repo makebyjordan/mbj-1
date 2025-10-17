@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { useRouter } from 'next/navigation';
 import { getN8NTemplates, N8NTemplate } from "@/services/n8n-templates";
-import { Loader2, Copy, Check, BookOpen } from "lucide-react";
+import { Loader2, Copy, Check, BookOpen, Link2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useToast } from "@/hooks/use-toast";
@@ -80,8 +80,21 @@ export default function N8NPage() {
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {templates.map((template) => (
             <Card key={template.id} className="glass-card flex flex-col">
-              <CardHeader className="flex-row items-center justify-between">
-                <CardTitle className="font-headline text-2xl">{template.title}</CardTitle>
+              <CardHeader className="flex-row items-start justify-between">
+                <div className="flex-1">
+                  <CardTitle className="font-headline text-2xl">{template.title}</CardTitle>
+                  {template.url && (
+                    <a
+                      href={template.url}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="text-primary hover:underline text-sm flex items-center gap-1 mt-1"
+                    >
+                      <Link2 className="h-3 w-3" />
+                      Ir al enlace
+                    </a>
+                  )}
+                </div>
                 <Button 
                   size="icon" 
                   variant="ghost" 
@@ -115,4 +128,3 @@ export default function N8NPage() {
     </main>
   );
 }
-

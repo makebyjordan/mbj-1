@@ -25,6 +25,7 @@ const formSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
   jsonContent: z.string().min(1, "El contenido JSON es requerido."),
   htmlContent: z.string().optional(),
+  url: z.string().url().optional().or(z.literal('')),
 });
 
 type N8NTemplateFormProps = {
@@ -42,6 +43,7 @@ export default function N8NTemplateForm({ template, onSave }: N8NTemplateFormPro
       title: "",
       jsonContent: "",
       htmlContent: "",
+      url: "",
     },
   });
 
@@ -53,6 +55,7 @@ export default function N8NTemplateForm({ template, onSave }: N8NTemplateFormPro
             title: "",
             jsonContent: "",
             htmlContent: "",
+            url: "",
         });
     }
   }, [template, form]);
@@ -135,6 +138,27 @@ export default function N8NTemplateForm({ template, onSave }: N8NTemplateFormPro
                   </FormDescription>
                   <FormMessage />
                   </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="url"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>URL Externa (Opcional)</FormLabel>
+                  <FormControl>
+                    <Input
+                      type="url"
+                      placeholder="https://ejemplo.com/documentacion"
+                      {...field}
+                      className="bg-background/50"
+                    />
+                  </FormControl>
+                  <FormDescription>
+                    Añade un enlace a documentación o un recurso externo.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
               )}
             />
             <div className="flex justify-end">
