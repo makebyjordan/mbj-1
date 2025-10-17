@@ -48,6 +48,7 @@ import { getProtocols, deleteProtocol, Protocol } from '@/services/protocols';
 import { getNotes, deleteNote, Note } from '@/services/notes';
 import { getTools, deleteTool, Tool } from '@/services/tools';
 import { getToolCategories, deleteToolCategory, ToolCategory } from '@/services/toolCategories';
+import { getSajorItems, deleteSajorItem, SajorItem } from '@/services/sajor';
 
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
@@ -68,6 +69,7 @@ import HtmlForm from '@/components/core/HtmlForm';
 import ProtocolForm from '@/components/core/ProtocolForm';
 import NoteForm from '@/components/core/NoteForm';
 import ToolForm from '@/components/core/ToolForm';
+import SajorForm from '@/components/core/SajorForm';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { onSnapshot, collection, query, orderBy, Timestamp } from 'firebase/firestore';
@@ -93,6 +95,7 @@ export default function CoreDashboardPage() {
   const [notes, setNotes] = useState<Note[]>([]);
   const [tools, setTools] = useState<Tool[]>([]);
   const [toolCategories, setToolCategories] = useState<ToolCategory[]>([]);
+  const [sajorItems, setSajorItems] = useState<SajorItem[]>([]);
   
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
@@ -111,6 +114,7 @@ export default function CoreDashboardPage() {
   const [isLoadingNotes, setIsLoadingNotes] = useState(true);
   const [isLoadingTools, setIsLoadingTools] = useState(true);
   const [isLoadingToolCategories, setIsLoadingToolCategories] = useState(true);
+  const [isLoadingSajorItems, setIsLoadingSajorItems] = useState(true);
 
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
@@ -129,6 +133,7 @@ export default function CoreDashboardPage() {
   const [isNoteDialogOpen, setIsNoteDialogOpen] = useState(false);
   const [isToolDialogOpen, setIsToolDialogOpen] = useState(false);
   const [isToolCategoryDialogOpen, setIsToolCategoryDialogOpen] = useState(false);
+  const [isSajorDialogOpen, setIsSajorDialogOpen] = useState(false);
 
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -146,6 +151,7 @@ export default function CoreDashboardPage() {
   const [editingProtocol, setEditingProtocol] = useState<Protocol | null>(null);
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [editingTool, setEditingTool] = useState<Tool | null>(null);
+  const [editingSajorItem, setEditingSajorItem] = useState<SajorItem | null>(null);
   const [deletingAprendePage, setDeletingAprendePage] = useState<AprendePageData | null>(null);
   const [viewingProtocol, setViewingProtocol] = useState<Protocol | null>(null);
   const { toast } = useToast();
@@ -166,6 +172,7 @@ export default function CoreDashboardPage() {
   const fetchNotes = async () => { setIsLoadingNotes(true); try { const data = await getNotes(); setNotes(data); } catch (error) { console.error("Error fetching notes:", error); toast({ variant: "destructive", title: "Error al cargar notas" }); } finally { setIsLoadingNotes(false); } };
   const fetchTools = async () => { setIsLoadingTools(true); try { const data = await getTools(); setTools(data); } catch (error) { console.error("Error fetching tools:", error); toast({ variant: "destructive", title: "Error al cargar herramientas" }); } finally { setIsLoadingTools(false); } };
   const fetchToolCategories = async () => { setIsLoadingToolCategories(true); try { const data = await getToolCategories(); setToolCategories(data); } catch (error) { console.error("Error fetching tool categories:", error); toast({ variant: "destructive", title: "Error al cargar categorías de herramientas" }); } finally { setIsLoadingToolCategories(false); } };
+  const fetchSajorItems = async () => { setIsLoadingSajorItems(true); try { const data = await getSajorItems(); setSajorItems(data); } catch (error) { console.error("Error fetching Sajor items:", error); toast({ variant: "destructive", title: "Error al cargar items de Sajor" }); } finally { setIsLoadingSajorItems(false); } };
 
 
   useEffect(() => {
@@ -185,6 +192,7 @@ export default function CoreDashboardPage() {
     fetchNotes();
     fetchTools();
     fetchToolCategories();
+    fetchSajorItems();
 
     const q = query(collection(db, "aprendePages"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => { const pagesData: AprendePageData[] = []; querySnapshot.forEach((doc) => { const data = doc.data(); pagesData.push({ id: doc.id, ...data } as AprendePageData); }); setAprendePages(pagesData); setIsLoadingAprendePages(false); }, (err) => { console.error("Error fetching Aprende Pages in real-time: ", err); toast({ variant: "destructive", title: "Error al cargar páginas" }); setIsLoadingAprendePages(false); } );
@@ -210,6 +218,7 @@ export default function CoreDashboardPage() {
   const handleNoteSaved = () => { setIsNoteDialogOpen(false); setEditingNote(null); fetchNotes(); toast({ title: "Nota guardada" }); };
   const handleToolSaved = () => { setIsToolDialogOpen(false); setEditingTool(null); fetchTools(); toast({ title: "Herramienta guardada" }); };
   const handleToolCategorySaved = () => { fetchToolCategories(); toast({ title: "Categoría de herramienta guardada" }); };
+  const handleSajorSaved = () => { setIsSajorDialogOpen(false); setEditingSajorItem(null); fetchSajorItems(); toast({ title: "Elemento Sajor guardado" }); };
 
 
   const handleEditProject = (project: Project) => { setEditingProject(project); setIsProjectDialogOpen(true); };
@@ -244,6 +253,8 @@ export default function CoreDashboardPage() {
   const handleAddNewNote = () => { setEditingNote(null); setIsNoteDialogOpen(true); };
   const handleEditTool = (tool: Tool) => { setEditingTool(tool); setIsToolDialogOpen(true); };
   const handleAddNewTool = () => { setEditingTool(null); setIsToolDialogOpen(true); };
+  const handleEditSajorItem = (item: SajorItem) => { setEditingSajorItem(item); setIsSajorDialogOpen(true); };
+  const handleAddNewSajorItem = () => { setEditingSajorItem(null); setIsSajorDialogOpen(true); };
   
   const handleDeleteProject = async (projectId: string) => { try { await deleteProject(projectId); fetchProjects(); toast({ title: "Eliminado" }); } catch (error) { console.error("Error deleting project:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
   const handleDeleteService = async (serviceId: string) => { try { await deleteService(serviceId); fetchServices(); toast({ title: "Servicio eliminado" }); } catch (error) { console.error("Error deleting service:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
@@ -261,6 +272,7 @@ export default function CoreDashboardPage() {
   const handleDeleteNote = async (noteId: string) => { try { await deleteNote(noteId); fetchNotes(); toast({ title: "Nota eliminada" }); } catch (error) { console.error("Error deleting note:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
   const handleDeleteTool = async (toolId: string) => { try { await deleteTool(toolId); fetchTools(); toast({ title: "Herramienta eliminada" }); } catch (error) { console.error("Error deleting tool:", error); toast({ variant: "destructive", title: "Error al eliminar herramienta" }); } };
   const handleDeleteToolCategory = async (categoryId: string) => { try { await deleteToolCategory(categoryId); fetchToolCategories(); fetchTools(); toast({ title: "Categoría de herramienta eliminada" }); } catch (error) { console.error("Error deleting tool category:", error); toast({ variant: "destructive", title: "Error al eliminar categoría" }); } };
+  const handleDeleteSajorItem = async (itemId: string) => { try { await deleteSajorItem(itemId); fetchSajorItems(); toast({ title: "Elemento Sajor eliminado" }); } catch (error) { console.error("Error deleting Sajor item:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
 
   const handleConfirmDeleteAprendePage = async () => {
     if (!deletingAprendePage) return;
@@ -307,6 +319,9 @@ export default function CoreDashboardPage() {
         <Dialog open={isToolDialogOpen} onOpenChange={(isOpen) => { setIsToolDialogOpen(isOpen); if (!isOpen) setEditingTool(null); }}>
             <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{editingTool ? 'Editar' : 'Crear'} Herramienta</DialogTitle></DialogHeader><ToolForm tool={editingTool} onSave={handleToolSaved} onCategoryCreated={fetchToolCategories} allCategories={toolCategories} /></DialogContent>
         </Dialog>
+        <Dialog open={isSajorDialogOpen} onOpenChange={(isOpen) => { setIsSajorDialogOpen(isOpen); if (!isOpen) setEditingSajorItem(null); }}>
+            <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{editingSajorItem ? 'Editar' : 'Crear'} Elemento Sajor</DialogTitle></DialogHeader><SajorForm item={editingSajorItem} onSave={handleSajorSaved} /></DialogContent>
+        </Dialog>
          <AlertDialog open={!!deletingAprendePage} onOpenChange={(isOpen) => !isOpen && setDeletingAprendePage(null)}>
             <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleConfirmDeleteAprendePage}>Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
         </AlertDialog>
@@ -342,7 +357,7 @@ export default function CoreDashboardPage() {
         </Dialog>
 
         <Tabs defaultValue="pagina" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-14 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-15 h-auto">
             <TabsTrigger value="pagina">Página Principal</TabsTrigger>
             <TabsTrigger value="servicios">Servicios</TabsTrigger>
             <TabsTrigger value="proyectos">Proyectos/Blog</TabsTrigger>
@@ -357,6 +372,7 @@ export default function CoreDashboardPage() {
             <TabsTrigger value="protocols">Protocolos</TabsTrigger>
             <TabsTrigger value="notes">Notas</TabsTrigger>
             <TabsTrigger value="tools">Tools</TabsTrigger>
+            <TabsTrigger value="sajor">SaJor</TabsTrigger>
           </TabsList>
           
           <TabsContent value="pagina" className="mt-6">
@@ -484,10 +500,7 @@ export default function CoreDashboardPage() {
 
           <TabsContent value="tools" className="mt-6">
             <Tabs defaultValue="manage-tools">
-                <TabsList className="mb-4">
-                    <TabsTrigger value="manage-tools">Gestionar Herramientas</TabsTrigger>
-                    <TabsTrigger value="manage-categories">Gestionar Categorías</TabsTrigger>
-                </TabsList>
+                <TabsList className="mb-4"><TabsTrigger value="manage-tools">Gestionar Herramientas</TabsTrigger><TabsTrigger value="manage-categories">Gestionar Categorías</TabsTrigger></TabsList>
                 <TabsContent value="manage-tools">
                     <Card>
                         <CardHeader className="flex flex-row items-center justify-between">
@@ -559,10 +572,42 @@ export default function CoreDashboardPage() {
             </Tabs>
           </TabsContent>
 
+          <TabsContent value="sajor" className="mt-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Recursos de Sajor</CardTitle>
+                <Button onClick={handleAddNewSajorItem}><PlusCircle className="mr-2 h-4 w-4" />Añadir Elemento</Button>
+              </CardHeader>
+              <CardContent>
+                {isLoadingSajorItems ? (<div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>) : (
+                  <Table>
+                    <TableHeader><TableRow><TableHead>Título</TableHead><TableHead>URL</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow></TableHeader>
+                    <TableBody>
+                      {sajorItems.map((item) => (
+                        <TableRow key={item.id}>
+                          <TableCell className="font-medium">{item.title}</TableCell>
+                          <TableCell className="max-w-md truncate text-muted-foreground">
+                            <a href={item.url} target="_blank" rel="noopener noreferrer" className="hover:underline">{item.url}</a>
+                          </TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditSajorItem(item)}><Edit className="h-4 w-4" /></Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                              <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción eliminará el elemento.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteSajorItem(item.id!)}>Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
         </Tabs>
     </main>
   );
 }
 
-
-
+    
