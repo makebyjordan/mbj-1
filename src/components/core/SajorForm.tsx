@@ -21,7 +21,7 @@ import { useState, useEffect } from "react";
 import { createSajorItem, updateSajorItem, SajorItem } from "@/services/sajor";
 
 const formSchema = z.object({
-  title: z.string().optional(),
+  title: z.string().min(1, "El título es requerido."),
   url: z.string().optional(),
   description: z.string().optional(),
   notes: z.string().optional(),
@@ -88,7 +88,7 @@ export default function SajorForm({ item, onSave }: SajorFormProps) {
             name="title"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>Título (Opcional)</FormLabel>
+                <FormLabel>Título</FormLabel>
                 <FormControl>
                     <Input placeholder="Nombre del recurso" {...field} className="bg-background/50" />
                 </FormControl>
@@ -153,5 +153,3 @@ export default function SajorForm({ item, onSave }: SajorFormProps) {
     </Form>
   );
 }
-
-    

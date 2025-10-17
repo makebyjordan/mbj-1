@@ -7,7 +7,7 @@ import { z } from 'zod';
 
 const SajorSchema = z.object({
   id: z.string().optional(),
-  title: z.string().optional(),
+  title: z.string().min(1, "El título es requerido."),
   url: z.string().optional(),
   description: z.string().optional(),
   notes: z.string().optional(),
@@ -54,5 +54,3 @@ export const deleteSajorItem = async (id: string): Promise<void> => {
     const itemDoc = doc(db, 'sajorItems', id);
     await deleteDoc(itemDoc);
 };
-
-    
