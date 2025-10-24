@@ -155,12 +155,22 @@ export default function Header() {
                     </DropdownMenuPortal>
                 </DropdownMenuSub>
                 <DropdownMenuItem asChild><Link href="/htmls">Didácticos</Link></DropdownMenuItem>
-                <DropdownMenuItem asChild>
-                  <Link href="https://github.com/makebyjordan" target="_blank" rel="noopener noreferrer">
+                <DropdownMenuSub>
+                  <DropdownMenuSubTrigger>
                     <Github className="mr-2 h-4 w-4" />
                     <span>Git</span>
-                  </Link>
-                </DropdownMenuItem>
+                  </DropdownMenuSubTrigger>
+                  <DropdownMenuPortal>
+                    <DropdownMenuSubContent>
+                      <DropdownMenuItem asChild><Link href="#">git init</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="#">git clone</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="#">git general</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="#">git server</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="#">git fork</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="#">gits</Link></DropdownMenuItem>
+                    </DropdownMenuSubContent>
+                  </DropdownMenuPortal>
+                </DropdownMenuSub>
               </DropdownMenuContent>
             </DropdownMenu>
             </nav>
