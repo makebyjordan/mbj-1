@@ -162,12 +162,12 @@ export default function Header() {
                   </DropdownMenuSubTrigger>
                   <DropdownMenuPortal>
                     <DropdownMenuSubContent>
-                      <DropdownMenuItem asChild><Link href="#">git init</Link></DropdownMenuItem>
-                      <DropdownMenuItem asChild><Link href="#">git clone</Link></DropdownMenuItem>
-                      <DropdownMenuItem asChild><Link href="#">git general</Link></DropdownMenuItem>
-                      <DropdownMenuItem asChild><Link href="#">git server</Link></DropdownMenuItem>
-                      <DropdownMenuItem asChild><Link href="#">git fork</Link></DropdownMenuItem>
-                      <DropdownMenuItem asChild><Link href="#">gits</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="/git/init">git init</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="/git/clone">git clone</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="/git/general">git general</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="/git/server">git server</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="/git/fork">git fork</Link></DropdownMenuItem>
+                      <DropdownMenuItem asChild><Link href="/git">gits</Link></DropdownMenuItem>
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
@@ -239,3 +239,5 @@ export default function Header() {
     </header>
   );
 }
+
+    

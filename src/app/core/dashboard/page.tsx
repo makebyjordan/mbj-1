@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil, Code, Server, BookCopy, FileText, ChevronDown, DollarSign } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil, Code, Server, BookCopy, FileText, ChevronDown, DollarSign, Github } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -49,6 +49,7 @@ import { getNotes, deleteNote, Note } from '@/services/notes';
 import { getTools, deleteTool, Tool } from '@/services/tools';
 import { getToolCategories, deleteToolCategory, ToolCategory } from '@/services/toolCategories';
 import { getSajorItems, deleteSajorItem, SajorItem } from '@/services/sajor';
+import { getGitProtocols, deleteGitProtocol, GitProtocol } from '@/services/git';
 
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
@@ -70,6 +71,7 @@ import ProtocolForm from '@/components/core/ProtocolForm';
 import NoteForm from '@/components/core/NoteForm';
 import ToolForm from '@/components/core/ToolForm';
 import SajorForm from '@/components/core/SajorForm';
+import GitForm from '@/components/core/GitForm';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { onSnapshot, collection, query, orderBy, Timestamp } from 'firebase/firestore';
@@ -96,6 +98,7 @@ export default function CoreDashboardPage() {
   const [tools, setTools] = useState<Tool[]>([]);
   const [toolCategories, setToolCategories] = useState<ToolCategory[]>([]);
   const [sajorItems, setSajorItems] = useState<SajorItem[]>([]);
+  const [gitProtocols, setGitProtocols] = useState<GitProtocol[]>([]);
   
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
@@ -115,6 +118,7 @@ export default function CoreDashboardPage() {
   const [isLoadingTools, setIsLoadingTools] = useState(true);
   const [isLoadingToolCategories, setIsLoadingToolCategories] = useState(true);
   const [isLoadingSajorItems, setIsLoadingSajorItems] = useState(true);
+  const [isLoadingGitProtocols, setIsLoadingGitProtocols] = useState(true);
 
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
@@ -134,6 +138,7 @@ export default function CoreDashboardPage() {
   const [isToolDialogOpen, setIsToolDialogOpen] = useState(false);
   const [isToolCategoryDialogOpen, setIsToolCategoryDialogOpen] = useState(false);
   const [isSajorDialogOpen, setIsSajorDialogOpen] = useState(false);
+  const [isGitFormOpen, setIsGitFormOpen] = useState(false);
 
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -152,6 +157,7 @@ export default function CoreDashboardPage() {
   const [editingNote, setEditingNote] = useState<Note | null>(null);
   const [editingTool, setEditingTool] = useState<Tool | null>(null);
   const [editingSajorItem, setEditingSajorItem] = useState<SajorItem | null>(null);
+  const [editingGitProtocol, setEditingGitProtocol] = useState<GitProtocol | null>(null);
   const [deletingAprendePage, setDeletingAprendePage] = useState<AprendePageData | null>(null);
   const [viewingProtocol, setViewingProtocol] = useState<Protocol | null>(null);
   const { toast } = useToast();
@@ -173,6 +179,7 @@ export default function CoreDashboardPage() {
   const fetchTools = async () => { setIsLoadingTools(true); try { const data = await getTools(); setTools(data); } catch (error) { console.error("Error fetching tools:", error); toast({ variant: "destructive", title: "Error al cargar herramientas" }); } finally { setIsLoadingTools(false); } };
   const fetchToolCategories = async () => { setIsLoadingToolCategories(true); try { const data = await getToolCategories(); setToolCategories(data); } catch (error) { console.error("Error fetching tool categories:", error); toast({ variant: "destructive", title: "Error al cargar categorías de herramientas" }); } finally { setIsLoadingToolCategories(false); } };
   const fetchSajorItems = async () => { setIsLoadingSajorItems(true); try { const data = await getSajorItems(); setSajorItems(data); } catch (error) { console.error("Error fetching Sajor items:", error); toast({ variant: "destructive", title: "Error al cargar items de Sajor" }); } finally { setIsLoadingSajorItems(false); } };
+  const fetchGitProtocols = async () => { setIsLoadingGitProtocols(true); try { const data = await getGitProtocols(); setGitProtocols(data); } catch (error) { console.error("Error fetching Git protocols:", error); toast({ variant: "destructive", title: "Error al cargar protocolos de Git" }); } finally { setIsLoadingGitProtocols(false); } };
 
 
   useEffect(() => {
@@ -193,6 +200,7 @@ export default function CoreDashboardPage() {
     fetchTools();
     fetchToolCategories();
     fetchSajorItems();
+    fetchGitProtocols();
 
     const q = query(collection(db, "aprendePages"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => { const pagesData: AprendePageData[] = []; querySnapshot.forEach((doc) => { const data = doc.data(); pagesData.push({ id: doc.id, ...data } as AprendePageData); }); setAprendePages(pagesData); setIsLoadingAprendePages(false); }, (err) => { console.error("Error fetching Aprende Pages in real-time: ", err); toast({ variant: "destructive", title: "Error al cargar páginas" }); setIsLoadingAprendePages(false); } );
@@ -219,6 +227,7 @@ export default function CoreDashboardPage() {
   const handleToolSaved = () => { setIsToolDialogOpen(false); setEditingTool(null); fetchTools(); toast({ title: "Herramienta guardada" }); };
   const handleToolCategorySaved = () => { fetchToolCategories(); toast({ title: "Categoría de herramienta guardada" }); };
   const handleSajorSaved = () => { setIsSajorDialogOpen(false); setEditingSajorItem(null); fetchSajorItems(); toast({ title: "Elemento Sajor guardado" }); };
+  const handleGitProtocolSaved = () => { setIsGitFormOpen(false); setEditingGitProtocol(null); fetchGitProtocols(); toast({ title: "Protocolo Git guardado" }); };
 
 
   const handleEditProject = (project: Project) => { setEditingProject(project); setIsProjectDialogOpen(true); };
@@ -255,6 +264,8 @@ export default function CoreDashboardPage() {
   const handleAddNewTool = () => { setEditingTool(null); setIsToolDialogOpen(true); };
   const handleEditSajorItem = (item: SajorItem) => { setEditingSajorItem(item); setIsSajorDialogOpen(true); };
   const handleAddNewSajorItem = () => { setEditingSajorItem(null); setIsSajorDialogOpen(true); };
+  const handleEditGitProtocol = (protocol: GitProtocol) => { setEditingGitProtocol(protocol); setIsGitFormOpen(true); };
+  const handleAddNewGitProtocol = () => { setEditingGitProtocol(null); setIsGitFormOpen(true); };
   
   const handleDeleteProject = async (projectId: string) => { try { await deleteProject(projectId); fetchProjects(); toast({ title: "Eliminado" }); } catch (error) { console.error("Error deleting project:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
   const handleDeleteService = async (serviceId: string) => { try { await deleteService(serviceId); fetchServices(); toast({ title: "Servicio eliminado" }); } catch (error) { console.error("Error deleting service:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
@@ -273,6 +284,7 @@ export default function CoreDashboardPage() {
   const handleDeleteTool = async (toolId: string) => { try { await deleteTool(toolId); fetchTools(); toast({ title: "Herramienta eliminada" }); } catch (error) { console.error("Error deleting tool:", error); toast({ variant: "destructive", title: "Error al eliminar herramienta" }); } };
   const handleDeleteToolCategory = async (categoryId: string) => { try { await deleteToolCategory(categoryId); fetchToolCategories(); fetchTools(); toast({ title: "Categoría de herramienta eliminada" }); } catch (error) { console.error("Error deleting tool category:", error); toast({ variant: "destructive", title: "Error al eliminar categoría" }); } };
   const handleDeleteSajorItem = async (itemId: string) => { try { await deleteSajorItem(itemId); fetchSajorItems(); toast({ title: "Elemento Sajor eliminado" }); } catch (error) { console.error("Error deleting Sajor item:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
+  const handleDeleteGitProtocol = async (protocolId: string) => { try { await deleteGitProtocol(protocolId); fetchGitProtocols(); toast({ title: "Protocolo Git eliminado" }); } catch (error) { console.error("Error deleting Git protocol:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
 
   const handleConfirmDeleteAprendePage = async () => {
     if (!deletingAprendePage) return;
@@ -322,6 +334,9 @@ export default function CoreDashboardPage() {
         <Dialog open={isSajorDialogOpen} onOpenChange={(isOpen) => { setIsSajorDialogOpen(isOpen); if (!isOpen) setEditingSajorItem(null); }}>
             <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{editingSajorItem ? 'Editar' : 'Crear'} Elemento Sajor</DialogTitle></DialogHeader><SajorForm item={editingSajorItem} onSave={handleSajorSaved} /></DialogContent>
         </Dialog>
+        <Dialog open={isGitFormOpen} onOpenChange={(isOpen) => { setIsGitFormOpen(isOpen); if (!isOpen) setEditingGitProtocol(null); }}>
+            <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{editingGitProtocol ? 'Editar' : 'Crear'} Guía de Git</DialogTitle></DialogHeader><GitForm protocol={editingGitProtocol} onSave={handleGitProtocolSaved} /></DialogContent>
+        </Dialog>
          <AlertDialog open={!!deletingAprendePage} onOpenChange={(isOpen) => !isOpen && setDeletingAprendePage(null)}>
             <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleConfirmDeleteAprendePage}>Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
         </AlertDialog>
@@ -357,7 +372,7 @@ export default function CoreDashboardPage() {
         </Dialog>
 
         <Tabs defaultValue="pagina" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-15 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-16 h-auto">
             <TabsTrigger value="pagina">Página Principal</TabsTrigger>
             <TabsTrigger value="servicios">Servicios</TabsTrigger>
             <TabsTrigger value="proyectos">Proyectos/Blog</TabsTrigger>
@@ -373,6 +388,7 @@ export default function CoreDashboardPage() {
             <TabsTrigger value="notes">Notas</TabsTrigger>
             <TabsTrigger value="tools">Tools</TabsTrigger>
             <TabsTrigger value="sajor">SaJor</TabsTrigger>
+            <TabsTrigger value="git">Git</TabsTrigger>
           </TabsList>
           
           <TabsContent value="pagina" className="mt-6">
@@ -605,9 +621,42 @@ export default function CoreDashboardPage() {
             </Card>
           </TabsContent>
 
+          <TabsContent value="git" className="mt-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Guías de Git</CardTitle>
+                <Button onClick={handleAddNewGitProtocol}><PlusCircle className="mr-2 h-4 w-4" />Añadir Guía</Button>
+              </CardHeader>
+              <CardContent>
+                {isLoadingGitProtocols ? (<div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>) : (
+                  <Table>
+                    <TableHeader><TableRow><TableHead>Título</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow></TableHeader>
+                    <TableBody>
+                      {gitProtocols.map((protocol) => (
+                        <TableRow key={protocol.id}>
+                          <TableCell className="font-medium">{protocol.title}</TableCell>
+                          <TableCell className="text-right">
+                             <Button variant="ghost" size="icon" asChild><a href={`/git/${protocol.id}`} target="_blank"><Eye className="h-4 w-4" /></a></Button>
+                            <Button variant="ghost" size="icon" onClick={() => handleEditGitProtocol(protocol)}><Edit className="h-4 w-4" /></Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                              <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción eliminará la guía.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeleteGitProtocol(protocol.id!)}>Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
         </Tabs>
     </main>
   );
 }
+
+    
 
     
