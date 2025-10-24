@@ -4,7 +4,7 @@
 import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Image from "next/image";
-import { Menu, ChevronDown } from "lucide-react";
+import { Menu, ChevronDown, Github } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Button } from "@/components/ui/button";
 import {
@@ -155,6 +155,12 @@ export default function Header() {
                     </DropdownMenuPortal>
                 </DropdownMenuSub>
                 <DropdownMenuItem asChild><Link href="/htmls">Didácticos</Link></DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link href="https://github.com/makebyjordan" target="_blank" rel="noopener noreferrer">
+                    <Github className="mr-2 h-4 w-4" />
+                    <span>Git</span>
+                  </Link>
+                </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             </nav>
