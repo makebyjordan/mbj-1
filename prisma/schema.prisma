@@ -1,0 +1,272 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// Authentication models
+model User {
+  id            String    @id @default(cuid())
+  name          String?
+  email         String    @unique
+  emailVerified DateTime?
+  image         String?
+  password      String?
+  role          String    @default("user") // "admin", "user", "sajor"
+  accounts      Account[]
+  sessions      Session[]
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+}
+
+model Account {
+  id                String  @id @default(cuid())
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+}
+
+model Session {
+  id           String   @id @default(cuid())
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+}
+
+model VerificationToken {
+  identifier String
+  token      String   @unique
+  expires    DateTime
+
+  @@unique([identifier, token])
+}
+
+// Project models
+model BlogCategory {
+  id        String    @id @default(cuid())
+  title     String
+  imageUrl  String?
+  createdAt DateTime  @default(now())
+  projects  Project[]
+}
+
+model Project {
+  id          String         @id @default(cuid())
+  title       String
+  description String
+  imageUrl    String?
+  url         String?
+  type        String         @default("project") // "project" or "blog"
+  htmlContent String?
+  categoryId  String?
+  createdAt   DateTime       @default(now())
+  category    BlogCategory?  @relation(fields: [categoryId], references: [id], onDelete: SetNull)
+}
+
+// Service models
+model Service {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  iconUrl     String?
+  url         String?
+  createdAt   DateTime @default(now())
+}
+
+// Note models
+model Note {
+  id          String   @id @default(cuid())
+  title       String
+  description String
+  createdAt   DateTime @default(now())
+}
+
+// Git Protocol models
+model GitProtocol {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  steps       Json     // Array of step objects
+  createdAt   DateTime @default(now())
+}
+
+// Protocol models
+model Protocol {
+  id        String   @id @default(cuid())
+  title     String
+  steps     Json     // Array of step objects
+  createdAt DateTime @default(now())
+}
+
+// Aprende Page models
+model AprendePage {
+  id          String   @id @default(cuid())
+  title       String
+  code        String   @unique
+  hero        Json?    // Hero section data
+  features    Json?    // Features section data
+  steps       Json?    // Steps section data
+  pricing     Json?    // Pricing section data
+  faq         Json?    // FAQ section data
+  contacts    Json?    // Contacts section data
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
+
+// Image Gallery models
+model Image {
+  id          String   @id @default(cuid())
+  name        String
+  url         String
+  storagePath String?
+  createdAt   DateTime @default(now())
+}
+
+// Prompt models
+model Prompt {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  promptText  String
+  createdAt   DateTime @default(now())
+}
+
+// N8N Template models
+model N8NTemplate {
+  id          String   @id @default(cuid())
+  title       String
+  jsonContent String?
+  htmlContent String?
+  url         String?
+  createdAt   DateTime @default(now())
+}
+
+// N8N Server models
+model N8NServer {
+  id        String   @id @default(cuid())
+  title     String
+  url       String?
+  code      String?
+  createdAt DateTime @default(now())
+}
+
+// Design models
+model Design {
+  id        String   @id @default(cuid())
+  title     String
+  imageUrl  String?
+  createdAt DateTime @default(now())
+}
+
+// HTML Page models
+model HtmlPage {
+  id          String   @id @default(cuid())
+  title       String
+  htmlContent String
+  createdAt   DateTime @default(now())
+}
+
+// Link and LinkCard models
+model LinkCard {
+  id        String     @id @default(cuid())
+  title     String
+  imageUrl  String?
+  createdAt DateTime   @default(now())
+  links     LinkItem[]
+}
+
+model LinkItem {
+  id        String    @id @default(cuid())
+  title     String
+  url       String
+  tag       String?
+  cardId    String?
+  createdAt DateTime  @default(now())
+  card      LinkCard? @relation(fields: [cardId], references: [id], onDelete: SetNull)
+}
+
+// Formation models
+model Formation {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  url         String?
+  tag         String?
+  createdAt   DateTime @default(now())
+}
+
+// Short (YouTube videos) models
+model Short {
+  id         String   @id @default(cuid())
+  title      String
+  youtubeUrl String
+  tags       Json     // Array of tags
+  createdAt  DateTime @default(now())
+}
+
+// Tool and ToolCategory models
+model ToolCategory {
+  id        String   @id @default(cuid())
+  name      String
+  createdAt DateTime @default(now())
+  tools     Tool[]
+}
+
+model Tool {
+  id         String         @id @default(cuid())
+  title      String
+  description String?
+  imageUrl   String?
+  url        String?
+  price      Float?
+  paymentDay Int?
+  isPaid     Boolean        @default(false)
+  createdAt  DateTime       @default(now())
+  categories ToolCategory[]
+}
+
+// Sajor models
+model SajorItem {
+  id          String   @id @default(cuid())
+  title       String
+  url         String?
+  description String?
+  notes       String?
+  createdAt   DateTime @default(now())
+}
+
+// Singleton models (using single row approach)
+model HeroContent {
+  id                  String   @id @default("hero_singleton")
+  description         String?
+  backgroundImageUrl  String?
+  buttons             Json?    // Array of button objects
+  updatedAt           DateTime @updatedAt
+}
+
+model AboutContent {
+  id          String   @id @default("about_singleton")
+  title       String?
+  description String?
+  imageUrl    String?
+  updatedAt   DateTime @updatedAt
+}
