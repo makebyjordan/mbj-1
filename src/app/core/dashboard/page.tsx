@@ -120,7 +120,7 @@ export default function CoreDashboardPage() {
   const [isLoadingNotes, setIsLoadingNotes] = useState(true);
   const [isLoadingTools, setIsLoadingTools] = useState(true);
   const [isLoadingToolCategories, setIsLoadingToolCategories] = useState(true);
-  const [isLoadingSajorItems, setIsLoadingSajorItems]_set] = useState(true);
+  const [isLoadingSajorItems, setIsLoadingSajorItems] = useState(true);
   const [isLoadingGitProtocols, setIsLoadingGitProtocols] = useState(true);
   const [isLoadingTeamItems, setIsLoadingTeamItems] = useState(true);
 
