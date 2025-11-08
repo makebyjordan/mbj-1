@@ -171,6 +171,7 @@ export default function Header() {
                     </DropdownMenuSubContent>
                   </DropdownMenuPortal>
                 </DropdownMenuSub>
+                <DropdownMenuItem asChild><Link href="#">Resultados</Link></DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
             </nav>
@@ -239,5 +240,3 @@ export default function Header() {
     </header>
   );
 }
-
-    
