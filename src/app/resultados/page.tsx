@@ -7,17 +7,14 @@ import { getResultados, Resultado } from "@/services/resultados";
 import Header from "@/components/landing/header";
 import Footer from "@/components/landing/footer";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Loader2, Wand2 } from "lucide-react";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipProvider,
-  TooltipTrigger,
-} from "@/components/ui/tooltip"
+import { Loader2, Wand2, X } from "lucide-react";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogClose } from "@/components/ui/dialog";
+import { Button } from "@/components/ui/button";
 
 export default function ResultadosPage() {
   const [resultados, setResultados] = useState<Resultado[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [selectedResultado, setSelectedResultado] = useState<Resultado | null>(null);
 
   useEffect(() => {
     const fetchResultados = async () => {
@@ -56,7 +53,11 @@ export default function ResultadosPage() {
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
             {resultados.map((resultado) => (
-              <Card key={resultado.id} className="glass-card overflow-hidden group">
+              <Card 
+                key={resultado.id} 
+                className="glass-card overflow-hidden group cursor-pointer"
+                onClick={() => setSelectedResultado(resultado)}
+              >
                 <CardHeader className="p-0">
                    <Image
                       src={resultado.imageUrl}
@@ -68,19 +69,10 @@ export default function ResultadosPage() {
                 </CardHeader>
                 <CardContent className="p-6">
                   <CardTitle className="font-headline text-2xl">{resultado.title}</CardTitle>
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                         <p className="mt-2 text-muted-foreground line-clamp-3 cursor-pointer hover:text-foreground transition-colors">
-                            <Wand2 className="inline-block mr-2 h-4 w-4 text-primary"/>
-                            {resultado.prompt}
-                        </p>
-                      </TooltipTrigger>
-                      <TooltipContent className="max-w-xs">
-                        <p>{resultado.prompt}</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
+                    <p className="mt-2 text-muted-foreground line-clamp-3">
+                        <Wand2 className="inline-block mr-2 h-4 w-4 text-primary"/>
+                        {resultado.prompt}
+                    </p>
                 </CardContent>
               </Card>
             ))}
@@ -88,8 +80,36 @@ export default function ResultadosPage() {
         )}
       </main>
       <Footer />
+      
+      <Dialog open={!!selectedResultado} onOpenChange={(isOpen) => !isOpen && setSelectedResultado(null)}>
+        <DialogContent className="sm:max-w-4xl glass-card">
+            {selectedResultado && (
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
+                    <div className="relative aspect-square">
+                        <Image 
+                            src={selectedResultado.imageUrl} 
+                            alt={selectedResultado.title} 
+                            fill
+                            className="object-contain rounded-md"
+                        />
+                    </div>
+                    <div className="space-y-4">
+                        <DialogHeader>
+                            <DialogTitle className="font-headline text-3xl text-primary">{selectedResultado.title}</DialogTitle>
+                        </DialogHeader>
+                        <div className="prose prose-invert max-w-none">
+                            <p className="text-sm font-semibold text-muted-foreground flex items-start gap-2">
+                                <Wand2 className="h-4 w-4 mt-1 text-primary shrink-0"/> 
+                                <span>{selectedResultado.prompt}</span>
+                            </p>
+                        </div>
+                         <Button variant="outline" onClick={() => setSelectedResultado(null)}>Cerrar</Button>
+                    </div>
+                </div>
+            )}
+        </DialogContent>
+      </Dialog>
+
     </div>
   );
 }
-
-    
