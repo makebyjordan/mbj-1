@@ -5,7 +5,7 @@ import { useState, useEffect } from 'react';
 import Image from 'next/image';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil, Code, Server, BookCopy, FileText, ChevronDown, DollarSign, Github, Users } from "lucide-react";
+import { PlusCircle, Edit, Trash2, Loader2, Star, Youtube, Link2, Folder, Image as ImageIcon, FileCode, Briefcase, Library, Terminal, Palette, BookOpen, Copy, MoreHorizontal, Eye, Pencil, Code, Server, BookCopy, FileText, ChevronDown, DollarSign, Github, Users, Sparkles } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -51,6 +51,7 @@ import { getToolCategories, deleteToolCategory, ToolCategory } from '@/services/
 import { getSajorItems, deleteSajorItem, SajorItem } from '@/services/sajor';
 import { getGitProtocols, deleteGitProtocol, GitProtocol } from '@/services/git';
 import { getTeamItems, deleteTeamItem, TeamItem } from '@/services/team';
+import { getResultados, deleteResultado, Resultado } from '@/services/resultados';
 
 import ProjectForm from '@/components/core/ProjectForm';
 import ServiceForm from '@/components/core/ServiceForm';
@@ -74,6 +75,7 @@ import ToolForm from '@/components/core/ToolForm';
 import SajorForm from '@/components/core/SajorForm';
 import GitForm from '@/components/core/GitForm';
 import TeamForm from '@/components/core/TeamForm';
+import ResultadoForm from '@/components/core/ResultadoForm';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { onSnapshot, collection, query, orderBy, Timestamp } from 'firebase/firestore';
@@ -102,6 +104,7 @@ export default function CoreDashboardPage() {
   const [sajorItems, setSajorItems] = useState<SajorItem[]>([]);
   const [gitProtocols, setGitProtocols] = useState<GitProtocol[]>([]);
   const [teamItems, setTeamItems] = useState<TeamItem[]>([]);
+  const [resultados, setResultados] = useState<Resultado[]>([]);
   
   const [isLoadingProjects, setIsLoadingProjects] = useState(true);
   const [isLoadingServices, setIsLoadingServices] = useState(true);
@@ -123,6 +126,7 @@ export default function CoreDashboardPage() {
   const [isLoadingSajorItems, setIsLoadingSajorItems] = useState(true);
   const [isLoadingGitProtocols, setIsLoadingGitProtocols] = useState(true);
   const [isLoadingTeamItems, setIsLoadingTeamItems] = useState(true);
+  const [isLoadingResultados, setIsLoadingResultados] = useState(true);
 
   const [isProjectDialogOpen, setIsProjectDialogOpen] = useState(false);
   const [isServiceDialogOpen, setIsServiceDialogOpen] = useState(false);
@@ -144,6 +148,7 @@ export default function CoreDashboardPage() {
   const [isSajorDialogOpen, setIsSajorDialogOpen] = useState(false);
   const [isGitFormOpen, setIsGitFormOpen] = useState(false);
   const [isTeamFormOpen, setIsTeamFormOpen] = useState(false);
+  const [isResultadoDialogOpen, setIsResultadoDialogOpen] = useState(false);
 
   const [editingProject, setEditingProject] = useState<Project | null>(null);
   const [editingService, setEditingService] = useState<Service | null>(null);
@@ -164,6 +169,7 @@ export default function CoreDashboardPage() {
   const [editingSajorItem, setEditingSajorItem] = useState<SajorItem | null>(null);
   const [editingGitProtocol, setEditingGitProtocol] = useState<GitProtocol | null>(null);
   const [editingTeamItem, setEditingTeamItem] = useState<TeamItem | null>(null);
+  const [editingResultado, setEditingResultado] = useState<Resultado | null>(null);
   const [deletingAprendePage, setDeletingAprendePage] = useState<AprendePageData | null>(null);
   const [viewingProtocol, setViewingProtocol] = useState<Protocol | null>(null);
   const { toast } = useToast();
@@ -187,6 +193,7 @@ export default function CoreDashboardPage() {
   const fetchSajorItems = async () => { setIsLoadingSajorItems(true); try { const data = await getSajorItems(); setSajorItems(data); } catch (error) { console.error("Error fetching Sajor items:", error); toast({ variant: "destructive", title: "Error al cargar items de Sajor" }); } finally { setIsLoadingSajorItems(false); } };
   const fetchGitProtocols = async () => { setIsLoadingGitProtocols(true); try { const data = await getGitProtocols(); setGitProtocols(data); } catch (error) { console.error("Error fetching Git protocols:", error); toast({ variant: "destructive", title: "Error al cargar protocolos de Git" }); } finally { setIsLoadingGitProtocols(false); } };
   const fetchTeamItems = async () => { setIsLoadingTeamItems(true); try { const data = await getTeamItems(); setTeamItems(data); } catch (error) { console.error("Error fetching team items:", error); toast({ variant: "destructive", title: "Error al cargar elementos del equipo" }); } finally { setIsLoadingTeamItems(false); } };
+  const fetchResultados = async () => { setIsLoadingResultados(true); try { const data = await getResultados(); setResultados(data); } catch (error) { console.error("Error fetching resultados:", error); toast({ variant: "destructive", title: "Error al cargar resultados" }); } finally { setIsLoadingResultados(false); } };
 
 
   useEffect(() => {
@@ -209,6 +216,7 @@ export default function CoreDashboardPage() {
     fetchSajorItems();
     fetchGitProtocols();
     fetchTeamItems();
+    fetchResultados();
 
     const q = query(collection(db, "aprendePages"), orderBy("createdAt", "desc"));
     const unsubscribe = onSnapshot(q, (querySnapshot) => { const pagesData: AprendePageData[] = []; querySnapshot.forEach((doc) => { const data = doc.data(); pagesData.push({ id: doc.id, ...data } as AprendePageData); }); setAprendePages(pagesData); setIsLoadingAprendePages(false); }, (err) => { console.error("Error fetching Aprende Pages in real-time: ", err); toast({ variant: "destructive", title: "Error al cargar páginas" }); setIsLoadingAprendePages(false); } );
@@ -237,6 +245,7 @@ export default function CoreDashboardPage() {
   const handleSajorSaved = () => { setIsSajorDialogOpen(false); setEditingSajorItem(null); fetchSajorItems(); toast({ title: "Elemento Sajor guardado" }); };
   const handleGitProtocolSaved = () => { setIsGitFormOpen(false); setEditingGitProtocol(null); fetchGitProtocols(); toast({ title: "Protocolo Git guardado" }); };
   const handleTeamItemSaved = () => { setIsTeamFormOpen(false); setEditingTeamItem(null); fetchTeamItems(); toast({ title: "Elemento de equipo guardado" }); };
+  const handleResultadoSaved = () => { setIsResultadoDialogOpen(false); setEditingResultado(null); fetchResultados(); toast({ title: "Resultado guardado" }); };
 
 
   const handleEditProject = (project: Project) => { setEditingProject(project); setIsProjectDialogOpen(true); };
@@ -277,6 +286,8 @@ export default function CoreDashboardPage() {
   const handleAddNewGitProtocol = () => { setEditingGitProtocol(null); setIsGitFormOpen(true); };
   const handleEditTeamItem = (item: TeamItem) => { setEditingTeamItem(item); setIsTeamFormOpen(true); };
   const handleAddNewTeamItem = () => { setEditingTeamItem(null); setIsTeamFormOpen(true); };
+  const handleEditResultado = (resultado: Resultado) => { setEditingResultado(resultado); setIsResultadoDialogOpen(true); };
+  const handleAddNewResultado = () => { setEditingResultado(null); setIsResultadoDialogOpen(true); };
   
   const handleDeleteProject = async (projectId: string) => { try { await deleteProject(projectId); fetchProjects(); toast({ title: "Eliminado" }); } catch (error) { console.error("Error deleting project:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
   const handleDeleteService = async (serviceId: string) => { try { await deleteService(serviceId); fetchServices(); toast({ title: "Servicio eliminado" }); } catch (error) { console.error("Error deleting service:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
@@ -297,6 +308,7 @@ export default function CoreDashboardPage() {
   const handleDeleteSajorItem = async (itemId: string) => { try { await deleteSajorItem(itemId); fetchSajorItems(); toast({ title: "Elemento Sajor eliminado" }); } catch (error) { console.error("Error deleting Sajor item:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
   const handleDeleteGitProtocol = async (protocolId: string) => { try { await deleteGitProtocol(protocolId); fetchGitProtocols(); toast({ title: "Protocolo Git eliminado" }); } catch (error) { console.error("Error deleting Git protocol:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
   const handleDeleteTeamItem = async (itemId: string) => { try { await deleteTeamItem(itemId); fetchTeamItems(); toast({ title: "Elemento de equipo eliminado" }); } catch (error) { console.error("Error deleting team item:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
+  const handleDeleteResultado = async (resultadoId: string) => { try { await deleteResultado(resultadoId); fetchResultados(); toast({ title: "Resultado eliminado" }); } catch (error) { console.error("Error deleting resultado:", error); toast({ variant: "destructive", title: "Error al eliminar" }); } };
 
   const handleConfirmDeleteAprendePage = async () => {
     if (!deletingAprendePage) return;
@@ -352,6 +364,9 @@ export default function CoreDashboardPage() {
         <Dialog open={isTeamFormOpen} onOpenChange={(isOpen) => { setIsTeamFormOpen(isOpen); if (!isOpen) setEditingTeamItem(null); }}>
             <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{editingTeamItem ? 'Editar' : 'Añadir'} Elemento de Equipo</DialogTitle></DialogHeader><TeamForm item={editingTeamItem} onSave={handleTeamItemSaved} /></DialogContent>
         </Dialog>
+        <Dialog open={isResultadoDialogOpen} onOpenChange={(isOpen) => { setIsResultadoDialogOpen(isOpen); if (!isOpen) setEditingResultado(null); }}>
+            <DialogContent className="sm:max-w-[625px] glass-card max-h-[90vh] overflow-y-auto"><DialogHeader><DialogTitle>{editingResultado ? 'Editar' : 'Añadir'} Resultado</DialogTitle></DialogHeader><ResultadoForm resultado={editingResultado} onSave={handleResultadoSaved} /></DialogContent>
+        </Dialog>
          <AlertDialog open={!!deletingAprendePage} onOpenChange={(isOpen) => !isOpen && setDeletingAprendePage(null)}>
             <AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción no se puede deshacer.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={handleConfirmDeleteAprendePage}>Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent>
         </AlertDialog>
@@ -387,7 +402,7 @@ export default function CoreDashboardPage() {
         </Dialog>
 
         <Tabs defaultValue="pagina" className="w-full">
-          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-17 h-auto">
+          <TabsList className="grid w-full grid-cols-2 md:grid-cols-6 lg:grid-cols-18 h-auto">
             <TabsTrigger value="pagina">Página Principal</TabsTrigger>
             <TabsTrigger value="servicios">Servicios</TabsTrigger>
             <TabsTrigger value="proyectos">Proyectos/Blog</TabsTrigger>
@@ -395,6 +410,7 @@ export default function CoreDashboardPage() {
             <TabsTrigger value="links">Enlaces</TabsTrigger>
             <TabsTrigger value="shorts">Shorts</TabsTrigger>
             <TabsTrigger value="prompts">Prompts</TabsTrigger>
+            <TabsTrigger value="resultados">Resultados</TabsTrigger>
             <TabsTrigger value="galeria">Galería</TabsTrigger>
             <TabsTrigger value="disenos">Diseños</TabsTrigger>
             <TabsTrigger value="n8n">N8N</TabsTrigger>
@@ -435,6 +451,48 @@ export default function CoreDashboardPage() {
              <Card><CardHeader className="flex flex-row items-center justify-between"><CardTitle>Prompts</CardTitle><Dialog open={isPromptDialogOpen} onOpenChange={(isOpen) => { setIsPromptDialogOpen(isOpen); if (!isOpen) setEditingPrompt(null); }}><DialogTrigger asChild><Button onClick={handleAddNewPrompt}><PlusCircle className="mr-2 h-4 w-4" />Añadir Prompt</Button></DialogTrigger><DialogContent className="sm:max-w-[625px] glass-card"><DialogHeader><DialogTitle>{editingPrompt ? 'Editar' : 'Crear'} Prompt</DialogTitle></DialogHeader><PromptForm prompt={editingPrompt} onSave={handlePromptSaved} /></DialogContent></Dialog></CardHeader><CardContent>{isLoadingPrompts ? (<div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>) : (<Table><TableHeader><TableRow><TableHead className="w-[50px]">Icono</TableHead><TableHead>Título</TableHead><TableHead>Descripción</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow></TableHeader><TableBody>{prompts.map((prompt) => (<TableRow key={prompt.id}><TableCell><Terminal className="h-5 w-5 text-primary" /></TableCell><TableCell className="font-medium">{prompt.title}</TableCell><TableCell className="max-w-[300px] truncate">{prompt.description}</TableCell><TableCell className="text-right"><Button variant="ghost" size="icon" onClick={() => handleEditPrompt(prompt)}><Edit className="h-4 w-4" /></Button><AlertDialog><AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger><AlertDialogContent><AlertDialogHeader><AlertDialogTitle>¿Estás seguro?</AlertDialogTitle><AlertDialogDescription>Esta acción eliminará el prompt.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel>Cancelar</AlertDialogCancel><AlertDialogAction onClick={() => handleDeletePrompt(prompt.id!)}>Eliminar</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog></TableCell></TableRow>))}</TableBody></Table>)}</CardContent></Card>
           </TabsContent>
           
+           <TabsContent value="resultados" className="mt-6">
+            <Card>
+              <CardHeader className="flex flex-row items-center justify-between">
+                <CardTitle>Resultados de IA</CardTitle>
+                <Button onClick={handleAddNewResultado}><PlusCircle className="mr-2 h-4 w-4" />Añadir Resultado</Button>
+              </CardHeader>
+              <CardContent>
+                {isLoadingResultados ? (<div className="flex justify-center items-center h-40"><Loader2 className="h-8 w-8 animate-spin text-primary" /></div>) : (
+                  <Table>
+                    <TableHeader><TableRow><TableHead className="w-[100px]">Imagen</TableHead><TableHead>Título</TableHead><TableHead className="text-right">Acciones</TableHead></TableRow></TableHeader>
+                    <TableBody>
+                      {resultados.map((resultado) => (
+                        <TableRow key={resultado.id}>
+                          <TableCell>
+                            <Image src={resultado.imageUrl} alt={resultado.title} width={60} height={60} className="rounded-md object-cover aspect-square" />
+                          </TableCell>
+                          <TableCell className="font-medium">{resultado.title}</TableCell>
+                          <TableCell className="text-right">
+                            <Button variant="ghost" size="icon" onClick={() => handleEditResultado(resultado)}><Edit className="h-4 w-4" /></Button>
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild><Button variant="ghost" size="icon"><Trash2 className="h-4 w-4 text-destructive" /></Button></AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>¿Estás seguro?</AlertDialogTitle>
+                                  <AlertDialogDescription>Esta acción eliminará el resultado.</AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel>Cancelar</AlertDialogCancel>
+                                  <AlertDialogAction onClick={() => handleDeleteResultado(resultado.id!)}>Eliminar</AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </TableCell>
+                        </TableRow>
+                      ))}
+                    </TableBody>
+                  </Table>
+                )}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
           <TabsContent value="galeria" className="mt-6">
             <Card><CardHeader><CardTitle className="font-headline text-3xl">Galería de Imágenes</CardTitle></CardHeader><CardContent><ImageGallery /></CardContent></Card>
           </TabsContent>
@@ -706,3 +764,5 @@ export default function CoreDashboardPage() {
     </main>
   );
 }
+
+    
