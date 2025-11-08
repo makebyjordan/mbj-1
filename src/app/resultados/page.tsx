@@ -11,6 +11,13 @@ import { Loader2, Wand2 } from "lucide-react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { ScrollArea } from "@/components/ui/scroll-area";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel";
 
 export default function ResultadosPage() {
   const [resultados, setResultados] = useState<Resultado[]>([]);
@@ -31,6 +38,10 @@ export default function ResultadosPage() {
 
     fetchResultados();
   }, []);
+
+  const imagesForSelectedResultado = selectedResultado
+    ? [selectedResultado.imageUrl, selectedResultado.imageUrl2, selectedResultado.imageUrl3].filter(Boolean) as string[]
+    : [];
 
   return (
     <div className="relative w-full flex flex-col items-center overflow-x-hidden bg-background min-h-screen">
@@ -83,23 +94,38 @@ export default function ResultadosPage() {
       <Footer />
       
       <Dialog open={!!selectedResultado} onOpenChange={(isOpen) => !isOpen && setSelectedResultado(null)}>
-        <DialogContent className="sm:max-w-4xl max-h-[90vh] glass-card flex flex-col">
+        <DialogContent className="sm:max-w-4xl h-[90vh] glass-card flex flex-col p-4 md:p-6">
             {selectedResultado && (
               <>
                 <DialogHeader>
                     <DialogTitle className="font-headline text-3xl text-primary">{selectedResultado.title}</DialogTitle>
                 </DialogHeader>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start overflow-hidden">
-                    <div className="relative aspect-square">
-                        <Image 
-                            src={selectedResultado.imageUrl} 
-                            alt={selectedResultado.title} 
-                            fill
-                            className="object-contain rounded-md"
-                        />
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8 items-start flex-grow overflow-hidden">
+                    <div className="relative w-full h-full min-h-[300px] md:min-h-0">
+                       <Carousel className="w-full h-full">
+                          <CarouselContent className="h-full">
+                            {imagesForSelectedResultado.map((imgUrl, index) => (
+                              <CarouselItem key={index} className="h-full flex items-center justify-center">
+                                 <Image 
+                                    src={imgUrl} 
+                                    alt={`${selectedResultado.title} - imagen ${index + 1}`} 
+                                    width={800}
+                                    height={800}
+                                    className="object-contain rounded-md max-w-full max-h-full"
+                                />
+                              </CarouselItem>
+                            ))}
+                          </CarouselContent>
+                           {imagesForSelectedResultado.length > 1 && (
+                            <>
+                                <CarouselPrevious className="left-2" />
+                                <CarouselNext className="right-2" />
+                            </>
+                           )}
+                        </Carousel>
                     </div>
-                    <ScrollArea className="h-full max-h-[65vh] pr-4">
-                        <div className="prose prose-invert max-w-none">
+                    <ScrollArea className="h-full max-h-[calc(80vh-100px)]">
+                        <div className="prose prose-invert max-w-none pr-4">
                             <p className="text-sm font-semibold text-muted-foreground flex items-start gap-2">
                                 <Wand2 className="h-4 w-4 mt-1 text-primary shrink-0"/> 
                                 <span>{selectedResultado.prompt}</span>

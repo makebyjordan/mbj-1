@@ -11,6 +11,8 @@ const ResultadoSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
   prompt: z.string().min(1, "El prompt es requerido."),
   imageUrl: z.string().url("La URL de la imagen es requerida."),
+  imageUrl2: z.string().url().optional().or(z.literal('')),
+  imageUrl3: z.string().url().optional().or(z.literal('')),
   createdAt: z.any().optional(),
 });
 
@@ -28,6 +30,8 @@ const fromFirestore = (snapshot: QueryDocumentSnapshot<DocumentData>): Resultado
         title: data.title,
         prompt: data.prompt,
         imageUrl: data.imageUrl,
+        imageUrl2: data.imageUrl2 || '',
+        imageUrl3: data.imageUrl3 || '',
         createdAt: data.createdAt?.toDate(),
     });
 }
@@ -41,8 +45,10 @@ export const getResultados = async (): Promise<Resultado[]> => {
 
 // SAVE (create or update) a resultado
 export const saveResultado = async (data: ResultadoInput): Promise<string> => {
-    // Also add the image to the general gallery
-    await addImageByUrl(data.imageUrl);
+    // Also add the images to the general gallery
+    if(data.imageUrl) await addImageByUrl(data.imageUrl);
+    if(data.imageUrl2) await addImageByUrl(data.imageUrl2);
+    if(data.imageUrl3) await addImageByUrl(data.imageUrl3);
 
     if (data.id) {
         const { id, ...updateData } = data;
@@ -63,5 +69,3 @@ export const deleteResultado = async (id: string): Promise<void> => {
     const resultadoDoc = doc(db, 'resultados', id);
     await deleteDoc(resultadoDoc);
 };
-
-    

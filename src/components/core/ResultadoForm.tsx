@@ -24,6 +24,8 @@ const formSchema = z.object({
   title: z.string().min(1, "El título es requerido."),
   prompt: z.string().min(1, "El prompt es requerido."),
   imageUrl: z.string().url("Debe ser una URL de imagen válida."),
+  imageUrl2: z.string().url("URL inválida.").optional().or(z.literal('')),
+  imageUrl3: z.string().url("URL inválida.").optional().or(z.literal('')),
 });
 
 type ResultadoFormProps = {
@@ -41,6 +43,8 @@ export default function ResultadoForm({ resultado, onSave }: ResultadoFormProps)
       title: "",
       prompt: "",
       imageUrl: "",
+      imageUrl2: "",
+      imageUrl3: "",
     },
   });
 
@@ -52,6 +56,8 @@ export default function ResultadoForm({ resultado, onSave }: ResultadoFormProps)
             title: "",
             prompt: "",
             imageUrl: "",
+            imageUrl2: "",
+            imageUrl3: "",
         });
     }
   }, [resultado, form]);
@@ -98,9 +104,35 @@ export default function ResultadoForm({ resultado, onSave }: ResultadoFormProps)
             name="imageUrl"
             render={({ field }) => (
                 <FormItem>
-                <FormLabel>URL de la Imagen</FormLabel>
+                <FormLabel>URL de la Imagen Principal</FormLabel>
                 <FormControl>
                     <Input placeholder="https://ejemplo.com/resultado.png" {...field} className="bg-background/50" />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+             <FormField
+            control={form.control}
+            name="imageUrl2"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>URL de la Imagen 2 (Opcional)</FormLabel>
+                <FormControl>
+                    <Input placeholder="https://ejemplo.com/resultado-2.png" {...field} className="bg-background/50" />
+                </FormControl>
+                <FormMessage />
+                </FormItem>
+            )}
+            />
+             <FormField
+            control={form.control}
+            name="imageUrl3"
+            render={({ field }) => (
+                <FormItem>
+                <FormLabel>URL de la Imagen 3 (Opcional)</FormLabel>
+                <FormControl>
+                    <Input placeholder="https://ejemplo.com/resultado-3.png" {...field} className="bg-background/50" />
                 </FormControl>
                 <FormMessage />
                 </FormItem>
@@ -133,5 +165,3 @@ export default function ResultadoForm({ resultado, onSave }: ResultadoFormProps)
     </Form>
   );
 }
-
-    
